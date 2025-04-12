@@ -1,5 +1,6 @@
 name: inner_voice
-description: "A new Flutter project."
+description: "Video voice communication service to help parents and children communicate in real time"
+
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -44,7 +45,10 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  go_router: ^14.8.1 # state management
+  provider: ^6.1.4 # state management
+  dio: ^5.8.0+1 # request http
+  shared_preferences: ^2.5.3 # save local data(json)
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
