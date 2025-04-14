@@ -47,8 +47,11 @@ dev_dependencies:
   # rules and activating additional ones.
   go_router: ^14.8.1 # set up route
   provider: ^6.1.4 # state management
+  flutter_bloc: ^9.1.0 # bloc pattern & state management
   dio: ^5.8.0+1 # request http
   shared_preferences: ^2.5.3 # save local data(json)
+  flutter_webrtc: ^0.13.1
+  web_socket_channel: ^3.0.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
