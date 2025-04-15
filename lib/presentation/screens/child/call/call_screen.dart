@@ -10,7 +10,7 @@ class CallScreen extends StatefulWidget {
 
 class _CallScreenState extends State<CallScreen> {
   final Dio dio = Dio();
-  final String baseUrl = 'http://10.0.2.2:3000'; // ⚠️ 에뮬레이터 또는 IP에 따라 수정
+  final String baseUrl = 'http://10.0.2.2:3000';
   final String characterId = 'char1';
   final String roomId = 'roomA';
   final String parentId = 'parent001';
