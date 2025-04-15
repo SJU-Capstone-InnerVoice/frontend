@@ -15,6 +15,10 @@ final GoRouter IVRouter = GoRouter(
       path: '/type',
       builder: (context, state) => const HomeScreen(),
     ),
+    GoRoute(
+      path: '/home',
+      builder: (context, state) => const HomeScreen(),
+    ),
     childRoutes,
     parentRoutes,
   ],

@@ -10,6 +10,10 @@ final parentRoutes = GoRoute(
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
+      path: 'call',
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
       path: 'summary',
       builder: (context, state) => const HomeScreen(),
     ),

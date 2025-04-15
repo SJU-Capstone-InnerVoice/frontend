@@ -13,5 +13,9 @@ final childRoutes = GoRoute(
       path: 'call',
       builder: (context, state) => const HomeScreen(),
     ),
+    GoRoute(
+      path: 'setting',
+      builder: (context, state) => const HomeScreen(),
+    ),
   ],
 );
