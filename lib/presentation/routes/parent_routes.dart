@@ -1,24 +1,21 @@
 import 'package:go_router/go_router.dart';
 import '../screens/parent/parent_screen.dart';
+import '../screens/parent/call/call_screen.dart';
 
-final parentRoutes = GoRoute(
-  path: '/parent',
-  builder: (context, state) => const ParentScreen(),
+final parentRoutes = ShellRoute(
+  builder: (context, state, child) => ParentScreen(child: child),
   routes: [
     GoRoute(
-      path: 'call',
-      builder: (context, state) => const ParentScreen(),
-
+      path: '/parent/call',
+      builder: (context, state) => const CallScreen(),
     ),
     GoRoute(
-      path: 'summary',
-      builder: (context, state) => const ParentScreen(),
-
+      path: '/parent/summary',
+      builder: (context, state) => const CallScreen(),
     ),
     GoRoute(
-      path: 'setting',
-      builder: (context, state) => const ParentScreen(),
-
+      path: '/parent/setting',
+      builder: (context, state) => const CallScreen(),
     ),
   ],
 );

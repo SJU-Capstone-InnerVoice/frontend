@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class ParentScreen extends StatefulWidget {
-  const ParentScreen({Key? key}) : super(key: key);
+  final Widget child;
+  const ParentScreen({Key? key, required this.child}) : super(key: key);
 
   @override
   State<ParentScreen> createState() => _ParentScreenState();
@@ -10,13 +11,7 @@ class ParentScreen extends StatefulWidget {
 
 class _ParentScreenState extends State<ParentScreen> {
   int _selectedIndex = 0;
-
-  final List<String> _routes = [
-    '/parent/home',
-    '/parent/messages',
-    '/parent/notifications',
-    '/parent/settings',
-  ];
+  final List<String> _routes = ['/home', '/message', '/call', '/settings'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -27,16 +22,12 @@ class _ParentScreenState extends State<ParentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+    _selectedIndex = _routes.indexWhere((r) => location.startsWith(r));
+    if (_selectedIndex == -1) _selectedIndex = 0;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('부모 홈'),
-      ),
-      body: const Center(
-        child: Text(
-          '부모 홈 화면입니다.',
-          style: TextStyle(fontSize: 20),
-        ),
-      ),
+      body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
@@ -51,8 +42,8 @@ class _ParentScreenState extends State<ParentScreen> {
             label: '메시지',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: '알림',
+            icon: Icon(Icons.call),
+            label: '대화걸기',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

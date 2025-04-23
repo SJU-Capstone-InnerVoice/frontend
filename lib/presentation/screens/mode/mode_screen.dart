@@ -44,7 +44,7 @@ class ModeScreen extends StatelessWidget {
           if (label == "아이") {
             context.go('/child');
           } else if (label == "부모") {
-            context.go('/parent');
+            context.go('/parent/call');
           }
         },
         style: ElevatedButton.styleFrom(
