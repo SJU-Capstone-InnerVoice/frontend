@@ -11,7 +11,7 @@ class ParentScreen extends StatefulWidget {
 
 class _ParentScreenState extends State<ParentScreen> {
   int _selectedIndex = 0;
-  final List<String> _routes = ['/home', '/message', '/call', '/settings'];
+  final List<String> _routes = ['/parent/call', '/message', '/parent/summary', '/settings'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -34,16 +34,16 @@ class _ParentScreenState extends State<ParentScreen> {
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '홈',
+            icon: Icon(Icons.call),
+            label: '대화요청',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.message),
             label: '메시지',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.call),
-            label: '대화걸기',
+            icon: Icon(Icons.summarize),
+            label: '요약',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
