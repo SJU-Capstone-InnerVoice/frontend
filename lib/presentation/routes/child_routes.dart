@@ -1,21 +1,17 @@
 import 'package:go_router/go_router.dart';
-import '../screens/home/home_screen.dart';
+import '../screens/child/child_screen.dart';
 
 final childRoutes = GoRoute(
   path: '/child',
-  builder: (context, state) => const HomeScreen(),
+  builder: (context, state) => const ChildScreen(),
   routes: [
     GoRoute(
-      path: 'home',
-      builder: (context, state) => const HomeScreen(),
-    ),
-    GoRoute(
       path: 'call',
-      builder: (context, state) => const HomeScreen(),
+      builder: (context, state) => const ChildScreen(),
     ),
     GoRoute(
       path: 'setting',
-      builder: (context, state) => const HomeScreen(),
+      builder: (context, state) => const ChildScreen(),
     ),
   ],
 );

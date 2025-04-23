@@ -31,7 +31,7 @@ class LoginScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  context.go('/home');
+                  context.go('/mode');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
