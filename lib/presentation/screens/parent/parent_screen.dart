@@ -11,7 +11,7 @@ class ParentScreen extends StatefulWidget {
 
 class _ParentScreenState extends State<ParentScreen> {
   int _selectedIndex = 0;
-  final List<String> _routes = ['/parent/call', '/message', '/parent/summary', '/settings'];
+  final List<String> _routes = ['/parent/call', '/parent/summary', '/parent/settings'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -36,10 +36,6 @@ class _ParentScreenState extends State<ParentScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.call),
             label: '대화요청',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message),
-            label: '메시지',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.summarize),
