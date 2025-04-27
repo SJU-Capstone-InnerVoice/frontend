@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 
+import '../../../../core/constants/api/polling_api.dart';
+
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
 
@@ -10,7 +12,7 @@ class CallScreen extends StatefulWidget {
 
 class _CallScreenState extends State<CallScreen> {
   final Dio dio = Dio();
-  final String baseUrl = 'http://10.0.2.2:3000';
+  final String baseUrl = PollingAPI.callRequest;
   final String characterId = 'char1';
   final String roomId = 'roomA';
   final String parentId = 'parent001';
@@ -20,7 +22,7 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> createCallRequest() async {
     try {
-      final response = await dio.post('$baseUrl/call-requests', data: {
+      final response = await dio.post(PollingAPI.callRequest, data: {
         'characterId': characterId,
         'roomId': roomId,
         'from': parentId,
@@ -34,7 +36,7 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> pollCallRequests() async {
     try {
-      final response = await dio.get('$baseUrl/call-requests', queryParameters: {
+      final response = await dio.get(PollingAPI.callRequest, queryParameters: {
         'characterId': characterId,
         'roomId': roomId,
       });
@@ -49,7 +51,7 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> updateCallStatus(String newStatus) async {
     try {
-      final response = await dio.post('$baseUrl/update-call-status-by-parent', data: {
+      final response = await dio.post(PollingAPI.updateCallStatus, data: {
         'characterId': characterId,
         'roomId': roomId,
         'from': parentId,
@@ -78,7 +80,7 @@ class _CallScreenState extends State<CallScreen> {
               child: const Text('2. 요청 폴링 (아이)'),
             ),
             ElevatedButton(
-              onPressed: () => updateCallStatus('accepted'),
+              onPressed: () {updateCallStatus('accepted');pollCallRequests();},
               child: const Text('3. 상태 변경 → 수락 (아이)'),
             ),
             const SizedBox(height: 16),

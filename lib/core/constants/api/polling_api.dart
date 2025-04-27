@@ -3,6 +3,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PollingAPI {
   static final String baseUrl = dotenv.env['POLLING_URL'] ?? '';
-  static final String fetchStatus = '$baseUrl/status';
-  static final String syncData = '$baseUrl/sync';
+  static final String callRequest = '$baseUrl/call-requests';
+  static final String updateCallStatus = '$baseUrl/update-call-status-by-parent';
 }
