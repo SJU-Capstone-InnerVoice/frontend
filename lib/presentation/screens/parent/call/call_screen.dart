@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 
-import '../../../../core/constants/api/polling_api.dart';
+import '../../../../services/call_polling_service.dart';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -11,56 +10,34 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  final Dio dio = Dio();
-  final String baseUrl = PollingAPI.callRequest;
-  final String characterId = 'char1';
-  final String roomId = 'roomA';
-  final String parentId = 'parent001';
-  final String childId = 'child001';
+  late final CallPollingService pollingService;
 
   List<dynamic> polledData = [];
 
+  @override
+  void initState() {
+    super.initState();
+    pollingService = CallPollingService(
+      characterId: 'char1',
+      roomId: 'roomA',
+      parentId: 'parent001',
+      childId: 'child001',
+    );
+  }
+
   Future<void> createCallRequest() async {
-    try {
-      final response = await dio.post(PollingAPI.callRequest, data: {
-        'characterId': characterId,
-        'roomId': roomId,
-        'from': parentId,
-        'to': childId,
-      });
-      print('✅ 요청 생성 완료: ${response.data}');
-    } catch (e) {
-      print('❌ 요청 생성 실패: $e');
-    }
+    await pollingService.createCallRequest();
   }
 
   Future<void> pollCallRequests() async {
-    try {
-      final response = await dio.get(PollingAPI.callRequest, queryParameters: {
-        'characterId': characterId,
-        'roomId': roomId,
-      });
-      setState(() {
-        polledData = response.data['data'];
-      });
-      print('📥 폴링 결과: $polledData');
-    } catch (e) {
-      print('❌ 폴링 실패: $e');
-    }
+    final data = await pollingService.pollCallRequests();
+    setState(() {
+      polledData = data;
+    });
   }
 
   Future<void> updateCallStatus(String newStatus) async {
-    try {
-      final response = await dio.post(PollingAPI.updateCallStatus, data: {
-        'characterId': characterId,
-        'roomId': roomId,
-        'from': parentId,
-        'newStatus': newStatus,
-      });
-      print('🔧 상태 변경 완료: ${response.data}');
-    } catch (e) {
-      print('❌ 상태 변경 실패: $e');
-    }
+    await pollingService.updateCallStatus(newStatus);
   }
 
   @override
@@ -80,7 +57,10 @@ class _CallScreenState extends State<CallScreen> {
               child: const Text('2. 요청 폴링 (아이)'),
             ),
             ElevatedButton(
-              onPressed: () {updateCallStatus('accepted');pollCallRequests();},
+              onPressed: () async {
+                await updateCallStatus('accepted');
+                await pollCallRequests();
+              },
               child: const Text('3. 상태 변경 → 수락 (아이)'),
             ),
             const SizedBox(height: 16),

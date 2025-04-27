@@ -1,46 +1,60 @@
-import 'dart:async';
+import 'package:dio/dio.dart';
+
+import '../../../../core/constants/api/polling_api.dart';
 
 class CallPollingService {
-  final Duration interval;
-  Timer? _timer;
+  final Dio dio = Dio();
+  final String characterId;
+  final String roomId;
+  final String parentId;
+  final String childId;
 
-  CallPollingService({this.interval = const Duration(seconds: 10)});
+  CallPollingService({
+    required this.characterId,
+    required this.roomId,
+    required this.parentId,
+    required this.childId,
+  });
 
-  /// 폴링 시작
-  void start() {
-    _timer?.cancel();
-    _timer = Timer.periodic(interval, (_) async {
-      await _poll();
-    });
-    print('📞 CallPollingService started');
+  Future<void> createCallRequest() async {
+    try {
+      final response = await dio.post(PollingAPI.callRequest, data: {
+        'characterId': characterId,
+        'roomId': roomId,
+        'from': parentId,
+        'to': childId,
+      });
+      print('✅ 요청 생성 완료: ${response.data}');
+    } catch (e) {
+      print('❌ 요청 생성 실패: $e');
+    }
   }
 
-  /// 폴링 종료
-  void stop() {
-    _timer?.cancel();
-    _timer = null;
-    print('📴 CallPollingService stopped');
+  Future<List<dynamic>> pollCallRequests() async {
+    try {
+      final response = await dio.get(PollingAPI.callRequest, queryParameters: {
+        'characterId': characterId,
+        'roomId': roomId,
+      });
+      print('📥 폴링 결과: ${response.data['data']}');
+      return response.data['data'];
+    } catch (e) {
+      print('❌ 폴링 실패: $e');
+      return [];
+    }
   }
 
-  /// 내부 polling 로직
-  Future<void> _poll() async {
-    print('🔄 Checking for call requests...');
-    await _fetchCallRequests();
-    await _updateCallStatus();
+  Future<void> updateCallStatus(String newStatus) async {
+    try {
+      final response = await dio.post(PollingAPI.updateCallStatus, data: {
+        'characterId': characterId,
+        'roomId': roomId,
+        'from': parentId,
+        'newStatus': newStatus,
+      });
+      print('🔧 상태 변경 완료: ${response.data}');
+    } catch (e) {
+      print('❌ 상태 변경 실패: $e');
+    }
   }
-
-  /// 실제 통화 요청 목록을 서버에서 가져오기 (예: REST, Firebase 등)
-  Future<void> _fetchCallRequests() async {
-    // TODO: API 또는 소켓을 통해 통화 요청 데이터 가져오기
-    print('📥 Fetching new call requests...');
-  }
-
-  /// 상태 갱신 (예: 수락 여부, 응답 상태 등 업데이트)
-  Future<void> _updateCallStatus() async {
-    // TODO: 상태 확인 및 변경 요청 전송 등
-    print('🔧 Updating call status...');
-  }
-
-  /// 폴링이 동작 중인지 확인
-  bool get isRunning => _timer != null;
 }
