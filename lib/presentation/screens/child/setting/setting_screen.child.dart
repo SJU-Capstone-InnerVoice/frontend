@@ -42,6 +42,12 @@ class SettingScreen extends StatelessWidget {
               // TODO: 앱 정보 이동
             },
           ),
+          ListTile(
+            title: const Text('로그아웃'),
+            onTap: () {
+              context.go('/login');
+            },
+          ),
         ],
       ),
     );

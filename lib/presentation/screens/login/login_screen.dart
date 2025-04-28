@@ -47,7 +47,7 @@ class LoginScreen extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
-                  context.go('/signup');
+                  context.go('/login/signup');
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -58,6 +58,27 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    // TODO: 아이디 찾기 화면 이동
+                    context.go('/find-id');
+                  },
+                  child: const Text('아이디 찾기', style: TextStyle(color: Colors.grey)),
+                ),
+                const Text('|', style: TextStyle(color: Colors.grey)),
+                TextButton(
+                  onPressed: () {
+                    // TODO: 비밀번호 찾기 화면 이동
+                    context.go('/find-password');
+                  },
+                  child: const Text('비밀번호 찾기', style: TextStyle(color: Colors.grey)),
+                ),
+              ],
+            ),
+
             // Continue as Guest
             TextButton(
               onPressed: () {

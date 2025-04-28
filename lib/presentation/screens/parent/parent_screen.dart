@@ -39,7 +39,7 @@ class _ParentScreenState extends State<ParentScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.summarize),
-            label: '요약',
+            label: '일기',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
