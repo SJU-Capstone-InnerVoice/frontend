@@ -6,10 +6,12 @@
 lib
 ├── core
 │   ├── constants
-│   │   └── api
-│   │       ├── polling_api.dart
-│   │       ├── socket_api.dart
-│   │       └── tts_api.dart
+│   │   ├── api
+│   │   │   ├── polling_api.dart
+│   │   │   ├── socket_api.dart
+│   │   │   └── tts_api.dart
+│   │   └── user
+│   │       └── role.dart
 │   ├── theme
 │   │   ├── iv_colors.dart
 │   │   └── iv_theme.dart
@@ -22,15 +24,20 @@ lib
 │   ├── datasources
 │   │   └── summary_remote_datasource.dart
 │   ├── models
-│   │   └── summary_model.dart
+│   │   ├── summary_model.dart
+│   │   └── user_model.dart
 │   └── repositories
 │       └── chat_repository_impl.dart
 ├── domain
 │   ├── entities
-│   │   └── summary.dart
+│   │   ├── summary.dart
+│   │   └── user.dart
 │   ├── repositories
 │   │   └── chat_repository.dart
 │   └── usecases
+│       ├── handle_conversation_flow.dart
+│       ├── initiate_p2p_connection.dart
+│       ├── register_child.dart
 │       └── summarize_conversation.dart
 ├── injection.dart
 ├── logic
@@ -40,27 +47,49 @@ lib
 │   │       ├── summary_event.dart
 │   │       └── summary_state.dart
 │   └── providers
+│       ├── communication
+│       │   ├── call_polling_provider.dart
+│       │   ├── call_session_provider.dart
+│       │   └── signaling_provider.dart
 │       └── summary
 │           └── summary_provider.dart
 ├── main.dart
 ├── presentation
 │   ├── routes
-│   │   └── router.dart
+│   │   ├── child_routes.dart
+│   │   ├── iv_router.dart
+│   │   └── parent_routes.dart
 │   ├── screens
 │   │   ├── child
-│   │   │   └── child_screen.dart
-│   │   ├── home
-│   │   │   └── home_screen.dart
+│   │   │   ├── call
+│   │   │   │   └── call_screen.child.dart
+│   │   │   ├── child_screen.dart
+│   │   │   └── setting
+│   │   │       └── setting_screen.child.dart
 │   │   ├── login
-│   │   │   └── login_screen.dart
-│   │   ├── parent
-│   │   │   └── parent_screen.dart
-│   │   └── setting
-│   │       └── setting_screen.dart
+│   │   │   ├── find-password
+│   │   │   │   └── find-password.dart
+│   │   │   ├── login_screen.dart
+│   │   │   └── sign-up
+│   │   │       └── sign-up_screen.dart
+│   │   ├── mode
+│   │   │   └── mode_screen.dart
+│   │   └── parent
+│   │       ├── call
+│   │       │   └── call_screen.parent.dart
+│   │       ├── parent_screen.dart
+│   │       ├── setting
+│   │       │   └── setting_screen.parent.dart
+│   │       └── summary
+│   │           └── summary_screen.dart
 │   └── widgets
 │       └── voice_waveform.dart
 └── services
+    ├── call_audio_recording_service.dart
+    ├── call_polling_service.dart
+    ├── stt_summary_service.dart
     ├── summary_service.dart
+    ├── tts_service.dart
     └── web_rtc_service.dart
 ```
 
