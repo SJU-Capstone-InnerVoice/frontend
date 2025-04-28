@@ -35,7 +35,7 @@ class _ParentScreenState extends State<ParentScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.call),
-            label: '대화요청',
+            label: '대화하기',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.summarize),
