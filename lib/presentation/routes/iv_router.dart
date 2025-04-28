@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
-import '../screens/login/signup/signup_screen.dart';
+import '../screens/login/sign-up/sign-up_screen.dart';
+import '../screens/login/find-password/find-password.dart';
 import '../screens/login/login_screen.dart';
 import '../screens/mode/mode_screen.dart';
 
@@ -18,8 +19,12 @@ final GoRouter IVRouter = GoRouter(
       builder: (context, state) => const LoginScreen(),
       routes: [
         GoRoute(
-            path: 'signup',
-          builder: (context, state) => const SignupScreen(),
+          path: 'sign-up',
+          builder: (context, state) => const SignUpScreen(),
+        ),
+        GoRoute(
+          path: 'find-password',
+          builder: (context, state) => const FindPasswordScreen(),
         ),
       ],
     ),

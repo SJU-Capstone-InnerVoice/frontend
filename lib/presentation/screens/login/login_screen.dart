@@ -47,7 +47,7 @@ class LoginScreen extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
-                  context.go('/login/signup');
+                  context.go('/login/sign-up');
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -72,7 +72,7 @@ class LoginScreen extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     // TODO: 비밀번호 찾기 화면 이동
-                    context.go('/find-password');
+                    context.go('/login/find-password');
                   },
                   child: const Text('비밀번호 찾기', style: TextStyle(color: Colors.grey)),
                 ),
