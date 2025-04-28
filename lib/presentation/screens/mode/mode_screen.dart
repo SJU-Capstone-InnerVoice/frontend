@@ -42,7 +42,7 @@ class ModeScreen extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {
           if (label == "아이") {
-            context.go('/child');
+            context.go('/child/call');
           } else if (label == "부모") {
             context.go('/parent/call');
           }
