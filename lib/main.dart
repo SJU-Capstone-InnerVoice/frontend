@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'injection.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: ".env"); // server endpoint address
   runApp(
     MultiProvider(
       providers: providers,

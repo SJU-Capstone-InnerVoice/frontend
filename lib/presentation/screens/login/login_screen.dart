@@ -82,7 +82,7 @@ class LoginScreen extends StatelessWidget {
             // Continue as Guest
             TextButton(
               onPressed: () {
-                context.go('/home');
+                context.go('/');
               },
               child: const Text("비회원으로 계속하기", style: TextStyle(color: Colors.grey)),
             ),

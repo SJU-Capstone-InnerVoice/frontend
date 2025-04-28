@@ -74,7 +74,7 @@ packages:
     source: hosted
     version: "1.5.3"
   dio:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: dio
       sha256: "253a18bbd4851fecba42f7343a1df3a9a4c1d31a2c1b37e221086b4fa8c8dbc9"
@@ -118,8 +118,16 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_advanced_calendar:
+    dependency: "direct main"
+    description:
+      name: flutter_advanced_calendar
+      sha256: "238b4244039e97c8dfad7e239a73bfcc03f7c54699d3da1436ca12dad99ea767"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.3"
   flutter_bloc:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: flutter_bloc
       sha256: "1046d719fbdf230330d3443187cc33cc11963d15c9089f6cc56faa42a4c5f0cc"
@@ -127,7 +135,7 @@ packages:
     source: hosted
     version: "9.1.0"
   flutter_dotenv:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: flutter_dotenv
       sha256: b7c7be5cd9f6ef7a78429cabd2774d3c4af50e79cb2b7593e3d5d763ef95c61b
@@ -145,7 +153,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_webrtc:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: flutter_webrtc
       sha256: "23af761bb812e6f32c34263e62df48aaf26bb08582c8be8cc3170e2a018d1155"
@@ -153,7 +161,7 @@ packages:
     source: hosted
     version: "0.13.1+hotfix.1"
   go_router:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: go_router
       sha256: f02fd7d2a4dc512fec615529824fdd217fecb3a3d3de68360293a551f21634b3
@@ -168,6 +176,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.19.0"
   js:
     dependency: transitive
     description:
@@ -249,7 +265,7 @@ packages:
     source: hosted
     version: "1.9.0"
   path_provider:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: path_provider
       sha256: "50c5dd5b6e1aaf6fb3a78b33f6aa3afca52bf903a8a5298f53101fdaee55bbcd"
@@ -313,7 +329,7 @@ packages:
     source: hosted
     version: "2.1.8"
   provider:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: provider
       sha256: "489024f942069c2920c844ee18bb3d467c69e48955a4f32d1677f71be103e310"
@@ -321,7 +337,7 @@ packages:
     source: hosted
     version: "6.1.4"
   shared_preferences:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: shared_preferences
       sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"
@@ -478,7 +494,7 @@ packages:
     source: hosted
     version: "0.1.6"
   web_socket_channel:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: web_socket_channel
       sha256: "0b8e2457400d8a859b7b2030786835a28a8e80836ef64402abef392ff4f1d0e5"
