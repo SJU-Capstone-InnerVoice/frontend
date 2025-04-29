@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
+import '../../../../services/call_polling_service.dart';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -9,93 +9,127 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  final Dio dio = Dio();
-  final String baseUrl = 'http://10.0.2.2:3000';
-  final String characterId = 'char1';
-  final String roomId = 'roomA';
-  final String parentId = 'parent001';
-  final String childId = 'child001';
+  late final CallPollingService callPollingService;
+  bool hasCallRequest = false;
 
-  List<dynamic> polledData = [];
-
-  Future<void> createCallRequest() async {
-    try {
-      final response = await dio.post('$baseUrl/call-requests', data: {
-        'characterId': characterId,
-        'roomId': roomId,
-        'from': parentId,
-        'to': childId,
-      });
-      print('✅ 요청 생성 완료: ${response.data}');
-    } catch (e) {
-      print('❌ 요청 생성 실패: $e');
-    }
+  @override
+  void initState() {
+    super.initState();
+    callPollingService = CallPollingService(
+      characterId: 'char1',
+      roomId: 'roomA',
+      parentId: 'parent001',
+      childId: 'child001',
+    );
   }
 
-  Future<void> pollCallRequests() async {
-    try {
-      final response = await dio.get('$baseUrl/call-requests', queryParameters: {
-        'characterId': characterId,
-        'roomId': roomId,
-      });
-      setState(() {
-        polledData = response.data['data'];
-      });
-      print('📥 폴링 결과: $polledData');
-    } catch (e) {
-      print('❌ 폴링 실패: $e');
-    }
+  Future<void> pollCallRequest() async {
+    final data = await callPollingService.pollCallRequests();
+    setState(() {
+      hasCallRequest = data.isNotEmpty;
+    });
   }
 
-  Future<void> updateCallStatus(String newStatus) async {
-    try {
-      final response = await dio.post('$baseUrl/update-call-status-by-parent', data: {
-        'characterId': characterId,
-        'roomId': roomId,
-        'from': parentId,
-        'newStatus': newStatus,
-      });
-      print('🔧 상태 변경 완료: ${response.data}');
-    } catch (e) {
-      print('❌ 상태 변경 실패: $e');
-    }
+  Future<void> acceptCallRequest() async {
+    await callPollingService.updateCallStatus('accepted');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Call Polling 테스트')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: createCallRequest,
-              child: const Text('1. 요청 생성 (부모)'),
-            ),
-            ElevatedButton(
-              onPressed: pollCallRequests,
-              child: const Text('2. 요청 폴링 (아이)'),
-            ),
-            ElevatedButton(
-              onPressed: () => updateCallStatus('accepted'),
-              child: const Text('3. 상태 변경 → 수락 (아이)'),
-            ),
-            const SizedBox(height: 16),
-            const Text('📋 현재 요청 목록:', style: TextStyle(fontWeight: FontWeight.bold)),
-            Expanded(
-              child: ListView.builder(
-                itemCount: polledData.length,
-                itemBuilder: (context, index) {
-                  final item = polledData[index];
-                  return ListTile(
-                    title: Text('From: ${item['from']} → To: ${item['to']}'),
-                    subtitle: Text('Status: ${item['status']}'),
-                  );
-                },
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              Center(
+                child: Text(
+                  hasCallRequest ? '대화 요청이 왔어요!' : '대화 요청이 없어요',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            )
-          ],
+              const SizedBox(height: 40),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      '대화방 이름',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      '캐릭터 정보',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+
+              // ✅ 갱신 버튼
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: pollCallRequest,
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.orange),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text(
+                    '갱신',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // ✅ 대화 하고 싶어요 버튼
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: hasCallRequest ? acceptCallRequest : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    disabledBackgroundColor: Colors.grey.shade300,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text(
+                    '대화 하고 싶어요!',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
