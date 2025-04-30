@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../services/call_polling_service.dart';
@@ -12,6 +13,7 @@ class CallScreen extends StatefulWidget {
 class _CallScreenState extends State<CallScreen> {
   late final CallPollingService callPollingService;
   bool hasCallRequest = false;
+  Timer? _pollingTimer;
 
   @override
   void initState() {
@@ -22,6 +24,13 @@ class _CallScreenState extends State<CallScreen> {
       parentId: 'parent001',
       childId: 'child001',
     );
+    _startPolling();
+  }
+
+  void _startPolling() {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
+      await pollCallRequest();
+    });
   }
 
   Future<void> pollCallRequest() async {
@@ -32,6 +41,7 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   Future<void> acceptCallRequest() async {
+    _pollingTimer?.cancel();
     await callPollingService.updateCallStatus('accepted');
     final data = await callPollingService.pollCallRequests();
     setState(() {
@@ -39,7 +49,11 @@ class _CallScreenState extends State<CallScreen> {
     });
     context.go('/child/call/call-start');
   }
-
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,31 +97,6 @@ class _CallScreenState extends State<CallScreen> {
                 ),
               ),
               const Spacer(),
-
-              // ✅ 갱신 버튼
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: pollCallRequest,
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.orange),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: const Text(
-                    '갱신',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.orange,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
 
               // ✅ 대화 하고 싶어요 버튼
               SizedBox(
