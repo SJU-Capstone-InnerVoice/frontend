@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 class ParentScreen extends StatefulWidget {
   final Widget child;
+
   const ParentScreen({Key? key, required this.child}) : super(key: key);
 
   @override
@@ -11,7 +12,12 @@ class ParentScreen extends StatefulWidget {
 
 class _ParentScreenState extends State<ParentScreen> {
   int _selectedIndex = 0;
-  final List<String> _routes = ['/parent/call', '/parent/character-info' ,'/parent/summary', '/parent/settings'];
+  final List<String> _routes = [
+    '/parent/call',
+    '/parent/character-info',
+    '/parent/summary',
+    '/parent/settings'
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -20,15 +26,22 @@ class _ParentScreenState extends State<ParentScreen> {
     context.go(_routes[index]);
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
     _selectedIndex = _routes.indexWhere((r) => location.startsWith(r));
     if (_selectedIndex == -1) _selectedIndex = 0;
 
+    final hiddenRoutes = [
+      '/parent/call/call-waiting',
+    ];
+    final hideBottomNav = hiddenRoutes.any((path) => location.startsWith(path));
+
     return Scaffold(
       body: widget.child,
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: hideBottomNav ? null :BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

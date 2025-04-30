@@ -32,6 +32,10 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> acceptCallRequest() async {
     await callPollingService.updateCallStatus('accepted');
+    final data = await callPollingService.pollCallRequests();
+    setState(() {
+      hasCallRequest = data.isNotEmpty;
+    });
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../services/call_polling_service.dart';
 import '../../../../logic/providers/communication/call_polling_provider.dart';
@@ -41,6 +42,7 @@ class _CallScreenState extends State<CallScreen> {
       await callPollingService.createCallRequest();
       print('Creating call request for $selectedCharacter');
     }
+    context.go('/parent/call/call-waiting');
   }
 
   Future<void> pollCallRequests(BuildContext context) async {
