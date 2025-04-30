@@ -39,7 +39,7 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
         _pollingTimer?.cancel();
         _dotTimer?.cancel();
         if (context.mounted) {
-          print("매칭 성공!");
+          context.go('/parent/call/call-start');
           await _pollingService.deleteCallRequest();
         }
       }
@@ -64,12 +64,15 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text('대기 중'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: ()  async {
+            await _pollingService.deleteCallRequest();
+            context.pop();
+          },
         ),
       ),
       body: Center(
