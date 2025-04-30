@@ -40,6 +40,7 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
         _dotTimer?.cancel();
         if (context.mounted) {
           print("매칭 성공!");
+          await _pollingService.deleteCallRequest();
         }
       }
     });

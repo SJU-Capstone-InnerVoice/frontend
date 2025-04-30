@@ -57,4 +57,17 @@ class CallPollingService {
       print('❌ 상태 변경 실패: $e');
     }
   }
+
+  Future<void> deleteCallRequest() async {
+    try {
+      final response = await dio.delete(PollingAPI.callRequest, data: {
+        'characterId': characterId,
+        'roomId': roomId,
+        'from': parentId,
+      });
+      print('🗑️ 요청 삭제 성공: ${response.data}');
+    } catch (e) {
+      print('❌ 요청 삭제 실패: $e');
+    }
+  }
 }
