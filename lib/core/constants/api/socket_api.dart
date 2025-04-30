@@ -1,7 +1,7 @@
 // core/constants/api/socket_api.dart
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SocketAPI {
-  static const String baseUrl = 'ws://example.com';
-  static const String chatRoom = '$baseUrl/chat';
-  static const String notification = '$baseUrl/notifications';
+  static final String baseUrl = dotenv.env['SOCKET_URL'] ?? '';
+  static final String stun = dotenv.env['STUN_URL'] ?? '';
 }
