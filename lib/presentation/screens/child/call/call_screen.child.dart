@@ -47,7 +47,11 @@ class _CallScreenState extends State<CallScreen> {
     setState(() {
       hasCallRequest = data.isNotEmpty;
     });
-    context.go('/child/call/call-start');
+    context.push('/child/call/call-start').then((_) {
+      // 돌아왔을 때 polling 재시작 + UI 갱신
+      _startPolling();
+      pollCallRequest();
+    });
   }
   @override
   void dispose() {
