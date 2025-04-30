@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../services/call_polling_service.dart';
 
 class CallScreen extends StatefulWidget {
@@ -36,6 +37,7 @@ class _CallScreenState extends State<CallScreen> {
     setState(() {
       hasCallRequest = data.isNotEmpty;
     });
+    context.go('/child/call/call-start');
   }
 
   @override

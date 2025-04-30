@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import '../screens/child/child_screen.dart';
 import '../screens/child/call/call_screen.child.dart';
+import '../screens/child/call/call-start/call-start_screen.child.dart';
 import '../screens/child/setting/setting_screen.child.dart';
 
 final childRoutes = ShellRoute(
@@ -9,6 +10,12 @@ final childRoutes = ShellRoute(
     GoRoute(
       path: '/child/call',
       builder: (context, state) => const CallScreen(),
+      routes: [
+        GoRoute(
+          path: 'call-start',
+          builder: (context, state) => const CallStartScreen(),
+        ),
+      ],
     ),
     GoRoute(
       path: '/child/settings',

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 class ChildScreen extends StatefulWidget {
   final Widget child;
+
   const ChildScreen({Key? key, required this.child}) : super(key: key);
 
   @override
@@ -26,23 +27,30 @@ class _ChildScreenState extends State<ChildScreen> {
     _selectedIndex = _routes.indexWhere((r) => location.startsWith(r));
     if (_selectedIndex == -1) _selectedIndex = 0;
 
+    final hiddenRoutes = [
+      '/child/call/call-start',
+    ];
+    final hideBottomNav = hiddenRoutes.any((path) => location.startsWith(path));
+
     return Scaffold(
       body: widget.child,
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.call),
-            label: '대화하기',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '설정',
-          ),
-        ],
-      ),
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.call),
+                  label: '대화하기',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings),
+                  label: '설정',
+                ),
+              ],
+            ),
     );
   }
 }
