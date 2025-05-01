@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddCharacterScreen extends StatefulWidget {
   const AddCharacterScreen({super.key});
@@ -8,8 +10,23 @@ class AddCharacterScreen extends StatefulWidget {
 }
 
 class _AddCharacterScreenState extends State<AddCharacterScreen> {
+  File? _image;
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked != null) {
+      setState(() {
+        _image = File(picked.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool hasImage = _image != null;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -18,32 +35,47 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 사진 선택 박스
-              Container(
-                height: 160,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: hasImage ? Colors.orange : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.help_outline, size: 40, color: Colors.white),
-                      SizedBox(height: 8),
+                      if (hasImage)
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.white,
+                          ),
+                          clipBehavior: Clip.hardEdge,
+                          child: Image.file(
+                            _image!,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      else
+                        const Icon(Icons.help_outline, size: 40, color: Colors.white),
+                      const SizedBox(height: 12),
                       Text(
-                        '사진 선택하기',
-                        style: TextStyle(
+                        hasImage ? '사진 다시 선택하기' : '사진 선택하기',
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.white,
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 24),
 
-              // 음성 합성하기 버튼
               ElevatedButton(
                 onPressed: () {
                   // 음성 합성 로직
@@ -58,9 +90,8 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
 
               const Spacer(),
 
-              // 비활성화된 버튼
               ElevatedButton(
-                onPressed: null, // 비활성화 상태
+                onPressed: null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],
                   foregroundColor: Colors.grey[600],
