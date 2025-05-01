@@ -102,9 +102,9 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
                 onPressed: (hasImage && hasVoice)
                     ? () {
                         print("이미지 업로드");
-                        context
-                            .read<CharacterImgProvider>()
-                            .uploadImage("user001", "char001", _image!);
+                        // context
+                        //     .read<CharacterImgProvider>()
+                        //     .uploadImage("user001", "char001", _image!);
                       }
                     : null,
                 style: (hasImage && hasVoice)
