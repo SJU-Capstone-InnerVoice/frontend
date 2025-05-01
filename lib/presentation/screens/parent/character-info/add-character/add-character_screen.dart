@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 
 class AddCharacterScreen extends StatefulWidget {
   const AddCharacterScreen({super.key});
@@ -79,6 +80,7 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
               ElevatedButton(
                 onPressed: () {
                   // 음성 합성 로직
+                  context.go('/parent/character-info/add/voice-synthesis');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],
