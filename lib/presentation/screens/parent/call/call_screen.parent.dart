@@ -17,12 +17,6 @@ class _CallScreenState extends State<CallScreen> {
   late final CallPollingService callPollingService;
   String? selectedCharacter;
 
-  final List<Map<String, String>> characters = [
-    {'name': '코끼리', 'image': 'https://picsum.photos/200/300'},
-    {'name': '뽀로로', 'image': 'https://picsum.photos/200/301'},
-    {'name': '하츄핑', 'image': 'https://picsum.photos/200/302'},
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -73,7 +67,7 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final characterImgs = context.watch<CharacterImgProvider>().imageWidgets['parent001'] ?? {}; // userId에 맞게 수정
+    final characterImgs = context.watch<CharacterImgProvider>().imageWidgets['1'] ?? {}; // userId에 맞게 수정
     final characterList = characterImgs.entries.toList();
 
     return Scaffold(

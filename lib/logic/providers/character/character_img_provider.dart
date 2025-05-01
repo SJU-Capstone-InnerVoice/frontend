@@ -7,10 +7,11 @@ class CharacterImgProvider extends ChangeNotifier {
   // userId → characterId → Image 위젯
   final Map<String, Map<String, Image>> _imageWidgets = {};
   final Dio _dio = Dio();
+  bool _hasLoaded = false; /// 트래픽 절감용 최초 1번 or 업로드 시 trigger
 
   Map<String, Map<String, Image>> get imageWidgets => _imageWidgets;
 
-  Future<Image?> uploadImage({
+  Future<void> uploadImage({
     required String userId,
     required String name,
     required String type,
@@ -28,6 +29,7 @@ class CharacterImgProvider extends ChangeNotifier {
           filename: file.path.split('/').last,
         ),
       });
+
       print('📦 FormData 필드 목록:');
       for (var field in formData.fields) {
         print('  ${field.key} : ${field.value}');
@@ -39,25 +41,23 @@ class CharacterImgProvider extends ChangeNotifier {
       }
 
       Response response = await _dio.post(uploadUrl, data: formData);
+
       if (response.statusCode == 200) {
-        final String imageUrl = response.data['url'];
+        print('✅ 이미지 업로드 성공');
+        _hasLoaded = false;
 
-        _imageWidgets.putIfAbsent(userId, () => {});
-        _imageWidgets[userId]![name] = Image.network(imageUrl);
-
-        notifyListeners();
-        return _imageWidgets[userId]![name];
       } else {
-        throw Exception('서버 업로드 실패: ${response.data}');
+        throw Exception('🚫 서버 업로드 실패: ${response.data}');
       }
-
     } catch (e) {
       print('❌ 이미지 업로드 실패: $e');
-      return null;
     }
   }
   /// 서버에서 이미지 불러오기 (초기 로딩용)
   Future<void> loadImagesFromServer(String userId) async {
+    if (_hasLoaded) return;
+    _hasLoaded = true;
+
     try {
       final String fetchUrl = CharacterImgApi.getCharacterImg(userId);
       Response response = await _dio.get(fetchUrl);
