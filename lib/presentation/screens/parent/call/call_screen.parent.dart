@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../services/call_polling_service.dart';
 import '../../../../logic/providers/communication/call_polling_provider.dart';
+import '../../../../logic/providers/communication/call_session_provider.dart';
+
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
 
@@ -42,6 +44,15 @@ class _CallScreenState extends State<CallScreen> {
       await callPollingService.createCallRequest();
       print('Creating call request for $selectedCharacter');
     }
+    final rtcService = context.read<CallSessionProvider>().rtcService;
+    await rtcService.init(
+      isCaller: true,
+      roomId: 'roomA',
+      onMessage: (message) {
+        print("📩 받은 메시지: $message");
+      },
+    );
+
     context.go('/parent/call/call-waiting');
   }
 
@@ -93,6 +104,7 @@ class _CallScreenState extends State<CallScreen> {
                     return GestureDetector(
                       onTap: () {
                         // TODO: 직접 추가 기능 구현 (선택사항)
+                        context.go('/parent/character-info/add');
                         print('직접 추가하기');
                       },
                       child: Card(

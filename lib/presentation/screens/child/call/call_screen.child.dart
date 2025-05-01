@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../services/call_polling_service.dart';
-
+import '../../../../logic/providers/communication/call_session_provider.dart';
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
 
@@ -47,6 +48,14 @@ class _CallScreenState extends State<CallScreen> {
     setState(() {
       hasCallRequest = data.isNotEmpty;
     });
+    final rtcService = context.read<CallSessionProvider>().rtcService;
+    await rtcService.init(
+      isCaller: true,
+      roomId: 'roomA',
+      onMessage: (message) {
+        print("📩 받은 메시지: $message");
+      },
+    );
     context.push('/child/call/call-start').then((_) {
       // 돌아왔을 때 polling 재시작 + UI 갱신
       _startPolling();

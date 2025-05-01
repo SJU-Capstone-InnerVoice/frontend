@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../../logic/providers/communication/call_session_provider.dart';
 class CallStartScreen extends StatefulWidget {
   const CallStartScreen({super.key});
 
@@ -9,6 +10,17 @@ class CallStartScreen extends StatefulWidget {
 }
 
 class _CallStartScreenState extends State<CallStartScreen> {
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<CallSessionProvider>().rtcService.dispose();
+      }
+    });
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

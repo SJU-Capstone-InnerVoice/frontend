@@ -37,6 +37,7 @@ class _ParentScreenState extends State<ParentScreen> {
     final hiddenRoutes = [
       '/parent/call/call-waiting',
       '/parent/call/call-start',
+      // '/parent/character-info/add'
     ];
     final hideBottomNav = hiddenRoutes.any((path) => location.startsWith(path));
 

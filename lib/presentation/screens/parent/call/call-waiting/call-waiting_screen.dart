@@ -29,6 +29,7 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
     super.initState();
     _startPolling();
     _startDotAnimation();
+
   }
 
   void _startPolling() {

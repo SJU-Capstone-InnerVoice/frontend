@@ -41,15 +41,23 @@ class WebRTCService {
 
   /// 디바이스 내부의 카메라 및 마이크 Stream을 localRenderer에 연결
   Future<void> _startLocalStream() async {
-    final constraints = {
+    late final constraints;
+
+    constraints = {
       'audio': true, // 마이크 on
       'video': {'facingMode': 'user'}, //  전면 카메라 영상
     };
 
     // 기기의 localStream에 미디어 설정
     _localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    // 스피커 루프백 방지
+    if (_isCaller) {
+      // _localStream!.getAudioTracks().forEach((t) => t.enabled = false);
+    }
+    print("🎥 Local stream obtained: ${_localStream?.id}");
     // localRenderer에 위에서 설정한 조건을 등록
     _localRenderer.srcObject = _localStream;
+    print("✅ localRenderer connected to stream.");
   }
 
   /// WebSocket 연결
@@ -57,30 +65,35 @@ class WebRTCService {
     // socket server 연결
     _channel = WebSocketChannel.connect(Uri.parse(SocketAPI.baseUrl));
     // room을 생성하거나 가입
-    _channel!.sink.add(jsonEncode({'type': 'join', 'room': _roomId}));
+    _channel!.sink.add(jsonEncode({
+      'type': 'join',
+      'room': _roomId,
+    }));
 
     // 내 기기에서 스트림으로 들어오는 이벤트를 구독 (계속적)
     _channel!.stream.listen((message) async {
-      // callback, message를 인자로 받아서 실행
-      final data = jsonDecode(message);
-
-      // switch문이지만 서로 양방향으로 순차적이게 이루어지는 구조
-      switch (data['type']) {
-        case 'new_peer': // 1
-          _isCaller = true;
-          await _createPeerConnection();
-          await _createOffer();
-          break;
-        case 'offer': // 2
-          await _createPeerConnection();
-          await _handleOffer(data['sdp']);
-          break;
-        case 'answer': // 3
-          await _handleAnswer(data['sdp']);
-          break;
-        case 'candidate': // 4
-          await _handleCandidate(data['candidate']);
-          break;
+      try {
+        final data = jsonDecode(message);
+        // switch문이지만 서로 양방향으로 순차적이게 이루어지는 구조
+        switch (data['type']) {
+          case 'new_peer': // 1
+            _isCaller = true;
+            await _createPeerConnection();
+            await _createOffer();
+            break;
+          case 'offer': // 2
+            await _createPeerConnection();
+            await _handleOffer(data['sdp']);
+            break;
+          case 'answer': // 3
+            await _handleAnswer(data['sdp']);
+            break;
+          case 'candidate': // 4
+            await _handleCandidate(data['candidate']);
+            break;
+        }
+      } catch (e) {
+        print("❌ WebSocket message parsing error: $e");
       }
     });
   }
@@ -109,19 +122,19 @@ class WebRTCService {
     }
 
     /// Callee가 메시지를 받을 수 있도록 callback 등록
-    if (!_isCaller) {
-      _peerConnection!.onDataChannel = (channel) {
-        _dataChannel = channel; // P2P로부터 들어오는 channel을 등록
-        _setupDataChannel(channel); // WebRTC의 data channel에 등록
-      };
-    }
+    _peerConnection!.onDataChannel = (channel) {
+      _dataChannel = channel; // P2P로부터 들어오는 channel을 등록
+      _setupDataChannel(channel); // WebRTC의 data channel에 등록
+    };
 
     /// 3. Track
     /// localStream에 담긴 Track들을 모두 PeerConnection에 등록 (Audio, Media)
     /// 그리고 상대에게 보내짐
-    _localStream!.getTracks().forEach((track) {
-      _peerConnection!.addTrack(track, _localStream!);
-    });
+    if (_localStream != null) {
+      _localStream!.getTracks().forEach((track) {
+        _peerConnection!.addTrack(track, _localStream!);
+      });
+    }
 
     /// 상대방이 addTrack을 통해 Track을 보낸 것이 내 PeerConnection에 도착했을 때,
     /// 그것을 remoteRenderer의 오브젝트로 등록을 해주는 작업
@@ -140,7 +153,7 @@ class WebRTCService {
       if (candidate.candidate != null) {
         _channel?.sink.add(jsonEncode({
           'type': 'candidate',
-          'cadidate': candidate.toMap(),
+          'candidate': candidate.toMap(),
           'room': _roomId,
         }));
       }
@@ -179,9 +192,24 @@ class WebRTCService {
 
   /// SDP 교환 4단계 : 양측에 candidate 등록
   Future<void> _handleCandidate(Map<String, dynamic> data) async {
+    if (_peerConnection == null) return;
+    if (_peerConnection!.getRemoteDescription == null) {
+      print("❌ Remote Description이 설정되지 않음. ICE Candidate 대기 중...");
+      return;
+    }
+
     final candidate = RTCIceCandidate(
-        data['candidate'], data['sdpMid'], data['sdpMLineIndex']);
-    await _peerConnection!.addCandidate(candidate);
+      data['candidate'],
+      data['sdpMid'],
+      data['sdpMLineIndex'],
+    );
+
+    try {
+      await _peerConnection!.addCandidate(candidate);
+      print("✅ ICE Candidate 추가 성공!");
+    } catch (e) {
+      print("❌ ICE Candidate 추가 실패: $e");
+    }
   }
 
   /// DataChannel 설정
@@ -190,10 +218,11 @@ class WebRTCService {
     // onMessage가 callback인데 onMessageReceived도 callback
     // 그러면 이 DataChannel 객체에 .text에 문자열이 들어있다.
     // 그 텍스트를 다시 callback에 넣어서 호출될 수 있도록 해준다.
-    channel.onMessage = (message){
+    channel.onMessage = (message) {
       onMessageReceived(message.text);
     };
   }
+
   /// DataChannel로 메시지 전송
   void sendChatMessage(String text) {
     _dataChannel?.send(RTCDataChannelMessage(text));
