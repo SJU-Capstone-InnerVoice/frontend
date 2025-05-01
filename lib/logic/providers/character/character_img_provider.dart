@@ -3,16 +3,17 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 class CharacterImgProvider extends ChangeNotifier {
-  final Map<String, Map<String, Image>> _images = {};
+  // userId → characterId → imageUrl
+  final Map<String, Map<String, String>> _imageUrls = {};
   final Dio _dio = Dio();
 
-  Map<String, Map<String, Image>> get images => _images;
+  Map<String, Map<String, String>> get imageUrls => _imageUrls;
 
-  /// 서버에 이미지 업로드 후 로컬에 저장
-  Future<void> uploadImage(String userId, String characterId, File file) async {
+  /// 서버에 이미지 업로드 후 URL만 저장
+  Future<String?> uploadImage(String userId, String characterId, File file) async {
     try {
-      // 1. 서버로 업로드
-      String uploadUrl = 'https://your.api.com/upload'; // 실제 서버 URL로 변경
+      const uploadUrl = 'https://your.api.com/upload'; // 실제 서버 URL로 교체
+
       FormData formData = FormData.fromMap({
         'userId': userId,
         'characterId': characterId,
@@ -22,15 +23,24 @@ class CharacterImgProvider extends ChangeNotifier {
       Response response = await _dio.post(uploadUrl, data: formData);
 
       if (response.statusCode == 200 && response.data['success'] == true) {
-        // 2. 성공 시 로컬에도 저장
-        _images.putIfAbsent(userId, () => {});
-        _images[userId]![characterId] = Image.file(file);
+        final String imageUrl = response.data['url'];
+
+        _imageUrls.putIfAbsent(userId, () => {});
+        _imageUrls[userId]![characterId] = imageUrl;
+
         notifyListeners();
+        return imageUrl; // ✅ URL 반환
       } else {
         throw Exception('서버 업로드 실패: ${response.data}');
       }
     } catch (e) {
       print('❌ 이미지 업로드 실패: $e');
+      return null;
     }
+  }
+
+  /// 이미지 URL 조회
+  String? getImageUrl(String userId, String characterId) {
+    return _imageUrls[userId]?[characterId];
   }
 }
