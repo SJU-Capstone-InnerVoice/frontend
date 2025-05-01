@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../services/call_polling_service.dart';
 import '../../../../logic/providers/communication/call_polling_provider.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
+import '../../../../logic/providers/character/character_img_provider.dart';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -28,9 +29,13 @@ class _CallScreenState extends State<CallScreen> {
     callPollingService = CallPollingService(
       characterId: 'char1',
       roomId: 'roomA',
-      parentId: 'parent001',
+      parentId: '1',
       childId: 'child001',
     );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CharacterImgProvider>().loadImagesFromServer('1');
+    });
   }
   void selectCharacter(String name) {
     setState(() {
@@ -68,6 +73,9 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final characterImgs = context.watch<CharacterImgProvider>().imageWidgets['parent001'] ?? {}; // userId에 맞게 수정
+    final characterList = characterImgs.entries.toList();
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -81,21 +89,24 @@ class _CallScreenState extends State<CallScreen> {
                   crossAxisSpacing: 16,
                   childAspectRatio: 0.8,
                 ),
-                itemCount: characters.length + 1, // 직접 추가 버튼 포함
+                itemCount: characterList.length + 1,
                 itemBuilder: (context, index) {
-                  if (index < characters.length) {
-                    final character = characters[index];
-                    final isSelected = selectedCharacter == character['name'];
+                  if (index < characterList.length) {
+                    final entry = characterList[index];
+                    final characterId = entry.key;
+                    final imageWidget = entry.value;
+                    final isSelected = selectedCharacter == characterId;
+
                     return GestureDetector(
-                      onTap: () => selectCharacter(character['name']!),
+                      onTap: () => selectCharacter(characterId),
                       child: Card(
                         color: isSelected ? Colors.grey[300] : Colors.white,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.network(character['image']!, width: 60, height: 60),
+                            SizedBox(width: 60, height: 60, child: imageWidget),
                             const SizedBox(height: 8),
-                            Text(character['name']!),
+                            Text(characterId), // 이름 대신 ID 표시, 필요시 이름 매핑 추가
                           ],
                         ),
                       ),
@@ -103,9 +114,7 @@ class _CallScreenState extends State<CallScreen> {
                   } else {
                     return GestureDetector(
                       onTap: () {
-                        // TODO: 직접 추가 기능 구현 (선택사항)
                         context.go('/parent/character-info/add');
-                        print('직접 추가하기');
                       },
                       child: Card(
                         shape: RoundedRectangleBorder(
