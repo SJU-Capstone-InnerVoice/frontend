@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inner_voice/logic/providers/character/character_img_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
 
 class AddCharacterScreen extends StatefulWidget {
   const AddCharacterScreen({super.key});
@@ -64,7 +67,8 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
                           ),
                         )
                       else
-                        const Icon(Icons.help_outline, size: 40, color: Colors.white),
+                        const Icon(Icons.help_outline,
+                            size: 40, color: Colors.white),
                       const SizedBox(height: 12),
                       Text(
                         hasImage ? '사진 다시 선택하기' : '사진 선택하기',
@@ -95,12 +99,25 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
               const Spacer(),
 
               ElevatedButton(
-                onPressed: null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.grey[600],
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+                onPressed: (hasImage && hasVoice)
+                    ? () {
+                        print("이미지 업로드");
+                        context
+                            .read<CharacterImgProvider>()
+                            .uploadImage("user001", "char001", _image!);
+                      }
+                    : null,
+                style: (hasImage && hasVoice)
+                    ? ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[300],
+                        foregroundColor: Colors.orange[600],
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      )
+                    : ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        foregroundColor: Colors.grey[600],
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
                 child: const Text('현재 캐릭터로 대화방 생성'),
               ),
             ],
