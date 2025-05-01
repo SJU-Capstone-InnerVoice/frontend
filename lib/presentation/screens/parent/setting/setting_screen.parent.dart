@@ -19,9 +19,9 @@ class SettingScreen extends StatelessWidget {
             },
           ),
           ListTile(
-            title: const Text('알림 설정'),
+            title: const Text('자녀 관리'),
             onTap: () {
-              // TODO: 알림 설정 이동
+              context.go('/parent/settings/friend-list');
             },
           ),
           ListTile(

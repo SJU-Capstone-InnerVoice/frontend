@@ -7,6 +7,7 @@ import '../screens/parent/character-info/add-character/add-character_screen.dart
 import '../screens/parent/character-info/add-character/voice_synthesis/voice_synthesis_screen.dart';
 import '../screens/parent/summary/summary_screen.dart';
 import '../screens/parent/setting/setting_screen.parent.dart';
+import '../screens/parent/setting/friends/friend_list/friend_list_screen.dart';
 import '../screens/parent/character-info/character-info_screen.dart';
 
 final parentRoutes = ShellRoute(
@@ -49,6 +50,12 @@ final parentRoutes = ShellRoute(
     GoRoute(
       path: '/parent/settings',
       builder: (context, state) => const SettingScreen(),
+      routes: [
+        GoRoute(
+          path: 'friend-list',
+          builder: (context, state) => const FriendListScreen(),
+        ),
+      ],
     ),
   ],
 );

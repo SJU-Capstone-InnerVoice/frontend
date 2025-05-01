@@ -61,10 +61,9 @@ class CharacterImgProvider extends ChangeNotifier {
     try {
       final String fetchUrl = CharacterImgApi.getCharacterImg(userId);
       Response response = await _dio.get(fetchUrl);
-      print(fetchUrl);
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
-        print(data);
+        _imageWidgets[userId] = {};
         for (var item in data) {
           final String characterId = item['id'].toString();
           final String imageUrl = item['imageUrl'];
@@ -74,15 +73,6 @@ class CharacterImgProvider extends ChangeNotifier {
 
           _imageWidgets[userId]![characterId] = Image.network(imageUrl);
         }
-        _imageWidgets[userId] = {};
-
-        for (var item in data) {
-          final String characterId = item['id'].toString();
-          final String imageUrl = item['imageUrl'];
-
-          _imageWidgets[userId]![characterId] = Image.network(imageUrl);
-        }
-
         notifyListeners();
       } else {
         throw Exception('서버 응답 오류: ${response.statusCode}');
