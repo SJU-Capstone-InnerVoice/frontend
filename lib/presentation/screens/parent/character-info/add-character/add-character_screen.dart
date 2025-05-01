@@ -27,6 +27,8 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
   @override
   Widget build(BuildContext context) {
     final bool hasImage = _image != null;
+    // 임시 설정: 서버에 이미지 업로드 테스트
+    final hasVoice = true;
 
     return Scaffold(
       body: SafeArea(
