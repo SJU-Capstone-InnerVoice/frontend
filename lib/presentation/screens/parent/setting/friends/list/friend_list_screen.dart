@@ -27,7 +27,15 @@ class _FriendListScreenState extends State<FriendListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('친구 목록')),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.go('/parent/settings/');
+          },
+        ),
+        title: const Text('친구 목록'),
+      ),
       body: Column(
         children: [
           Padding(
@@ -38,7 +46,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
                 icon: const Icon(Icons.person_add),
                 label: const Text('친구 요청하기'),
                 onPressed: () {
-                  context.go('/parent/settings/request');
+                  context.go('/parent/settings/friend/request');
                 },
               ),
             ),

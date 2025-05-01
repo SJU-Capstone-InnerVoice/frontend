@@ -21,7 +21,7 @@ class SettingScreen extends StatelessWidget {
           ListTile(
             title: const Text('자녀 관리'),
             onTap: () {
-              context.go('/parent/settings/list');
+              context.go('/parent/settings/friend/list');
             },
           ),
           ListTile(
