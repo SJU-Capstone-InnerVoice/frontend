@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 import '../screens/parent/parent_screen.dart';
 import '../screens/parent/call/call_screen.parent.dart';
 import '../screens/parent/call/call-waiting/call-waiting_screen.dart';
@@ -7,7 +8,8 @@ import '../screens/parent/character-info/add-character/add-character_screen.dart
 import '../screens/parent/character-info/add-character/voice_synthesis/voice_synthesis_screen.dart';
 import '../screens/parent/summary/summary_screen.dart';
 import '../screens/parent/setting/setting_screen.parent.dart';
-import '../screens/parent/setting/friends/friend_list/friend_list_screen.dart';
+import '../screens/parent/setting/friends/friend-list/friend-list_screen.dart';
+import '../screens/parent/setting/friends/friend-request/friend-request_screen.dart';
 import '../screens/parent/character-info/character-info_screen.dart';
 
 final parentRoutes = ShellRoute(
@@ -52,8 +54,18 @@ final parentRoutes = ShellRoute(
       builder: (context, state) => const SettingScreen(),
       routes: [
         GoRoute(
-          path: 'friend-list',
-          builder: (context, state) => const FriendListScreen(),
+          path: 'friend',
+          builder: (context, state) => const SizedBox.shrink(), // dummy
+          routes: [
+            GoRoute(
+              path: 'list',
+              builder: (context, state) => const FriendListScreen(),
+            ),
+            GoRoute(
+              path: 'request',
+              builder: (context, state) => const FriendRequestScreen(),
+            ),
+          ],
         ),
       ],
     ),
