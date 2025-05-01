@@ -1,10 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
-class VoiceSynthesisScreen extends StatelessWidget {
+class VoiceSynthesisScreen extends StatefulWidget {
   const VoiceSynthesisScreen({super.key});
 
   @override
+  State<VoiceSynthesisScreen> createState() => _VoiceSynthesisScreenState();
+}
+
+class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
+  File? _audioFile;
+
+  Future<void> pickAudioFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['mp3', 'wav', 'm4a'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _audioFile = File(result.files.single.path!);
+      });
+      print('선택된 파일: ${_audioFile!.path}');
+    } else {
+      print('파일 선택 취소됨');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final String fileName = _audioFile != null
+        ? _audioFile!.path.split('/').last
+        : '선택된 파일 없음';
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -40,7 +69,14 @@ class VoiceSynthesisScreen extends StatelessWidget {
                   children: [
                     Icon(Icons.play_arrow, size: 30, color: Colors.black54),
                     const SizedBox(width: 12),
-                    const Spacer(),
+                    Expanded(
+                      child: Text(
+                        fileName,
+                        style: const TextStyle(fontSize: 14, color: Colors.black87),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
                     const Text(
                       '00:17',
                       style: TextStyle(fontSize: 14, color: Colors.black54),
@@ -48,6 +84,21 @@ class VoiceSynthesisScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
+              const SizedBox(height: 16),
+
+              // 음성 파일 업로드 버튼
+              ElevatedButton.icon(
+                onPressed: pickAudioFile,
+                icon: const Icon(Icons.upload_file),
+                label: const Text('음성 파일 업로드'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+
               const Spacer(),
 
               // 하단 버튼들

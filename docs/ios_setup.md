@@ -31,3 +31,12 @@ ios/Runner/Info.plist
 <key>NSPhotoLibraryUsageDescription</key>
 <string>사진을 선택하기 위해 필요합니다.</string>
 ```
+
+5. ios 음성 녹음 및 UI에 업로드 권한 추가
+```html
+ios/Runner/Info.plist
+<key>NSMicrophoneUsageDescription</key>
+<string>음성 녹음을 위해 마이크 접근 권한이 필요합니다.</string>
+<key>UIFileSharingEnabled</key>
+<true/>
+```
