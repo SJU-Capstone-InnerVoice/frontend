@@ -2,15 +2,15 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../screens/parent/parent_screen.dart';
 import '../screens/parent/call/call_screen.parent.dart';
-import '../screens/parent/call/call-waiting/call-waiting_screen.dart';
-import '../screens/parent/call/call-start/call-start_screen.parent.dart';
-import '../screens/parent/character-info/add-character/add-character_screen.dart';
-import '../screens/parent/character-info/add-character/voice_synthesis/voice_synthesis_screen.dart';
+import '../screens/parent/call/waiting/call_waiting_screen.dart';
+import '../screens/parent/call/start/call_start_screen.parent.dart';
+import '../screens/parent/character/info/character_info_screen.dart';
+import '../screens/parent/character/add/character_add_screen.dart';
+import '../screens/parent/character/voice/synthesis/voice_synthesis_screen.dart';
 import '../screens/parent/summary/summary_screen.dart';
 import '../screens/parent/setting/setting_screen.parent.dart';
-import '../screens/parent/setting/friends/friend-list/friend-list_screen.dart';
-import '../screens/parent/setting/friends/friend-request/friend-request_screen.dart';
-import '../screens/parent/character-info/character-info_screen.dart';
+import '../screens/parent/setting/friends/list/friend_list_screen.dart';
+import '../screens/parent/setting/friends/request/friend_request_screen.dart';
 
 final parentRoutes = ShellRoute(
   builder: (context, state, child) => ParentScreen(child: child),
@@ -20,25 +20,33 @@ final parentRoutes = ShellRoute(
       builder: (context, state) => const CallScreen(),
       routes: [
         GoRoute(
-          path: 'call-waiting',
+          path: 'waiting',
           builder: (context, state) => const CallWaitingScreen(),
         ),
         GoRoute(
-          path: 'call-start',
+          path: 'start',
           builder: (context, state) => const CallStartScreen(),
         ),
       ],
     ),
     GoRoute(
-      path: '/parent/character-info',
-      builder: (context, state) => const CharacterInfoScreen(),
+      path: '/parent/character',
+      builder: (context, state) => const SizedBox.shrink(), // dummy
       routes: [
+        GoRoute(
+          path: 'info',
+          builder: (context, state) => const CharacterInfoScreen(),
+        ),
         GoRoute(
           path: 'add',
           builder: (context, state) => const AddCharacterScreen(),
+        ),
+        GoRoute(
+          path: 'voice',
+          builder: (context, state) =>const SizedBox.shrink(), // dummy
           routes: [
             GoRoute(
-              path: 'voice-synthesis',
+              path: 'synthesis',
               builder: (context, state) => const VoiceSynthesisScreen(),
             ),
           ],

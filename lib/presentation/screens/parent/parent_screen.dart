@@ -14,7 +14,7 @@ class _ParentScreenState extends State<ParentScreen> {
   int _selectedIndex = 0;
   final List<String> _routes = [
     '/parent/call',
-    '/parent/character-info',
+    '/parent/character/info',
     '/parent/summary',
     '/parent/settings'
   ];
@@ -35,8 +35,8 @@ class _ParentScreenState extends State<ParentScreen> {
     if (_selectedIndex == -1) _selectedIndex = 0;
 
     final hiddenRoutes = [
-      '/parent/call/call-waiting',
-      '/parent/call/call-start',
+      '/parent/call/waiting',
+      '/parent/call/start',
       // '/parent/character-info/add'
     ];
     final hideBottomNav = hiddenRoutes.any((path) => location.startsWith(path));

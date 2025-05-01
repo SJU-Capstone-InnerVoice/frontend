@@ -86,7 +86,7 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
               ElevatedButton(
                 onPressed: () {
                   // 음성 합성 로직
-                  context.go('/parent/character-info/add/voice-synthesis');
+                  context.go('/parent/character/voice/synthesis');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],

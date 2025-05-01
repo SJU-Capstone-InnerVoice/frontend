@@ -38,7 +38,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
                 icon: const Icon(Icons.person_add),
                 label: const Text('친구 요청하기'),
                 onPressed: () {
-                  context.go('/parent/settings/friend-request');
+                  context.go('/parent/settings/request');
                 },
               ),
             ),

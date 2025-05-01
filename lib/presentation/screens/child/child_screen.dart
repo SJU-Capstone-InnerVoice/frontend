@@ -28,7 +28,7 @@ class _ChildScreenState extends State<ChildScreen> {
     if (_selectedIndex == -1) _selectedIndex = 0;
 
     final hiddenRoutes = [
-      '/child/call/call-start',
+      '/child/call/start',
     ];
     final hideBottomNav = hiddenRoutes.any((path) => location.startsWith(path));
 

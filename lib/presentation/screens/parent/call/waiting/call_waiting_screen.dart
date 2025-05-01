@@ -40,7 +40,7 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
         _pollingTimer?.cancel();
         _dotTimer?.cancel();
         if (context.mounted) {
-          context.go('/parent/call/call-start');
+          context.go('/parent/call/start');
           await _pollingService.deleteCallRequest();
         }
       }

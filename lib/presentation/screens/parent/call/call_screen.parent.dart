@@ -52,7 +52,7 @@ class _CallScreenState extends State<CallScreen> {
       },
     );
 
-    context.go('/parent/call/call-waiting');
+    context.go('/parent/call/waiting');
   }
 
   Future<void> pollCallRequests(BuildContext context) async {
@@ -108,7 +108,7 @@ class _CallScreenState extends State<CallScreen> {
                   } else {
                     return GestureDetector(
                       onTap: () {
-                        context.go('/parent/character-info/add');
+                        context.go('/parent/character/add');
                       },
                       child: Card(
                         shape: RoundedRectangleBorder(
