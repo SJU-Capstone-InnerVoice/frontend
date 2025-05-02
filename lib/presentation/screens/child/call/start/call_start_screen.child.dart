@@ -10,6 +10,23 @@ import 'dart:io';
 import '../../../../../core/constants/api/tts_api.dart';
 import '../../../../../logic/providers/network/dio_provider.dart';
 
+class ByteStreamSource extends StreamAudioSource {
+  final List<int> data;
+  ByteStreamSource(this.data);
+
+  @override
+  Future<StreamAudioResponse> request([int? start, int? end]) async {
+    start ??= 0;
+    end ??= data.length;
+    return StreamAudioResponse(
+      sourceLength: data.length,
+      contentLength: end - start,
+      offset: start,
+      stream: Stream.value(data.sublist(start, end)),
+      contentType: 'audio/wav', // 또는 audio/mpeg 등
+    );
+  }
+}
 
 class CallStartScreen extends StatefulWidget {
   const CallStartScreen({super.key});
@@ -38,16 +55,16 @@ class _CallStartScreenState extends State<CallStartScreen> {
   Future<void> configureAudioSession() async {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration(
-      avAudioSessionCategory: AVAudioSessionCategory.playback,
+      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
       avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.allowBluetooth |
       AVAudioSessionCategoryOptions.defaultToSpeaker,
-      avAudioSessionMode: AVAudioSessionMode.defaultMode,
+      avAudioSessionMode: AVAudioSessionMode.spokenAudio,
     ));
   }
 
   Future<void> _speak(BuildContext context, String text, String characterId) async {
     final dio = context.read<DioProvider>().dio;
-    configureAudioSession();
+    await configureAudioSession();
     final player = AudioPlayer();
 
     try {
@@ -58,10 +75,12 @@ class _CallStartScreenState extends State<CallStartScreen> {
       );
 
       final audioBytes = response.data;
-      final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/tts.wav');
-      await file.writeAsBytes(audioBytes);
-      await player.setFilePath('${tempDir.path}/tts.wav');
+      await player.setAudioSource(ByteStreamSource(audioBytes));
+
+      // final tempDir = await getTemporaryDirectory();
+      // final file = File('${tempDir.path}/tts.wav');
+      // await file.writeAsBytes(audioBytes);
+      // await player.setFilePath('${tempDir.path}/tts.wav');
       await player.setVolume(1.0);
       await player.play();
 
