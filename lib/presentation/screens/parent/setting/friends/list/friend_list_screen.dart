@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../../core/constants/api/friends_api.dart';
+import '../../../../../../data/models/friend_model.dart';
 
 class FriendListScreen extends StatefulWidget {
   const FriendListScreen({super.key});
@@ -9,20 +12,44 @@ class FriendListScreen extends StatefulWidget {
 }
 
 class _FriendListScreenState extends State<FriendListScreen> {
-  final List<Map<String, String>> children = [
-    {
-      'name': '철수',
-      'imageUrl': 'https://picsum.photos/seed/1/100/100',
-    },
-    {
-      'name': '영희',
-      'imageUrl': 'https://picsum.photos/seed/2/100/100',
-    },
-    {
-      'name': '민수',
-      'imageUrl': 'https://picsum.photos/seed/3/100/100',
-    },
-  ];
+  final Dio _dio = Dio();
+  List<Friend> _friends = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFriends();
+  }
+
+  Future<void> _fetchFriends() async {
+    try {
+      final response = await _dio.get(
+        FriendsApi.getFriends,
+        queryParameters: {'userId': 2}, // 실제 사용자 ID로 변경
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        setState(() {
+          _friends = data.map((e) => Friend.fromJson(e)).toList();
+          _isLoading = false;
+        });
+        debugPrint('👤 친구 목록 불러오기 완료');
+        for (final friend in _friends) {
+          debugPrint('ID: ${friend.friendId}, 이름: ${friend.friendName}');
+        }
+      } else {
+        throw Exception('서버 오류: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +63,11 @@ class _FriendListScreenState extends State<FriendListScreen> {
         ),
         title: const Text('친구 목록'),
       ),
-      body: Column(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+          ? Center(child: Text('에러 발생: $_error'))
+          : Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -54,18 +85,21 @@ class _FriendListScreenState extends State<FriendListScreen> {
           const Divider(height: 1),
           Expanded(
             child: ListView.builder(
-              itemCount: children.length,
+              itemCount: _friends.length,
               itemBuilder: (context, index) {
-                final child = children[index];
+                final friend = _friends[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: NetworkImage(child['imageUrl']!),
+                    backgroundImage: NetworkImage(
+                      'https://picsum.photos/seed/${friend.friendId}/100/100',
+                    ),
                   ),
-                  title: Text(child['name']!),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  title: Text(friend.friendName),
+                  trailing:
+                  const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${child['name']}을 눌렀습니다')),
+                      SnackBar(content: Text('${friend.friendName}을 눌렀습니다')),
                     );
                   },
                 );
