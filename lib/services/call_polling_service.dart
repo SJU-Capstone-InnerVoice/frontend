@@ -3,13 +3,14 @@ import 'package:dio/dio.dart';
 import '../../../../core/constants/api/polling_api.dart';
 
 class CallPollingService {
-  final Dio dio = Dio();
+  final Dio dio;
   final String characterId;
   final String roomId;
   final String parentId;
   final String childId;
 
   CallPollingService({
+    required this.dio,
     required this.characterId,
     required this.roomId,
     required this.parentId,

@@ -5,7 +5,7 @@ import '../../../../services/call_polling_service.dart';
 import '../../../../logic/providers/communication/call_polling_provider.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
-
+import '../../../../logic/providers/network/dio_provider.dart';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -16,12 +16,15 @@ class CallScreen extends StatefulWidget {
 
 class _CallScreenState extends State<CallScreen> {
   late final CallPollingService callPollingService;
+  late final _dio;
   String? selectedCharacter;
 
   @override
   void initState() {
     super.initState();
+    _dio = context.read<DioProvider>().dio;
     callPollingService = CallPollingService(
+      dio: _dio,
       characterId: 'char1',
       roomId: 'roomA',
       parentId: '1',

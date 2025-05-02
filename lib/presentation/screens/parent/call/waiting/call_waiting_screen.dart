@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../services/call_polling_service.dart';
+import '../../../../../logic/providers/network/dio_provider.dart';
 
 class CallWaitingScreen extends StatefulWidget {
   const CallWaitingScreen({super.key});
@@ -11,12 +13,9 @@ class CallWaitingScreen extends StatefulWidget {
 }
 
 class _CallWaitingScreenState extends State<CallWaitingScreen> {
-  final CallPollingService _pollingService = CallPollingService(
-    characterId: 'char1',
-    roomId: 'roomA',
-    parentId: 'parent001',
-    childId: 'child001',
-  );
+  late final _dio;
+  late final CallPollingService pollingService;
+
 
   Timer? _pollingTimer;
   Timer? _dotTimer;
@@ -27,6 +26,14 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
   @override
   void initState() {
     super.initState();
+    _dio = context.read<DioProvider>().dio;
+    pollingService = CallPollingService(
+      dio: _dio,
+      characterId: 'char1',
+      roomId: 'roomA',
+      parentId: 'parent001',
+      childId: 'child001',
+    );
     _startPolling();
     _startDotAnimation();
 
