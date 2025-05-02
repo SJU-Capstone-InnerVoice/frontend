@@ -13,8 +13,10 @@ class CallStartScreen extends StatefulWidget {
 
 class _CallStartScreenState extends State<CallStartScreen> {
   final TextEditingController _controller = TextEditingController();
+  late final CallSessionProvider _callSession;
+
   final List<Map<String, String>> _messages = [
-    {'time': '11:50', 'type': 'user', 'text ': '오늘 하루 어땠어?'},
+    {'time': '11:50', 'type': 'user', 'text': '오늘 하루 어땠어?'},
     {
       'time': '11:51',
       'type': 'user',
@@ -26,21 +28,25 @@ class _CallStartScreenState extends State<CallStartScreen> {
   void initState() {
     super.initState();
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _callSession = context.read<CallSessionProvider>();
+  }
+
   _onSendPressed() {
     final text = _controller.text.trim();
     if (text.isNotEmpty) {
       _controller.clear();
     }
   }
+
   @override
   void dispose() {
+    print("CallStartScreen dispose 실행됨");
     _controller.dispose();
-    super.dispose();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<CallSessionProvider>().rtcService.dispose();
-      }
-    });
+    _callSession.disposeCall();
     super.dispose();
   }
 
@@ -54,32 +60,29 @@ class _CallStartScreenState extends State<CallStartScreen> {
             children: [
               // 🔵 상단 영상
               // 🔵 상단 영상 + 내 영상
-              AspectRatio(
-                aspectRatio: 4 / 3,
-                child: Stack(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      color: Colors.black12,
-                      child: RTCVideoView(context.watch<CallSessionProvider>().rtcService.remoteRenderer),
-                    ),
-                    Positioned(
-                      right: 16,
-                      bottom: 16,
-                      width: 100,
-                      height: 130,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white, width: 2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: RTCVideoView(context.watch<CallSessionProvider>().rtcService.localRenderer, mirror: true),
+              ValueListenableBuilder<MediaStream?>(
+                  valueListenable: _callSession.remoteStreamNotifier,
+                  builder: (context, stream, _) {
+                    final rtc = _callSession.rtcService;
+
+                    if (!rtc.initialized) {
+                      return const Center(child: Text('영상 초기화 중입니다...'));
+                    }
+
+                    return AspectRatio(
+                      aspectRatio: 4 / 3,
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            color: Colors.black12,
+                            child: RTCVideoView(rtc.remoteRenderer),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
-          
+                    );
+                  }),
+
               // 🔴 전화 끊기 버튼
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -95,7 +98,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
                   ),
                 ),
               ),
-          
+
               // 💬 채팅 메시지 리스트
               SizedBox(
                 height: 1000,
@@ -139,7 +142,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
                   ],
                 ),
               ),
-          
+
               // ✍️ 입력창 + 전송 버튼
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

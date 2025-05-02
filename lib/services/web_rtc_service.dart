@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:flutter/foundation.dart';
 import '../core/constants/api/socket_api.dart';
+
 
 typedef OnMessageReceived = void Function(String message);
 
@@ -19,8 +22,11 @@ class WebRTCService {
   late OnMessageReceived onMessageReceived; // callback
 
   RTCVideoRenderer get localRenderer => _localRenderer;
-
   RTCVideoRenderer get remoteRenderer => _remoteRenderer;
+  bool get initialized =>
+      remoteRenderer.textureId != null && localRenderer.textureId != null;
+  final ValueNotifier<MediaStream?> remoteStreamNotifier = ValueNotifier(null);
+
 
   Future<void> init(
       {required bool isCaller,
@@ -30,10 +36,11 @@ class WebRTCService {
     _roomId = roomId;
     onMessageReceived = onMessage;
 
-    _localRenderer = RTCVideoRenderer();
     _remoteRenderer = RTCVideoRenderer();
-    await _localRenderer.initialize();
-    await _remoteRenderer.initialize();
+    await remoteRenderer.initialize();
+
+    _localRenderer = RTCVideoRenderer();
+    await localRenderer.initialize();
 
     await _startLocalStream();
     await _connectWebSocket();
@@ -153,6 +160,7 @@ class WebRTCService {
     if (_localStream != null) {
       _localStream!.getTracks().forEach((track) {
         _peerConnection!.addTrack(track, _localStream!);
+
       });
     }
 
@@ -163,6 +171,7 @@ class WebRTCService {
       if (event.streams.isNotEmpty) {
         _remoteRenderer.srcObject =
             event.streams[0]; // [0]은 영상, 음성 이 모두 포함되어 있음.
+        remoteStreamNotifier.value = event.streams[0];
       }
     };
 

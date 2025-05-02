@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import '../../../services/web_rtc_service.dart';
 
 class CallSessionProvider with ChangeNotifier {
@@ -7,9 +8,16 @@ class CallSessionProvider with ChangeNotifier {
   WebRTCService get rtcService => _rtcService;
 
   bool _isCaller = false;
-  bool get isCaller => _isCaller;
 
-  void init({required bool isCaller, required int roomId, required Function(String) onMessage}) async {
+  bool get isCaller => _isCaller;
+  ValueNotifier<MediaStream?> get remoteStreamNotifier =>
+      _rtcService.remoteStreamNotifier;
+
+  void init({
+    required bool isCaller,
+    required int roomId,
+    required Function(String) onMessage,
+  }) async {
     _isCaller = isCaller;
     await _rtcService.init(
       isCaller: isCaller,
@@ -21,6 +29,5 @@ class CallSessionProvider with ChangeNotifier {
 
   void disposeCall() {
     _rtcService.dispose();
-    notifyListeners();
   }
 }

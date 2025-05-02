@@ -61,7 +61,7 @@ class _CallScreenState extends State<CallScreen> {
         print("📩 받은 메시지: $message");
       },
     );
-    context.push('/check/call/start').then((_) {
+    context.push('/child/call/start').then((_) {
       // 돌아왔을 때 polling 재시작 + UI 갱신
       _startPolling();
       pollCallRequest();
@@ -70,6 +70,7 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void dispose() {
     _pollingTimer?.cancel();
+
     super.dispose();
   }
   @override

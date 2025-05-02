@@ -10,14 +10,18 @@ class CallStartScreen extends StatefulWidget {
 }
 
 class _CallStartScreenState extends State<CallStartScreen> {
+  late final CallSessionProvider _callSession;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _callSession = context.read<CallSessionProvider>();
+  }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<CallSessionProvider>().rtcService.dispose();
-      }
-    });
+    print("CallStartScreen dispose 실행됨");
+    _callSession.disposeCall();
     super.dispose();
   }
 
