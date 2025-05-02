@@ -4,5 +4,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class FriendsApi {
   static final String baseUrl = dotenv.env['BACKEND_URL'] ?? '';
 
-  static String requestFriends = '$baseUrl/friends/requests';
+  static String requestFriends = '$baseUrl/friends/request';
+  static String checkRequestFriends = '$baseUrl/friends/requests';
+  static String acceptRequestFriends(int requestId) =>
+      '$baseUrl/friends/requests/$requestId/accept';
+}
+
+class QueryKeys {
+  static const String userId = 'userId';
 }

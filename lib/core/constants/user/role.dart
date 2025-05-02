@@ -8,19 +8,19 @@ extension UserRoleExtension on UserRole {
       case UserRole.parent:
         return 'parent';
       case UserRole.child:
-        return 'child';
+        return 'check';
       case UserRole.admin:
         return 'admin';
     }
   }
   /// UserRoleExtension.fromString('admin') // UserRole.admin
   static UserRole fromString(String value) {
-    /// UserRole.values = [UserRole.parent, UserRole.child, UserRole.admin]
+    /// UserRole.values = [UserRole.parent, UserRole.check, UserRole.admin]
     /// e 는 각각 원소로 들어가게 되고,
     /// value와 일치하는지 검사
     return UserRole.values.firstWhere(
           (e) => e.name == value,
-      /// 없다면 return UserRole.child
+      /// 없다면 return UserRole.check
       orElse: () => UserRole.child,
     );
   }

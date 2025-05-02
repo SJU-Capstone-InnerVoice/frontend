@@ -5,9 +5,7 @@ import '../../../../services/call_polling_service.dart';
 import '../../../../logic/providers/communication/call_polling_provider.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
-import '../../../../logic/providers/random_provider.dart';
 
-import 'dart:math';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -51,7 +49,7 @@ class _CallScreenState extends State<CallScreen> {
     final rtcService = context.read<CallSessionProvider>().rtcService;
     await rtcService.init(
       isCaller: true,
-      roomId: context.read<RandomIdProvider>().randomId,
+      roomId: 1,
       onMessage: (message) {
         print("📩 받은 메시지: $message");
       },
