@@ -19,6 +19,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
   bool _isSearching = false;
 
   Future<void> _searchFriend() async {
+    print("");
     final String friendName = _controller.text.trim();
     if (friendName.isEmpty) return;
 
