@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:audio_session/audio_session.dart';
+
 import '../../../../../logic/providers/communication/call_session_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
 import '../../../../../core/constants/api/tts_api.dart';
 import '../../../../../logic/providers/network/dio_provider.dart';
+
 
 class CallStartScreen extends StatefulWidget {
   const CallStartScreen({super.key});
@@ -32,8 +35,19 @@ class _CallStartScreenState extends State<CallStartScreen> {
     super.dispose();
   }
 
+  Future<void> configureAudioSession() async {
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playback,
+      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.allowBluetooth |
+      AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionMode: AVAudioSessionMode.defaultMode,
+    ));
+  }
+
   Future<void> _speak(BuildContext context, String text, String characterId) async {
     final dio = context.read<DioProvider>().dio;
+    configureAudioSession();
     final player = AudioPlayer();
 
     try {
@@ -43,12 +57,15 @@ class _CallStartScreenState extends State<CallStartScreen> {
         options: Options(responseType: ResponseType.bytes),
       );
 
-      final audioBytes = response.data; // List<int>
+      final audioBytes = response.data;
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/tts.wav');
       await file.writeAsBytes(audioBytes);
-      await player.play(DeviceFileSource(file.path));
+      await player.setFilePath('${tempDir.path}/tts.wav');
+      await player.setVolume(1.0);
+      await player.play();
 
+    player.dispose();
     } catch (e) {
       print('❌ TTS 요청 실패: $e');
     }

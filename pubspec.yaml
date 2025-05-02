@@ -47,7 +47,7 @@ dependencies:
   flutter_advanced_calendar: ^1.4.3
   image_picker: ^1.1.2
   file_picker: ^10.1.2
-  audioplayers: ^6.4.0
+  just_audio: ^0.10.2
 
 dev_dependencies:
   flutter_test:
