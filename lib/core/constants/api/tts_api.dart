@@ -2,6 +2,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class TtsAPI {
-  static final String baseUrl = dotenv.env['SOCKET_URL'] ?? '';
+  static final String baseUrl = dotenv.env['TTS_URL'] ?? '';
   static final String requestTTS = '$baseUrl/tts';
 }

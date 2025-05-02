@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:audioplayers/audioplayers.dart';
 import '../../../../../logic/providers/communication/call_session_provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
+import 'dart:io';
+import '../../../../../core/constants/api/tts_api.dart';
+import '../../../../../logic/providers/network/dio_provider.dart';
+
 class CallStartScreen extends StatefulWidget {
   const CallStartScreen({super.key});
 
@@ -26,6 +32,29 @@ class _CallStartScreenState extends State<CallStartScreen> {
     super.dispose();
   }
 
+  Future<void> _speak(BuildContext context, String text, String characterId) async {
+    final dio = context.read<DioProvider>().dio;
+    final player = AudioPlayer();
+
+    try {
+      final response = await dio.post(
+        TtsAPI.requestTTS,
+        data: {'text': text, 'characterId': characterId},
+        options: Options(responseType: ResponseType.bytes),
+      );
+
+      final audioBytes = response.data; // List<int>
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/tts.wav');
+      await file.writeAsBytes(audioBytes);
+      await player.play(DeviceFileSource(file.path));
+
+    } catch (e) {
+      print('❌ TTS 요청 실패: $e');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +74,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
                     _lastSpoken = latest;
                     print("리스트: $messages");
                     Future.microtask(() {
-                      // _speak(latest);
+                      _speak(context, latest, "char001");
                     });
                   }
                 }
