@@ -38,6 +38,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
   _onSendPressed() {
     final text = _controller.text.trim();
     if (text.isNotEmpty) {
+      _callSession.rtcService.sendChatMessage(text);
       _controller.clear();
     }
   }
