@@ -5,6 +5,9 @@ import '../../../../services/call_polling_service.dart';
 import '../../../../logic/providers/communication/call_polling_provider.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
+import '../../../../logic/providers/random_provider.dart';
+
+import 'dart:math';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -38,6 +41,8 @@ class _CallScreenState extends State<CallScreen> {
     });
   }
   Future<void> createCallRequest() async {
+
+
     // 요청 생성 기능만 남김
     if (selectedCharacter != null) {
       await callPollingService.createCallRequest();
@@ -46,7 +51,7 @@ class _CallScreenState extends State<CallScreen> {
     final rtcService = context.read<CallSessionProvider>().rtcService;
     await rtcService.init(
       isCaller: true,
-      roomId: 'roomA',
+      roomId: context.read<RandomIdProvider>().randomId,
       onMessage: (message) {
         print("📩 받은 메시지: $message");
       },
@@ -69,6 +74,7 @@ class _CallScreenState extends State<CallScreen> {
   Widget build(BuildContext context) {
     final characterImgs = context.watch<CharacterImgProvider>().imageWidgets['1'] ?? {}; // userId에 맞게 수정
     final characterList = characterImgs.entries.toList();
+
 
     return Scaffold(
       body: Padding(

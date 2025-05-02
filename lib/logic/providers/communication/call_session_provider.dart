@@ -9,7 +9,7 @@ class CallSessionProvider with ChangeNotifier {
   bool _isCaller = false;
   bool get isCaller => _isCaller;
 
-  void init({required bool isCaller, required String roomId, required Function(String) onMessage}) async {
+  void init({required bool isCaller, required int roomId, required Function(String) onMessage}) async {
     _isCaller = isCaller;
     await _rtcService.init(
       isCaller: isCaller,

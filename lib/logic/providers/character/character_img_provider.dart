@@ -19,7 +19,7 @@ class CharacterImgProvider extends ChangeNotifier {
   }) async {
     try {
       final String uploadUrl = CharacterImgApi.uploadCharacterImg;
-
+      print(uploadUrl);
       FormData formData = FormData.fromMap({
         'userId': userId,
         'name': name,

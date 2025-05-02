@@ -15,7 +15,7 @@ class WebRTCService {
   WebSocketChannel? _channel;
 
   bool _isCaller = false;
-  late String _roomId;
+  late int _roomId;
   late OnMessageReceived onMessageReceived; // callback
 
   RTCVideoRenderer get localRenderer => _localRenderer;
@@ -24,7 +24,7 @@ class WebRTCService {
 
   Future<void> init(
       {required bool isCaller,
-      required String roomId,
+      required int roomId,
       required OnMessageReceived onMessage}) async {
     _isCaller = isCaller;
     _roomId = roomId;
@@ -62,42 +62,62 @@ class WebRTCService {
 
   /// WebSocket 연결
   Future<void> _connectWebSocket() async {
-    // socket server 연결
-    _channel = WebSocketChannel.connect(Uri.parse(SocketAPI.baseUrl));
-    // room을 생성하거나 가입
-    _channel!.sink.add(jsonEncode({
-      'type': 'join',
-      'room': _roomId,
-    }));
+    print('🌐 WebSocket 연결 시도 중...');
 
-    // 내 기기에서 스트림으로 들어오는 이벤트를 구독 (계속적)
-    _channel!.stream.listen((message) async {
-      try {
-        final data = jsonDecode(message);
-        // switch문이지만 서로 양방향으로 순차적이게 이루어지는 구조
-        switch (data['type']) {
-          case 'new_peer': // 1
-            _isCaller = true;
-            await _createPeerConnection();
-            await _createOffer();
-            break;
-          case 'offer': // 2
-            await _createPeerConnection();
-            await _handleOffer(data['sdp']);
-            break;
-          case 'answer': // 3
-            await _handleAnswer(data['sdp']);
-            break;
-          case 'candidate': // 4
-            await _handleCandidate(data['candidate']);
-            break;
+    try {
+      _channel = WebSocketChannel.connect(Uri.parse(SocketAPI.socketUrl));
+      print('✅ WebSocket 연결 성공');
+
+      // 방 입장 메시지 전송
+      _channel!.sink.add(jsonEncode({
+        'type': 'join',
+        'roomId': _roomId,
+      }));
+      print('📨 join 메시지 전송 완료: room=$_roomId');
+
+      // WebSocket으로 들어오는 메시지 구독
+      _channel!.stream.listen((message) async {
+        print('📩 수신 메시지: $message');
+
+        try {
+          final data = jsonDecode(message);
+          print('⚠️ 데이터 내용: $data');
+          switch (data['type']) {
+            case 'new_peer':
+              print('🧑‍🤝‍🧑 new_peer 수신');
+              _isCaller = true;
+              await _createPeerConnection();
+              await _createOffer();
+              break;
+            case 'offer':
+              print('📜 offer 수신');
+              await _createPeerConnection();
+              await _handleOffer(data['sdp']);
+              break;
+            case 'answer':
+              print('📜 answer 수신');
+              await _handleAnswer(data['sdp']);
+              break;
+            case 'candidate':
+              print('🧊 candidate 수신');
+              await _handleCandidate(data['candidate']);
+              break;
+            default:
+              print('⚠️ 알 수 없는 메시지 타입: ${data['type']}');
+          }
+        } catch (e) {
+          print("❌ WebSocket message parsing error: $e");
         }
-      } catch (e) {
-        print("❌ WebSocket message parsing error: $e");
-      }
-    });
-  }
+      }, onError: (error) {
+        print('❌ WebSocket 오류 발생: $error');
+      }, onDone: () {
+        print('🛑 WebSocket 연결 종료됨');
+      });
 
+    } catch (e) {
+      print('❌ WebSocket 연결 실패: $e');
+    }
+  }
   /// P2P 연결을 위한 초기화:
   /// STUN 연결
   /// DataStream 설정
@@ -154,7 +174,7 @@ class WebRTCService {
         _channel?.sink.add(jsonEncode({
           'type': 'candidate',
           'candidate': candidate.toMap(),
-          'room': _roomId,
+          'roomId': _roomId,
         }));
       }
     };
@@ -164,10 +184,11 @@ class WebRTCService {
   Future<void> _createOffer() async {
     final offer = await _peerConnection!.createOffer();
     await _peerConnection!.setLocalDescription(offer);
+    print('_createOffer: $_roomId');
     _channel?.sink.add(jsonEncode({
       'type': 'offer',
       'sdp': offer.sdp,
-      'room': _roomId,
+      'roomId': _roomId,
     }));
   }
 
@@ -177,10 +198,11 @@ class WebRTCService {
         .setRemoteDescription(RTCSessionDescription(sdp, 'offer'));
     final answer = await _peerConnection!.createAnswer();
     await _peerConnection!.setLocalDescription(answer);
+    print('_handleOffer: $_roomId');
     _channel?.sink.add(jsonEncode({
       'type': 'answer',
       'sdp': answer.sdp,
-      'room': _roomId,
+      'roomId': _roomId,
     }));
   }
 
@@ -188,6 +210,8 @@ class WebRTCService {
   Future<void> _handleAnswer(String sdp) async {
     await _peerConnection!
         .setRemoteDescription(RTCSessionDescription(sdp, 'answer'));
+    print('_handleAnswer: $_roomId');
+
   }
 
   /// SDP 교환 4단계 : 양측에 candidate 등록

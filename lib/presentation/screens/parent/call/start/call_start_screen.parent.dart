@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:provider/provider.dart';
 import '../../../../../logic/providers/communication/call_session_provider.dart';
-import '../../../../../services/web_rtc_service.dart';
 
 class CallStartScreen extends StatefulWidget {
   const CallStartScreen({super.key});
@@ -15,7 +14,7 @@ class CallStartScreen extends StatefulWidget {
 class _CallStartScreenState extends State<CallStartScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, String>> _messages = [
-    {'time': '11:50', 'type': 'user', 'text': '오늘 하루 어땠어?'},
+    {'time': '11:50', 'type': 'user', 'text ': '오늘 하루 어땠어?'},
     {
       'time': '11:51',
       'type': 'user',
@@ -64,19 +63,19 @@ class _CallStartScreenState extends State<CallStartScreen> {
                       color: Colors.black12,
                       child: RTCVideoView(context.watch<CallSessionProvider>().rtcService.remoteRenderer),
                     ),
-                    // Positioned(
-                    //   right: 16,
-                    //   bottom: 16,
-                    //   width: 100,
-                    //   height: 130,
-                    //   child: Container(
-                    //     decoration: BoxDecoration(
-                    //       border: Border.all(color: Colors.white, width: 2),
-                    //       borderRadius: BorderRadius.circular(8),
-                    //     ),
-                    //     child: RTCVideoView(context.watch<CallSessionProvider>().rtcService.localRenderer, mirror: true),
-                    //   ),
-                    // ),
+                    Positioned(
+                      right: 16,
+                      bottom: 16,
+                      width: 100,
+                      height: 130,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white, width: 2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: RTCVideoView(context.watch<CallSessionProvider>().rtcService.localRenderer, mirror: true),
+                      ),
+                    ),
                   ],
                 ),
               ),
