@@ -160,8 +160,14 @@ class WebRTCService {
     if (_localStream != null) {
       _localStream!.getTracks().forEach((track) {
         _peerConnection!.addTrack(track, _localStream!);
-
       });
+
+      if (_isCaller) {
+        for (final track in _localStream!.getAudioTracks()) {
+          track.enabled = false;
+          print("track.enabled: ${track.enabled}, kind: ${track.kind}");
+        }
+      }
     }
 
     /// 상대방이 addTrack을 통해 Track을 보낸 것이 내 PeerConnection에 도착했을 때,
