@@ -56,6 +56,13 @@ class _CallScreenState extends State<CallScreen> {
       onMessage: (message) {
         print("📩 받은 메시지: $message");
       },
+      onDisconnected: () {
+        Future.microtask(() {
+          if (mounted && Navigator.of(context).canPop()) {
+            context.pop();
+          }
+        });
+      },
     );
 
     context.go('/parent/call/waiting');

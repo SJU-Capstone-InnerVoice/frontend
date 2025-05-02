@@ -60,6 +60,13 @@ class _CallScreenState extends State<CallScreen> {
       onMessage: (message) {
         print("📩 받은 메시지: $message");
       },
+      onDisconnected: () {
+        Future.microtask(() {
+          if (mounted && Navigator.of(context).canPop()) {
+            context.pop();
+          }
+        });
+      },
     );
     context.push('/child/call/start').then((_) {
       // 돌아왔을 때 polling 재시작 + UI 갱신
@@ -67,12 +74,14 @@ class _CallScreenState extends State<CallScreen> {
       pollCallRequest();
     });
   }
+
   @override
   void dispose() {
     _pollingTimer?.cancel();
 
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

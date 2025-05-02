@@ -17,12 +17,14 @@ class CallSessionProvider with ChangeNotifier {
     required bool isCaller,
     required int roomId,
     required Function(String) onMessage,
+    required VoidCallback onRemoteDisconnected,
   }) async {
     _isCaller = isCaller;
     await _rtcService.init(
       isCaller: isCaller,
       roomId: roomId,
       onMessage: (msg) => onMessage(msg),
+      onDisconnected: onRemoteDisconnected,
     );
     notifyListeners();
   }

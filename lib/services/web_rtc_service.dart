@@ -18,6 +18,11 @@ class WebRTCService {
   WebSocketChannel? _channel;
 
   bool _isCaller = false;
+  bool _hasConnected = false;
+
+
+  VoidCallback? onRemoteDisconnected;
+
   late int _roomId;
   late OnMessageReceived onMessageReceived; // callback
 
@@ -31,11 +36,13 @@ class WebRTCService {
   Future<void> init(
       {required bool isCaller,
       required int roomId,
-      required OnMessageReceived onMessage}) async {
+      required OnMessageReceived onMessage,
+      required VoidCallback onDisconnected,
+      }) async {
     _isCaller = isCaller;
     _roomId = roomId;
     onMessageReceived = onMessage;
-
+    onRemoteDisconnected = onDisconnected;
     _remoteRenderer = RTCVideoRenderer();
     await remoteRenderer.initialize();
 
@@ -191,6 +198,22 @@ class WebRTCService {
           'candidate': candidate.toMap(),
           'roomId': _roomId,
         }));
+      }
+    };
+
+    _peerConnection!.onConnectionState = (state) {
+      print('🔌 연결 상태: $state');
+
+      if (state == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
+        _hasConnected = true;
+      }
+
+      if (_hasConnected &&
+          (state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
+              state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
+              state == RTCPeerConnectionState.RTCPeerConnectionStateClosed)) {
+        print('💥 상대방 연결 끊김 감지됨!');
+        onRemoteDisconnected?.call();
       }
     };
   }
