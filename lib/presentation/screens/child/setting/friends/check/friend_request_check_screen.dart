@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../../../../core/constants/api/friends_api.dart';
 import '../../../../../../data/models/friend_request_model.dart';
-
+import '../../../../../../logic/providers/network/dio_provider.dart';
 class FriendRequestCheckScreen extends StatefulWidget {
   const FriendRequestCheckScreen({super.key});
 
@@ -13,7 +14,7 @@ class FriendRequestCheckScreen extends StatefulWidget {
 }
 
 class _FriendRequestCheckScreenState extends State<FriendRequestCheckScreen> {
-  final Dio _dio = Dio();
+  late final _dio;
   List<FriendRequest> _requests = [];
   bool _isLoading = true;
   String? _error;
@@ -21,8 +22,10 @@ class _FriendRequestCheckScreenState extends State<FriendRequestCheckScreen> {
   @override
   void initState() {
     super.initState();
+    _dio = context.read<DioProvider>().dio;
     fetchFriendRequests();
   }
+
   Future<void> acceptRequest(int requestId) async {
     try {
       final response = await _dio.post(
@@ -49,6 +52,7 @@ class _FriendRequestCheckScreenState extends State<FriendRequestCheckScreen> {
     }
   }
   Future<void> fetchFriendRequests() async {
+
     try {
       final response = await _dio.get(
         FriendsApi.checkRequestFriends,

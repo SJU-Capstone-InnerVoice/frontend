@@ -6,8 +6,10 @@ import '../../../core/constants/api/character_img_api.dart';
 class CharacterImgProvider extends ChangeNotifier {
   // userId → characterId → Image 위젯
   final Map<String, Map<String, Image>> _imageWidgets = {};
-  final Dio _dio = Dio();
   bool _hasLoaded = false; /// 트래픽 절감용 최초 1번 or 업로드 시 trigger
+  late final Dio _dio;
+
+  CharacterImgProvider(this._dio);
 
   Map<String, Map<String, Image>> get imageWidgets => _imageWidgets;
 

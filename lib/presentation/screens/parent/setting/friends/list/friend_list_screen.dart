@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../../../../../logic/providers/network/dio_provider.dart';
 import '../../../../../../core/constants/api/friends_api.dart';
 import '../../../../../../data/models/friend_model.dart';
 
@@ -12,7 +13,7 @@ class FriendListScreen extends StatefulWidget {
 }
 
 class _FriendListScreenState extends State<FriendListScreen> {
-  final Dio _dio = Dio();
+  late final _dio;
   List<Friend> _friends = [];
   bool _isLoading = true;
   String? _error;
@@ -20,6 +21,8 @@ class _FriendListScreenState extends State<FriendListScreen> {
   @override
   void initState() {
     super.initState();
+    _dio = context.read<DioProvider>().dio;
+
     _fetchFriends();
   }
 

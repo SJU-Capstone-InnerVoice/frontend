@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import '../../../../../../core/constants/api/friends_api.dart';
+import '../../../../../../logic/providers/network/dio_provider.dart';
 
 class FriendRequestScreen extends StatefulWidget {
   const FriendRequestScreen({super.key});
@@ -11,12 +13,18 @@ class FriendRequestScreen extends StatefulWidget {
 }
 
 class _FriendRequestScreenState extends State<FriendRequestScreen> {
+  late final _dio;
   final TextEditingController _controller = TextEditingController();
-  final Dio dio = Dio();
 
   Map<String, dynamic>? _searchResult;
   String? _error;
   bool _isSearching = false;
+
+  @override
+  void initState(){
+    super.initState();
+    _dio = context.read<DioProvider>().dio;
+  }
 
   Future<void> _searchFriend() async {
     final String friendName = _controller.text.trim();
@@ -31,7 +39,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
     });
 
     try {
-      final response = await dio.get(
+      final response = await _dio.get(
         FriendsApi.searchFriend,
         queryParameters: {'name': friendName},
       );
@@ -71,6 +79,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
 
   Future<void> _sendFriendRequest(int friendId, String friendName) async {
     const int userId = 1; // TODO: 실제 로그인 사용자 ID로 교체
+    final dio = context.read<DioProvider>().dio;
 
     debugPrint('📨 친구 요청 시작 → userId: $userId, friendId: $friendId ($friendName)');
 
