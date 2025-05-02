@@ -4,12 +4,14 @@ import '../../../services/web_rtc_service.dart';
 
 class CallSessionProvider with ChangeNotifier {
   final WebRTCService _rtcService = WebRTCService();
+  final List<String> _messages = [];
 
   WebRTCService get rtcService => _rtcService;
 
   bool _isCaller = false;
 
   bool get isCaller => _isCaller;
+  List<String> get messages => List.unmodifiable(_messages);
   ValueNotifier<MediaStream?> get remoteStreamNotifier =>
       _rtcService.remoteStreamNotifier;
 
@@ -31,5 +33,15 @@ class CallSessionProvider with ChangeNotifier {
 
   void disposeCall() {
     _rtcService.dispose();
+  }
+
+  void addMessage(String message) {
+    _messages.add(message);
+    notifyListeners();
+  }
+
+  void clearMessages() {
+    _messages.clear();
+    notifyListeners();
   }
 }

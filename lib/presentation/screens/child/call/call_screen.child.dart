@@ -53,11 +53,14 @@ class _CallScreenState extends State<CallScreen> {
     setState(() {
       hasCallRequest = data.isNotEmpty;
     });
-    final rtcService = context.read<CallSessionProvider>().rtcService;
+    final callSession = context.read<CallSessionProvider>();
+
+    final rtcService = callSession.rtcService;
     await rtcService.init(
       isCaller: false,
       roomId: 1,
       onMessage: (message) {
+        callSession.addMessage(message);
         print("📩 받은 메시지: $message");
       },
       onDisconnected: () {
