@@ -24,5 +24,6 @@ class InnerVoiceApp extends StatelessWidget {
       routerConfig: IVRouter,
     );
   }
+
 }
 

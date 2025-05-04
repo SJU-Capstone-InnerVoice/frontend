@@ -73,8 +73,9 @@ class CallRecordProvider extends ChangeNotifier {
 
     final mergedPath = await _recordingService.mergeAudioFiles(
       micPath: micPath,
-      ttsPaths: ttsPaths,
+      ttsSegments: _record!.ttsSegments,
       outputFileName: outputFileName,
+      durationMs: _record!.metadata.durationMs,
     );
 
     if (mergedPath != null) {

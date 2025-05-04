@@ -3,6 +3,9 @@ import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:collection/collection.dart';
+import '../data/models/record/tts_segment_model.dart';
+import '../core/utils/logs/audio_logger.dart';
 
 class CallRecordingService {
   final _recorder = AudioRecorder();
@@ -21,7 +24,9 @@ class CallRecordingService {
     final config = RecordConfig(
       encoder: AudioEncoder.wav,
       bitRate: 128000,
-      sampleRate: 44100,
+      sampleRate: 24000,
+      numChannels: 1,
+      echoCancel: true,
     );
 
     await _recorder.start(
@@ -32,7 +37,10 @@ class CallRecordingService {
 
   Future<String?> stopRecording() async {
     if (await _recorder.isRecording()) {
+
       await _recorder.stop();
+      await AudioLogger.printWavInfo(_currentFilePath!);
+
       return _currentFilePath;
     }
     return null;
@@ -42,36 +50,57 @@ class CallRecordingService {
 
   Future<String?> mergeAudioFiles({
     required String micPath,
-    required List<String> ttsPaths,
+    required List<TtsSegmentModel> ttsSegments,
     required String outputFileName,
+    required int durationMs,
   }) async {
     final outputDir = (await getApplicationDocumentsDirectory()).path;
     final outputPath = '$outputDir/$outputFileName.wav';
-    final listPath = '$outputDir/concat_list.txt';
+    AudioLogger.printWavInfo(micPath);
+    // 입력 리스트 구성
+    final inputs = <String>["-i '$micPath'"];
+    for (final seg in ttsSegments) {
+      inputs.add("-i '${seg.audioPath}'");
+      AudioLogger.printWavInfo(seg.audioPath);
 
-    // 텍스트 파일 생성
-    final buffer = StringBuffer();
-    buffer.writeln("file '$micPath'");
-    for (final path in ttsPaths) {
-      buffer.writeln("file '$path'");
     }
-    await File(listPath).writeAsString(buffer.toString());
+
 
     // ffmpeg 실행
-    final session = await FFmpegKit.execute(
-      "-f concat -safe 0 -i $listPath -c copy $outputPath",
-    );
+    final durationSec = (durationMs / 1000).toStringAsFixed(2);
+    final filterComplex = [
+      "[0:0]atrim=duration=${durationSec}[mic]",
+      ...ttsSegments.mapIndexed((i, seg) =>
+      "[${i + 1}:0]adelay=${seg.startMs}|${seg.startMs}[td$i]"
+      ),
+      "[mic]" + List.generate(ttsSegments.length, (i) => "[td$i]").join() +
+          "amix=inputs=${ttsSegments.length + 1}:duration=first:dropout_transition=0[aout]"
+    ].join("; ");
+
+    final command = [
+    ...inputs,
+    "-t $durationSec",
+    "-filter_complex \"$filterComplex\"",
+    "-map \"[aout]\"",
+    "-c:a pcm_s16le -ar 44100 -ac 1",
+    "'$outputPath'"
+    ].join(' ');
+
+    print("🎛️ FFmpeg 명령어:\n$command");
+
+    final session = await FFmpegKit.execute(command);
 
     final returnCode = await session.getReturnCode();
     if (ReturnCode.isSuccess(returnCode)) {
-      print("✅ 병합 완료: $outputPath");
+      print("✅ 믹싱 완료: $outputPath");
+      AudioLogger.printWavInfo(outputPath);
+
       return outputPath;
     } else {
-      print("❌ 병합 실패: ${returnCode?.getValue()}");
+      print("❌ 믹싱 실패: ${returnCode?.getValue()}");
       return null;
     }
   }
-
 
   Future<void> deleteAudioResources({
     required String micPath,

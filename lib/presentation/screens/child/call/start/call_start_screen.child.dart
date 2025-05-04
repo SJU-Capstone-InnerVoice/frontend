@@ -50,6 +50,8 @@ class _CallStartScreenState extends State<CallStartScreen> {
 
     Future.microtask(() async {
       _recordProvider = context.read<CallRecordProvider>();
+      await configureAudioSession();
+
       try {
         await _recordProvider.startRecording();
         print('🎙️ 녹음 시작됨');
@@ -57,6 +59,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
         print('❌ 녹음 시작 실패: $e');
       }
     });
+
   }
 
 
@@ -69,37 +72,9 @@ class _CallStartScreenState extends State<CallStartScreen> {
   @override
   void dispose() {
     print("📴 CallStartScreen dispose 실행됨");
+
     _callSession.disposeCall();
 
-    _recordProvider.stopRecording().then((_) {
-      final record = _recordProvider.record;
-      if (record == null) {
-        print('⚠️ 녹음 데이터가 없습니다.');
-        return;
-      }
-
-      print('🎧 마이크 녹음 파일: ${record.micRecordPath}');
-      print('🕒 시작 시각: ${record.metadata.startedAt}');
-      print('⏱️ 통화 길이 (ms): ${record.metadata.durationMs}');
-      print('🙍 사용자 ID: ${record.metadata.userId}');
-      print('🧠 캐릭터 ID: ${record.metadata.characterId}');
-      print('🆔 세션 ID: ${record.metadata.sessionId}');
-
-      if (record.ttsSegments.isEmpty) {
-        print('💬 저장된 TTS 세그먼트가 없습니다.');
-      } else {
-        print('💬 TTS 세그먼트 (${record.ttsSegments.length}개):');
-        for (var i = 0; i < record.ttsSegments.length; i++) {
-          final seg = record.ttsSegments[i];
-          print('  [$i]');
-          print('   • 문장: ${seg.text}');
-          print('   • 파일: ${seg.audioPath}');
-          print('   • 시작 시각 (ms): ${seg.startMs}');
-        }
-      }
-    }).catchError((e) {
-      print('❌ 녹음 중지 실패: $e');
-    });
 
     super.dispose();
   }
@@ -115,8 +90,9 @@ class _CallStartScreenState extends State<CallStartScreen> {
   }
 
   Future<void> _speak(BuildContext context, String text, String characterId) async {
+    // await configureAudioSession();
+
     final dio = context.read<DioProvider>().dio;
-    await configureAudioSession();
     final player = AudioPlayer();
 
     try {
@@ -222,8 +198,11 @@ class _CallStartScreenState extends State<CallStartScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.call_end, color: Colors.white),
                     iconSize: 48,
-                    onPressed: () {
+                    onPressed: () async {
+                      // _speak(context, "안녕","char001");
+                      // await Future.delayed(Duration(seconds: 5));
                       context.go('/child/call/end');
+
                     },
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.red,

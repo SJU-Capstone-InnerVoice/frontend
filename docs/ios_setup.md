@@ -40,3 +40,10 @@ ios/Runner/Info.plist
 <key>UIFileSharingEnabled</key>
 <true/>
 ```
+
+6. ios 오디오 세션을 활성화 권한 추가
+```html
+ios/Runner/Info.plist
+<key>NSAppleMusicUsageDescription</key>
+<string>오디오 재생을 위해 필요합니다.</string>
+```
