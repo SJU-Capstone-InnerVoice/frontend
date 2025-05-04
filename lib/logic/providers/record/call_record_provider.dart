@@ -17,24 +17,36 @@ class CallRecordProvider extends ChangeNotifier {
   Future<void> startRecording() async {
     _startedAt = DateTime.now();
     await _recordingService.startRecording();
+
+    _record = TtsRecordModel(
+      micRecordPath: '',
+      metadata: SessionMetadataModel(
+        sessionId: 'dummy-session',
+        startedAt: _startedAt!.toIso8601String(),
+        durationMs: 0, // 나중에 갱신
+        userId: 'dummy-user',
+        characterId: 'dummy-character',
+      ),
+      ttsSegments: [],
+    );
+
     _isRecording = true;
     notifyListeners();
   }
 
   Future<void> stopRecording() async {
     final path = await _recordingService.stopRecording();
-    if (path != null && _startedAt != null) {
-      final duration = DateTime.now().difference(_startedAt!).inMilliseconds;
+    if (path != null && _startedAt != null && _record != null) {
       _record = TtsRecordModel(
         micRecordPath: path,
         metadata: SessionMetadataModel(
-          sessionId: 'dummy-session',
-          startedAt: _startedAt!.toIso8601String(),
-          durationMs: duration,
-          userId: 'dummy-user',
-          characterId: 'dummy-character',
+          sessionId: _record!.metadata.sessionId,
+          startedAt: _record!.metadata.startedAt,
+          durationMs: DateTime.now().difference(_startedAt!).inMilliseconds,
+          userId: _record!.metadata.userId,
+          characterId: _record!.metadata.characterId,
         ),
-        ttsSegments: [],
+        ttsSegments: _record!.ttsSegments,
       );
     }
     _isRecording = false;

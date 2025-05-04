@@ -72,9 +72,30 @@ class _CallStartScreenState extends State<CallStartScreen> {
 
     _recordProvider.stopRecording().then((_) {
       final record = _recordProvider.record;
-      print('🎧 녹음 저장됨: ${record?.micRecordPath}');
-      print('🕒 시작 시각: ${record?.metadata.startedAt}');
-      print('⏱️ 통화 길이 (ms): ${record?.metadata.durationMs}');
+      if (record == null) {
+        print('⚠️ 녹음 데이터가 없습니다.');
+        return;
+      }
+
+      print('🎧 마이크 녹음 파일: ${record.micRecordPath}');
+      print('🕒 시작 시각: ${record.metadata.startedAt}');
+      print('⏱️ 통화 길이 (ms): ${record.metadata.durationMs}');
+      print('🙍 사용자 ID: ${record.metadata.userId}');
+      print('🧠 캐릭터 ID: ${record.metadata.characterId}');
+      print('🆔 세션 ID: ${record.metadata.sessionId}');
+
+      if (record.ttsSegments.isEmpty) {
+        print('💬 저장된 TTS 세그먼트가 없습니다.');
+      } else {
+        print('💬 TTS 세그먼트 (${record.ttsSegments.length}개):');
+        for (var i = 0; i < record.ttsSegments.length; i++) {
+          final seg = record.ttsSegments[i];
+          print('  [$i]');
+          print('   • 문장: ${seg.text}');
+          print('   • 파일: ${seg.audioPath}');
+          print('   • 시작 시각 (ms): ${seg.startMs}');
+        }
+      }
     }).catchError((e) {
       print('❌ 녹음 중지 실패: $e');
     });
