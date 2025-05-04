@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:dio/dio.dart';
 
 import '../../../../../logic/providers/communication/call_session_provider.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:dio/dio.dart';
-import 'dart:io';
-import '../../../../../core/constants/api/tts_api.dart';
 import '../../../../../logic/providers/network/dio_provider.dart';
+import '../../../../../logic/providers/record/call_record_provider.dart';
+import '../../../../../core/constants/api/tts_api.dart';
 
 class ByteStreamSource extends StreamAudioSource {
   final List<int> data;
@@ -37,7 +36,25 @@ class CallStartScreen extends StatefulWidget {
 
 class _CallStartScreenState extends State<CallStartScreen> {
   late final CallSessionProvider _callSession;
+  late final CallRecordProvider _recordProvider;
+
   String? _lastSpoken;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() async {
+      _recordProvider = context.read<CallRecordProvider>();
+      try {
+        await _recordProvider.startRecording();
+        print('🎙️ 녹음 시작됨');
+      } catch (e) {
+        print('❌ 녹음 시작 실패: $e');
+      }
+    });
+  }
+
 
   @override
   void didChangeDependencies() {
@@ -47,8 +64,18 @@ class _CallStartScreenState extends State<CallStartScreen> {
 
   @override
   void dispose() {
-    print("CallStartScreen dispose 실행됨");
+    print("📴 CallStartScreen dispose 실행됨");
     _callSession.disposeCall();
+
+    _recordProvider.stopRecording().then((_) {
+      final record = _recordProvider.record;
+      print('🎧 녹음 저장됨: ${record?.micRecordPath}');
+      print('🕒 시작 시각: ${record?.metadata.startedAt}');
+      print('⏱️ 통화 길이 (ms): ${record?.metadata.durationMs}');
+    }).catchError((e) {
+      print('❌ 녹음 중지 실패: $e');
+    });
+
     super.dispose();
   }
 
@@ -76,11 +103,6 @@ class _CallStartScreenState extends State<CallStartScreen> {
 
       final audioBytes = response.data;
       await player.setAudioSource(ByteStreamSource(audioBytes));
-
-      // final tempDir = await getTemporaryDirectory();
-      // final file = File('${tempDir.path}/tts.wav');
-      // await file.writeAsBytes(audioBytes);
-      // await player.setFilePath('${tempDir.path}/tts.wav');
       await player.setVolume(1.0);
       await player.play();
 
