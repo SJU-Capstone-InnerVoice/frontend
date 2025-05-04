@@ -6,6 +6,11 @@ import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:collection/collection.dart';
 import '../data/models/record/tts_segment_model.dart';
 import '../core/utils/logs/audio_logger.dart';
+import 'dart:async';
+import 'package:dio/dio.dart';
+import 'package:path/path.dart' as p;
+import 'package:http_parser/http_parser.dart';
+import '../../../../../core/constants/api/summary_api.dart';
 
 class CallRecordingService {
   final _recorder = AudioRecorder();
@@ -94,11 +99,38 @@ class CallRecordingService {
     if (ReturnCode.isSuccess(returnCode)) {
       print("✅ 믹싱 완료: $outputPath");
       AudioLogger.printWavInfo(outputPath);
-
+      // _sendMergedAudioAndPrintSummary(outputPath);
       return outputPath;
     } else {
       print("❌ 믹싱 실패: ${returnCode?.getValue()}");
       return null;
+    }
+  }
+  Future<void> _sendMergedAudioAndPrintSummary(String filePath) async {
+    final dio = Dio();
+    final serverUrl = SummaryApi.summary;
+
+    try {
+      final fileName = p.basename(filePath);
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          filePath,
+          filename: fileName,
+          contentType: MediaType('audio', 'wav'), // 'audio/wav' 또는 'audio/mpeg' 등
+        ),
+      });
+
+      final response = await dio.post(serverUrl, data: formData);
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        print('📄 텍스트 변환 결과: ${data['transcription']}');
+        print('🧠 요약 응답: ${data['gpt_response']}');
+      } else {
+        print('❌ 서버 응답 오류: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('🚨 전송 실패: $e');
     }
   }
 

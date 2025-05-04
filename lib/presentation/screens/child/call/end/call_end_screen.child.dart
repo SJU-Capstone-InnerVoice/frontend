@@ -2,12 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
-import 'package:dio/dio.dart';
-import 'package:path/path.dart';
-import 'package:http_parser/http_parser.dart';
 
 import '../../../../../logic/providers/record/call_record_provider.dart';
-import '../../../../../core/constants/api/summary_api.dart';
 
 class CallEndScreen extends StatefulWidget {
   const CallEndScreen({super.key});
@@ -17,7 +13,7 @@ class CallEndScreen extends StatefulWidget {
 }
 
 class _CallEndScreenState extends State<CallEndScreen> {
-  late final _recordProvider = context.read<CallRecordProvider>();
+  late final _recordProvider;
   String? _mergedFilePath;
   bool _hasMerged = false;
   final AudioPlayer _player = AudioPlayer();
@@ -53,33 +49,7 @@ class _CallEndScreenState extends State<CallEndScreen> {
     }
   }
 
-  Future<void> _sendMergedAudioAndPrintSummary(String filePath) async {
-    final dio = Dio();
-    final serverUrl = SummaryApi.summary;
 
-    try {
-      final fileName = basename(filePath);
-      final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(
-          filePath,
-          filename: fileName,
-          contentType: MediaType('audio', 'wav'), // 'audio/wav' 또는 'audio/mpeg' 등
-        ),
-      });
-
-      final response = await dio.post(serverUrl, data: formData);
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-        print('📄 텍스트 변환 결과: ${data['transcription']}');
-        print('🧠 요약 응답: ${data['gpt_response']}');
-      } else {
-        print('❌ 서버 응답 오류: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('🚨 전송 실패: $e');
-    }
-  }
 
   Future<void> _mergeRecording() async {
     final outputFileName = 'merged_${DateTime.now().millisecondsSinceEpoch}';
@@ -121,6 +91,7 @@ class _CallEndScreenState extends State<CallEndScreen> {
   @override
   void initState() {
     super.initState();
+    _recordProvider = context.read<CallRecordProvider>();
     (() async {
       try {
         await _recordProvider.stopRecording();
