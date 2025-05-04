@@ -3,11 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 import '../../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../../logic/providers/network/dio_provider.dart';
 import '../../../../../logic/providers/record/call_record_provider.dart';
 import '../../../../../core/constants/api/tts_api.dart';
+import '../../../../../data/models/record/tts_segment_model.dart';
 
 class ByteStreamSource extends StreamAudioSource {
   final List<int> data;
@@ -102,14 +105,42 @@ class _CallStartScreenState extends State<CallStartScreen> {
       );
 
       final audioBytes = response.data;
+      final filePath = await _saveTtsAudioFile(audioBytes);
+
       await player.setAudioSource(ByteStreamSource(audioBytes));
       await player.setVolume(1.0);
+      // ⏱️ 현재 마이크 기준 경과 시간 측정
+      final startedAt = _recordProvider.record?.metadata.startedAt;
+      final startTime = DateTime.now();
+      final startMs = startedAt == null
+          ? 0
+          : startTime.difference(DateTime.parse(startedAt)).inMilliseconds;
+
       await player.play();
+
+      _recordProvider.addTtsSegment(
+        TtsSegmentModel(
+          text: text,
+          audioPath: filePath,
+          startMs: startMs,
+        ),
+      );
 
     player.dispose();
     } catch (e) {
       print('❌ TTS 요청 실패: $e');
     }
+  }
+  Future<String> _saveTtsAudioFile(List<int> audioBytes) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final fileName = 'tts_${DateTime.now().millisecondsSinceEpoch}.wav';
+    final filePath = '${dir.path}/$fileName';
+
+    final file = File(filePath);
+    await file.writeAsBytes(audioBytes);
+
+    print('💾 TTS 파일 저장됨: $filePath');
+    return filePath;
   }
 
 

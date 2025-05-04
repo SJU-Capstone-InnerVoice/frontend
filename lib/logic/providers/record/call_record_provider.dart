@@ -41,6 +41,15 @@ class CallRecordProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addTtsSegment(TtsSegmentModel segment) {
+    if (_record == null) {
+      print('⚠️ TtsRecordModel이 아직 초기화되지 않았습니다.');
+      return;
+    }
+    _record?.ttsSegments.add(segment);
+    notifyListeners();
+  }
+
   void clear() {
     _record = null;
     _startedAt = null;
