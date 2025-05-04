@@ -15,6 +15,7 @@ import '../../../../../data/models/record/tts_segment_model.dart';
 
 class ByteStreamSource extends StreamAudioSource {
   final List<int> data;
+
   ByteStreamSource(this.data);
 
   @override
@@ -39,6 +40,7 @@ class CallStartScreen extends StatefulWidget {
 }
 
 class _CallStartScreenState extends State<CallStartScreen> {
+
   late final CallSessionProvider _callSession;
   late final CallRecordProvider _recordProvider;
 
@@ -47,11 +49,10 @@ class _CallStartScreenState extends State<CallStartScreen> {
   @override
   void initState() {
     super.initState();
+    _recordProvider = context.read<CallRecordProvider>();
+    configureAudioSession();
 
     Future.microtask(() async {
-      _recordProvider = context.read<CallRecordProvider>();
-      await configureAudioSession();
-
       try {
         await _recordProvider.startRecording();
         print('🎙️ 녹음 시작됨');
@@ -59,9 +60,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
         print('❌ 녹음 시작 실패: $e');
       }
     });
-
   }
-
 
   @override
   void didChangeDependencies() {
@@ -75,25 +74,25 @@ class _CallStartScreenState extends State<CallStartScreen> {
 
     _callSession.disposeCall();
 
-
     super.dispose();
   }
 
   Future<void> configureAudioSession() async {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration(
-      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.allowBluetooth |
-      AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionCategory: AVAudioSessionCategory.playback,
+      avAudioSessionCategoryOptions:
+          AVAudioSessionCategoryOptions.defaultToSpeaker,
       avAudioSessionMode: AVAudioSessionMode.spokenAudio,
     ));
   }
 
-  Future<void> _speak(BuildContext context, String text, String characterId) async {
+  Future<void> _speak(
+      BuildContext context, String text, String characterId) async {
     // await configureAudioSession();
+    final player = AudioPlayer();
 
     final dio = context.read<DioProvider>().dio;
-    final player = AudioPlayer();
 
     try {
       final response = await dio.post(
@@ -124,11 +123,12 @@ class _CallStartScreenState extends State<CallStartScreen> {
         ),
       );
 
-    player.dispose();
+      player.dispose();
     } catch (e) {
       print('❌ TTS 요청 실패: $e');
     }
   }
+
   Future<String> _saveTtsAudioFile(List<int> audioBytes) async {
     final dir = await getApplicationDocumentsDirectory();
     final fileName = 'tts_${DateTime.now().millisecondsSinceEpoch}.wav';
@@ -140,7 +140,6 @@ class _CallStartScreenState extends State<CallStartScreen> {
     print('💾 TTS 파일 저장됨: $filePath');
     return filePath;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -202,7 +201,6 @@ class _CallStartScreenState extends State<CallStartScreen> {
                       // _speak(context, "안녕","char001");
                       // await Future.delayed(Duration(seconds: 5));
                       context.go('/child/call/end');
-
                     },
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.red,
