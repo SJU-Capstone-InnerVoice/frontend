@@ -66,7 +66,7 @@ class _CallScreenState extends State<CallScreen> {
       onDisconnected: () {
         Future.microtask(() {
           if (mounted && Navigator.of(context).canPop()) {
-            context.pop();
+            context.go('/child/call/end');
           }
         });
       },

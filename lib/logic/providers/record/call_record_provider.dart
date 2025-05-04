@@ -79,7 +79,6 @@ class CallRecordProvider extends ChangeNotifier {
 
     if (mergedPath != null) {
       print('📦 병합 결과 파일 경로: $mergedPath');
-      // 필요하면 상태 저장: _mergedFilePath = mergedPath;
     }
     return mergedPath;
   }

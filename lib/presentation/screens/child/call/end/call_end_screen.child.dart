@@ -10,30 +10,39 @@ class CallEndScreen extends StatefulWidget {
   @override
   State<CallEndScreen> createState() => _CallEndScreenState();
 }
-
 class _CallEndScreenState extends State<CallEndScreen> {
   String? _mergedFilePath;
-
-  @override
-  void initState() {
-    super.initState();
-    _mergeRecording();
-  }
+  bool _hasMerged = false;
 
   Future<void> _mergeRecording() async {
     final outputFileName = 'merged_${DateTime.now().millisecondsSinceEpoch}';
-
     final mergedPath = await context
         .read<CallRecordProvider>()
         .mergeRecordingsToSingleFile(outputFileName);
 
     setState(() {
       _mergedFilePath = mergedPath;
+      _hasMerged = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final recordProvider = context.watch<CallRecordProvider>();
+    final record = recordProvider.record;
+
+    final canMerge = !_hasMerged &&
+        !recordProvider.isRecording &&
+        record != null &&
+        record.micRecordPath.isNotEmpty &&
+        record.ttsSegments.isNotEmpty;
+
+    if (canMerge) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mergeRecording();
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('📼 통화 종료')),
       body: Center(
