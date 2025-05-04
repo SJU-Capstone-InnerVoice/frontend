@@ -49,6 +49,7 @@ dependencies:
   file_picker: ^10.1.2
   just_audio: ^0.10.2
   record: ^6.0.0
+  ffmpeg_kit_flutter_min: ^6.0.3
 
 dev_dependencies:
   flutter_test:
