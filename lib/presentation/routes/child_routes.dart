@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../screens/child/child_screen.dart';
 import '../screens/child/call/call_screen.child.dart';
 import '../screens/child/call/start/call_start_screen.child.dart';
+import '../screens/child/call/end/call_end_screen.child.dart';
 import '../screens/child/setting/setting_screen.child.dart';
 import '../screens/child/setting/friends/check/friend_request_check_screen.dart';
 
@@ -16,6 +17,10 @@ final childRoutes = ShellRoute(
         GoRoute(
           path: 'start',
           builder: (context, state) => const CallStartScreen(),
+        ),
+        GoRoute(
+          path: 'end',
+          builder: (context, state) => const CallEndScreen(),
         ),
       ],
     ),

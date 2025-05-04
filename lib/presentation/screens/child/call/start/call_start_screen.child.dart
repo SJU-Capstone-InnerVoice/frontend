@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:io';
 
 import '../../../../../logic/providers/communication/call_session_provider.dart';
@@ -222,7 +223,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
                     icon: const Icon(Icons.call_end, color: Colors.white),
                     iconSize: 48,
                     onPressed: () {
-                      Navigator.pop(context,true);
+                      context.go('/child/call/end');
                     },
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.red,

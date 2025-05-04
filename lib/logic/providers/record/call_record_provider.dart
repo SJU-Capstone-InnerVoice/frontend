@@ -62,6 +62,28 @@ class CallRecordProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<String?> mergeRecordingsToSingleFile(String outputFileName) async {
+    if (_record == null) {
+      print('⚠️ 병합할 기록이 없습니다.');
+      return null;
+    }
+
+    final micPath = _record!.micRecordPath;
+    final ttsPaths = _record!.ttsSegments.map((e) => e.audioPath).toList();
+
+    final mergedPath = await _recordingService.mergeAudioFiles(
+      micPath: micPath,
+      ttsPaths: ttsPaths,
+      outputFileName: outputFileName,
+    );
+
+    if (mergedPath != null) {
+      print('📦 병합 결과 파일 경로: $mergedPath');
+      // 필요하면 상태 저장: _mergedFilePath = mergedPath;
+    }
+    return mergedPath;
+  }
+
   void clear() {
     _record = null;
     _startedAt = null;
