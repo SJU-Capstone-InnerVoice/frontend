@@ -50,6 +50,8 @@ dependencies:
   just_audio: ^0.10.2
   record: ^6.0.0
   collection: ^1.18.0
+  http_parser: ^4.0.2
+
   ffmpeg_kit_flutter:
     git:
       url: https://github.com/Sahad2701/ffmpeg-kit.git
