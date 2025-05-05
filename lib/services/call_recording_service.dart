@@ -99,7 +99,7 @@ class CallRecordingService {
     if (ReturnCode.isSuccess(returnCode)) {
       print("✅ 믹싱 완료: $outputPath");
       AudioLogger.printWavInfo(outputPath);
-      // _sendMergedAudioAndPrintSummary(outputPath);
+      _sendMergedAudioAndPrintSummary(outputPath);
       return outputPath;
     } else {
       print("❌ 믹싱 실패: ${returnCode?.getValue()}");

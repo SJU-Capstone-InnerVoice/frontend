@@ -40,10 +40,8 @@ class CallStartScreen extends StatefulWidget {
 }
 
 class _CallStartScreenState extends State<CallStartScreen> {
-
   late final CallSessionProvider _callSession;
   late final CallRecordProvider _recordProvider;
-  final player = AudioPlayer();
 
   String? _lastSpoken;
 
@@ -54,7 +52,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
 
     Future.microtask(() async {
       try {
-        await configureAudioSession();
+        configureAudioSession();
         await _recordProvider.startRecording();
         print('🎙️ 녹음 시작됨');
       } catch (e) {
@@ -62,7 +60,16 @@ class _CallStartScreenState extends State<CallStartScreen> {
       }
     });
   }
-
+  Future<void> configureAudioSession() async {
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions:
+      AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionMode: AVAudioSessionMode.defaultMode,
+    ));
+    await session.setActive(true);
+  }
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -74,27 +81,16 @@ class _CallStartScreenState extends State<CallStartScreen> {
     print("📴 CallStartScreen dispose 실행됨");
 
     _callSession.disposeCall();
-    player.dispose();
 
     super.dispose();
   }
 
-  Future<void> configureAudioSession() async {
-    final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration(
-      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.allowBluetooth |
-      AVAudioSessionCategoryOptions.defaultToSpeaker,
-      avAudioSessionMode: AVAudioSessionMode.spokenAudio,
-    ));
-  }
+
 
   Future<void> _speak(
       BuildContext context, String text, String characterId) async {
-    // await configureAudioSession();
-
     final dio = context.read<DioProvider>().dio;
-
+    final player = AudioPlayer();
     try {
       final response = await dio.post(
         TtsAPI.requestTTS,
@@ -123,10 +119,10 @@ class _CallStartScreenState extends State<CallStartScreen> {
           startMs: startMs,
         ),
       );
-
     } catch (e) {
       print('❌ TTS 요청 실패: $e');
     }
+    player.dispose();
   }
 
   Future<String> _saveTtsAudioFile(List<int> audioBytes) async {
