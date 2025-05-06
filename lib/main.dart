@@ -11,7 +11,7 @@ Future<void> configureAudioSession() async {
     avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
     avAudioSessionCategoryOptions:
             AVAudioSessionCategoryOptions.defaultToSpeaker,
-    avAudioSessionMode: AVAudioSessionMode.spokenAudio,
+    avAudioSessionMode: AVAudioSessionMode.defaultMode,
   ));
   await session.setActive(true);
 }
