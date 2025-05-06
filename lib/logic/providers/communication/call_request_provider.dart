@@ -1,23 +1,30 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../../services/call_request_service.dart';
 
 class CallRequestProvider with ChangeNotifier {
-  CallRequestService _callRequestService = CallRequestService();
+  late final Dio _dio;
+  late final CallRequestService _callRequestService;
   int? _id;
   int? _roomId;
-  String? _childId;
-  String? _parentId;
-  String? _characterId;
+  int? _childId;
+  int? _parentId;
+  int? _characterId;
   bool _isAccepted = false;
 
   // Getters
   int? get id => _id;
   int? get roomId => _roomId;
-  String? get childId => _childId;
-  String? get parentId => _parentId;
-  String? get characterId => _characterId;
+  int? get childId => _childId;
+  int? get parentId => _parentId;
+  int? get characterId => _characterId;
   bool get isAccepted => _isAccepted;
+
+  CallRequestProvider(this._dio) {
+    _callRequestService = CallRequestService(dio: _dio);
+  }
 
   // Setters
   void setRoomId() {
@@ -30,17 +37,17 @@ class CallRequestProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setChildId(String id) {
+  void setChildId(int id) {
     _childId = id;
     notifyListeners();
   }
 
-  void setParentId(String id) {
+  void setParentId(int id) {
     _parentId = id;
     notifyListeners();
   }
 
-  void setCharacterId(String id) {
+  void setCharacterId(int id) {
     _characterId = id;
     notifyListeners();
   }
@@ -56,8 +63,33 @@ class CallRequestProvider with ChangeNotifier {
   }
 
   Future<void> send() async {
-    notifyListeners();
+    if (_parentId == null || _childId == null || _characterId == null || _roomId == null) {
+      print('❌ 필수 정보가 누락되었습니다.');
+      return;
+    }
+
+    try {
+      final data = await _callRequestService.createCallRequest(
+        userId: _parentId!,
+        receiverId: _childId!,
+        characterId: _characterId!,
+        roomId: _roomId!,
+      );
+
+      _id = data['id'];
+      _parentId = data['senderId'];
+      _childId = data['receiverId'];
+      _characterId = data['characterImageId'];
+      _roomId = data['roomId'];
+      _isAccepted = data['isAccepted'] ?? false;
+
+      print('📥 Provider에 통화 요청 응답 반영 완료');
+      notifyListeners();
+    } catch (e) {
+      print('🚨 Provider send() 실패: $e');
+    }
   }
+
   Future<void> query() async {
     notifyListeners();
   }

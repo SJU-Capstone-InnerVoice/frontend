@@ -10,7 +10,6 @@ import 'logic/providers/user/user_provider.dart';
 
 /// provider, bloc 등 상태 관리 추가
 final List<SingleChildWidget> providers = [
-  ChangeNotifierProvider(create: (_) => CallRequestProvider()),
   ChangeNotifierProvider(create: (_) => CallSessionProvider()),
   ChangeNotifierProvider(create: (_) => CallRecordProvider()),
   ChangeNotifierProvider(create: (_) => DioProvider()),
@@ -22,6 +21,10 @@ final List<SingleChildWidget> providers = [
     // update는 의존하고 있는 게 바뀔 때 계속해주어야 하기 때문
     create: (_) => CharacterImgProvider(Dio()),
     update: (_, dioProvider, __) => CharacterImgProvider(dioProvider.dio),
+  ),
+  ChangeNotifierProxyProvider<DioProvider, CallRequestProvider>(
+    create: (_) => CallRequestProvider(Dio()),
+    update: (_, dioProvider, __) => CallRequestProvider(dioProvider.dio),
   ),
 ];
 

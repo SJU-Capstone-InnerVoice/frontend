@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inner_voice/logic/providers/user/user_provider.dart';
+import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
@@ -16,8 +17,10 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
+  late final CallRequestProvider _callRequest;
+  late final WebRTCService _rtc;
   late final User _user;
-  final String childId = "12";
+  final int childId = 12;
 
   // late final CallPollingService callPollingService;
   late final _dio;
@@ -26,19 +29,11 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void initState() {
     super.initState();
+    /// provider 초기화
     _user = context.read<UserProvider>().user!;
     _dio = context.read<DioProvider>().dio;
-    // callPollingService = CallPollingService(
-    //   dio: _dio,
-    //   characterId: 'char1',
-    //   roomId: 'roomA',
-    //   parentId: '1',
-    //   childId: 'child001',
-    // );
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   context.read<CharacterImgProvider>().loadImagesFromServer(_user.userId);
-    // });
+    _callRequest = context.read<CallRequestProvider>();
+    _rtc = context.read<CallSessionProvider>().rtcService;
   }
 
   void selectCharacter(String name) {
@@ -47,16 +42,18 @@ class _CallScreenState extends State<CallScreen> {
     });
   }
 
-  Future<void> createCallRequest() async {
-    // 요청 생성 기능만 남김
-    if (selectedCharacter != null) {
-      // await callPollingService.createCallRequest();
-      print('Creating call request for $selectedCharacter');
-    }
-    final rtcService = context.read<CallSessionProvider>().rtcService;
-    await rtcService.init(
+  Future<void> createCallRequest(int characterId) async {
+    if (!mounted) return;
+
+    _callRequest.setRoomId();
+    _callRequest.setCharacterId(characterId);
+    _callRequest.setChildId(childId);
+    _callRequest.setParentId(int.parse(_user.userId));
+
+    await _callRequest.send();
+    await _rtc.init(
       isCaller: true,
-      roomId: 31,
+      roomId: _callRequest.roomId!,
       onMessage: (message) {
         print("📩 받은 메시지: $message");
       },
@@ -69,7 +66,7 @@ class _CallScreenState extends State<CallScreen> {
       },
     );
 
-    context.go('/parent/call/waiting');
+    context.push('/parent/call/waiting');
   }
 
   Future<void> pollCallRequests(BuildContext context) async {
@@ -141,7 +138,7 @@ class _CallScreenState extends State<CallScreen> {
                     if (index < characters.length) {
                       final character = characters[index];
                       final isSelected = selectedCharacter == character.id;
-        
+
                       return GestureDetector(
                         onTap: () => selectCharacter(character.id),
                         child: Card(
@@ -190,7 +187,7 @@ class _CallScreenState extends State<CallScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: selectedCharacter == null ? null : createCallRequest,
+                onPressed: selectedCharacter == null ? null : () => createCallRequest(int.parse(selectedCharacter!)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: selectedCharacter == null ? Colors.grey : null,
                   minimumSize: const Size(double.infinity, 50),

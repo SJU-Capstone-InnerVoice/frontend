@@ -1,7 +1,6 @@
 import 'package:inner_voice/data/models/friend/friend_model.dart';
 
 import '../../../core/constants/user/role.dart';
-import '../friend/friend_model.dart';
 
 class User {
   final String userId;
