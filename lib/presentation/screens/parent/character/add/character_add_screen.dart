@@ -12,9 +12,9 @@ class AddCharacterScreen extends StatefulWidget {
   @override
   State<AddCharacterScreen> createState() => _AddCharacterScreenState();
 }
-
 class _AddCharacterScreenState extends State<AddCharacterScreen> {
   File? _image;
+  final TextEditingController _nameController = TextEditingController();
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -28,11 +28,17 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final User user = context.read<UserProvider>().user!;
     final bool hasImage = _image != null;
-    // 임시 설정: 서버에 이미지 업로드 테스트
-    final hasVoice = true;
+    final bool hasVoice = true;
+    final bool hasName = _nameController.text.trim().isNotEmpty;
 
     return Scaffold(
       body: SafeArea(
@@ -84,9 +90,18 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
               ),
               const SizedBox(height: 24),
 
+              // 이름 입력 필드
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: '캐릭터 이름',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 24),
+
               ElevatedButton(
                 onPressed: () {
-                  // 음성 합성 로직
                   context.go('/parent/character/voice/synthesis');
                 },
                 style: ElevatedButton.styleFrom(
@@ -100,28 +115,29 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
               const Spacer(),
 
               ElevatedButton(
-                onPressed: (hasImage && hasVoice)
-                    ? () {
-                        print("이미지 업로드");
-                        context.read<CharacterImgProvider>().uploadImage(
-                              userId: user.userId,
-                              name: "char001",
-                              type: "USER",
-                              file: _image!,
-                            );
-                      }
+                onPressed: (hasImage && hasVoice && hasName)
+                    ? () async {
+                  print("이미지 업로드");
+                  await context.read<CharacterImgProvider>().uploadImage(
+                    userId: user.userId,
+                    name: _nameController.text.trim(),
+                    type: "USER",
+                    file: _image!,
+                  );
+                  context.go("/parent/call");
+                }
                     : null,
-                style: (hasImage && hasVoice)
+                style: (hasImage && hasVoice && hasName)
                     ? ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange[300],
-                        foregroundColor: Colors.orange[600],
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      )
+                  backgroundColor: Colors.orange[300],
+                  foregroundColor: Colors.orange[600],
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                )
                     : ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        foregroundColor: Colors.grey[600],
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
+                  backgroundColor: Colors.grey[300],
+                  foregroundColor: Colors.grey[600],
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
                 child: const Text('현재 캐릭터로 대화방 생성'),
               ),
             ],

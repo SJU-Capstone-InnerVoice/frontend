@@ -14,7 +14,7 @@ class CharacterImgProvider extends ChangeNotifier {
   Map<String, Map<String, Image>> get imageWidgets => _imageWidgets;
 
   Future<void> uploadImage({
-    required String userId,
+    required dynamic userId, // 또는 Object
     required String name,
     required String type,
     required File file,
@@ -22,8 +22,9 @@ class CharacterImgProvider extends ChangeNotifier {
     try {
       final String uploadUrl = CharacterImgApi.uploadCharacterImg;
       print(uploadUrl);
+
       FormData formData = FormData.fromMap({
-        'userId': userId,
+        'userId': userId.toString(), // 여긴 여전히 문자열로 보내야 함
         'name': name,
         'type': type,
         'file': await MultipartFile.fromFile(
@@ -47,7 +48,6 @@ class CharacterImgProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         print('✅ 이미지 업로드 성공');
         _hasLoaded = false;
-
       } else {
         throw Exception('🚫 서버 업로드 실패: ${response.data}');
       }
