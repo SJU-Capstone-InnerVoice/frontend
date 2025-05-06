@@ -100,26 +100,31 @@ class _CallScreenState extends State<CallScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  border: Border.all(color: Colors.blueAccent),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.child_care,
-                        color: Colors.blueAccent, size: 28),
-                    const SizedBox(width: 12),
-                    Text(
-                      '아이 선택됨:',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                  ],
+              GestureDetector(
+                onTap: (){
+                  context.push('/parent/settings/friend/list');
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    border: Border.all(color: Colors.blueAccent),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.child_care,
+                          color: Colors.blueAccent, size: 28),
+                      const SizedBox(width: 12),
+                      Text(
+                        '아이 선택됨:',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Expanded(

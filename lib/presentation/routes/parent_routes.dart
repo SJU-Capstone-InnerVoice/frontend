@@ -43,7 +43,7 @@ final parentRoutes = ShellRoute(
         ),
         GoRoute(
           path: 'voice',
-          builder: (context, state) =>const SizedBox.shrink(), // dummy
+          builder: (context, state) => const SizedBox.shrink(), // dummy
           routes: [
             GoRoute(
               path: 'synthesis',

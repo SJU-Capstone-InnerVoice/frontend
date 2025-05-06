@@ -61,7 +61,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/parent/settings/');
+            context.pop();
           },
         ),
         title: const Text('친구 목록'),
