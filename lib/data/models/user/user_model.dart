@@ -1,9 +1,11 @@
+import 'package:inner_voice/data/models/friend/friend_model.dart';
+
 import '../../../core/constants/user/role.dart';
-import 'child_model.dart';
+import '../friend/friend_model.dart';
 
 class User {
   final String userId;
-  final List<Child> childList;
+  final List<Friend> childList;
   final String? myParent;
   final UserRole role;
 
@@ -16,7 +18,7 @@ class User {
 
   User copyWith({
     String? userId,
-    List<Child>? childList,
+    List<Friend>? childList,
     String? myParent,
     UserRole? role,
   }) {
@@ -33,14 +35,5 @@ class User {
       userId: json['id'].toString(),
       role: json['role'] == 'PARENT' ? UserRole.parent : UserRole.child,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': userId,
-      'role': role == UserRole.parent ? 'PARENT' : 'CHILD',
-      'childList': childList.map((c) => c.toJson()).toList(),
-      'myParent': myParent,
-    };
   }
 }

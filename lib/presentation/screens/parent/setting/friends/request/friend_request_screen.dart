@@ -126,7 +126,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/parent/settings/friend/list');
+            context.pop();
           },
         ),
       ),

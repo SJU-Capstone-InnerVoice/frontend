@@ -5,6 +5,10 @@ import 'package:provider/provider.dart';
 import '../../../../../../core/constants/api/friends_api.dart';
 import '../../../../../../data/models/friend/friend_request_model.dart';
 import '../../../../../../logic/providers/network/dio_provider.dart';
+import '../../../../../../logic/providers/user/user_provider.dart';
+import '../../../../../../services/friend_service.dart';
+import '../../../../../../data/models/user/user_model.dart';
+
 class FriendRequestCheckScreen extends StatefulWidget {
   const FriendRequestCheckScreen({super.key});
 
@@ -14,7 +18,8 @@ class FriendRequestCheckScreen extends StatefulWidget {
 }
 
 class _FriendRequestCheckScreenState extends State<FriendRequestCheckScreen> {
-  late final _dio;
+  late final Dio _dio;
+  late final User _user;
   List<FriendRequest> _requests = [];
   bool _isLoading = true;
   String? _error;
@@ -23,7 +28,27 @@ class _FriendRequestCheckScreenState extends State<FriendRequestCheckScreen> {
   void initState() {
     super.initState();
     _dio = context.read<DioProvider>().dio;
-    fetchFriendRequests();
+    _user = context.read<UserProvider>().user!;
+    _loadFriendRequests();
+  }
+
+  Future<void> _loadFriendRequests() async {
+    try {
+      final requests = await FriendService.queryRequestList(
+        dio: _dio,
+        userId: _user.userId,
+      );
+
+      setState(() {
+        _requests = requests;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> acceptRequest(int requestId) async {
@@ -51,30 +76,6 @@ class _FriendRequestCheckScreenState extends State<FriendRequestCheckScreen> {
       );
     }
   }
-  Future<void> fetchFriendRequests() async {
-
-    try {
-      final response = await _dio.get(
-        FriendsApi.checkRequestFriends,
-        queryParameters: {QueryKeys.userId: 2},
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        setState(() {
-          _requests = data.map((e) => FriendRequest.fromJson(e)).toList();
-          _isLoading = false;
-        });
-      } else {
-        throw Exception('서버 오류: ${response.statusCode}');
-      }
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,21 +98,23 @@ class _FriendRequestCheckScreenState extends State<FriendRequestCheckScreen> {
           },
         ),
       ),
-      body: ListView.builder(
-        itemCount: _requests.length,
-        itemBuilder: (context, index) {
-          final request = _requests[index];
-          return ListTile(
-            leading: Text('${request.requestId}'),
-            title: Text(request.userName),
-            subtitle: Text('User ID: ${request.userId}'),
-            trailing: ElevatedButton(
-              onPressed: () => acceptRequest(request.requestId),
-              child: const Text('수락'),
+      body: _requests.isEmpty
+          ? const Center(child: Text('📭 요청이 없습니다.'))
+          : ListView.builder(
+              itemCount: _requests.length,
+              itemBuilder: (context, index) {
+                final request = _requests[index];
+                return ListTile(
+                  leading: Text('${request.requestId}'),
+                  title: Text(request.userName),
+                  subtitle: Text('User ID: ${request.userId}'),
+                  trailing: ElevatedButton(
+                    onPressed: () => acceptRequest(request.requestId),
+                    child: const Text('수락'),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }

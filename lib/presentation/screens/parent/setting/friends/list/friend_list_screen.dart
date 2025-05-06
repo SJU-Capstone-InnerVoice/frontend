@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../logic/providers/user/user_provider.dart';
-import '../../../../../../data/models/user/child_model.dart';
 
 class FriendListScreen extends StatelessWidget {
   const FriendListScreen({super.key});
@@ -47,14 +46,14 @@ class FriendListScreen extends StatelessWidget {
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(
-                      'https://picsum.photos/seed/${child.id}/100/100',
+                      'https://picsum.photos/seed/${child.friendId}/100/100',
                     ),
                   ),
-                  title: Text(child.name),
+                  title: Text(child.friendName),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${child.name}을 눌렀습니다')),
+                      SnackBar(content: Text('${child.friendName}을 눌렀습니다')),
                     );
                   },
                 );
