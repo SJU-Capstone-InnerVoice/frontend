@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../data/models/user/user_model.dart';
 import '../../../logic/providers/network/dio_provider.dart';
 import '../../../core/constants/api/login_api.dart';
+import '../../../core/constants/user/role.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,6 +23,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool isLoading = false;
   String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    /// provider 설정
+    _dio = context.read<DioProvider>().dio;
+    _user = context.read<UserProvider>().user;
+  }
 
   Future<void> _handleLogin() async {
     setState(() {
@@ -41,32 +50,17 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      final response = await _dio.post(
-        LoginApi.login, // .env에 정의된 로그인 엔드포인트
-        data: {
-          'name': name,
-          'password': password,
-        },
-      );
+      final dio = context.read<DioProvider>().dio;
+      final userProvider = context.read<UserProvider>();
 
-      if (response.statusCode == 200) {
-        context.go('/mode'); // 로그인 성공 시 메인 화면 이동
-      } else {
-        setState(() {
-          errorMessage = '로그인 실패: 서버 응답 오류 (${response.statusCode})';
-        });
-      }
-    } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? '로그인 중 오류가 발생했습니다.';
-      setState(() {
-        errorMessage = msg;
-      });
-      print('Dio 예외: ${e.response?.data}');
+      await userProvider.handleLogin(
+          dio, name, password);
+
+      context.go('/mode');
     } catch (e) {
       setState(() {
-        errorMessage = '알 수 없는 오류가 발생했습니다.';
+        errorMessage = '로그인 실패: ${e.toString()}';
       });
-      print('예외 발생: $e');
     } finally {
       setState(() {
         isLoading = false;
@@ -83,9 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    /// provider 설정
-    _dio = context.read<DioProvider>().dio;
-    _user = context.read<UserProvider>().user;
 
 
     return Scaffold(
@@ -103,27 +94,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Text("Logo", style: TextStyle(fontSize: 18, color: Colors.black54)),
+                child: Text("Logo",
+                    style: TextStyle(fontSize: 18, color: Colors.black54)),
               ),
             ),
             const SizedBox(height: 40),
-
             TextField(
               controller: _idController,
               decoration: const InputDecoration(labelText: '아이디'),
             ),
             const SizedBox(height: 12),
-
             TextField(
               controller: _pwController,
               decoration: const InputDecoration(labelText: '비밀번호'),
               obscureText: true,
             ),
             const SizedBox(height: 24),
-
             if (errorMessage != null)
               Text(errorMessage!, style: const TextStyle(color: Colors.red)),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -131,7 +119,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
@@ -139,7 +128,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -148,14 +136,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   side: const BorderSide(color: Colors.black),
                 ),
-                child: const Text("회원가입", style: TextStyle(fontSize: 16, color: Colors.black)),
+                child: const Text("회원가입",
+                    style: TextStyle(fontSize: 16, color: Colors.black)),
               ),
             ),
             const SizedBox(height: 24),
-
           ],
         ),
       ),
