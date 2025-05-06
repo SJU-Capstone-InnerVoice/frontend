@@ -92,10 +92,29 @@ class _CallStartScreenState extends State<CallStartScreen> {
     final dio = context.read<DioProvider>().dio;
     final player = AudioPlayer();
     try {
+      // final response = await dio.post(
+      //   TtsAPI.requestTTS,
+      //   data: {'text': text, 'characterId': characterId},
+      //   options: Options(responseType: ResponseType.bytes),
+      // );
+
+
+      final formData = FormData.fromMap({
+        'user_id': 'colab_user',
+        'weight_name': 'musk',
+        'text': text,
+      });
+
       final response = await dio.post(
-        TtsAPI.requestTTS,
-        data: {'text': text, 'characterId': characterId},
-        options: Options(responseType: ResponseType.bytes),
+        "https://210b-211-180-114-56.ngrok-free.app/synthesize",
+        data: formData,
+        options: Options(
+          responseType: ResponseType.bytes,
+          contentType: 'multipart/form-data',
+          sendTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+          // connectTimeout은 Dio instance에서 설정
+        ),
       );
 
       final audioBytes = response.data;
@@ -111,6 +130,8 @@ class _CallStartScreenState extends State<CallStartScreen> {
           : startTime.difference(DateTime.parse(startedAt)).inMilliseconds;
 
       await player.play();
+
+
 
       _recordProvider.addTtsSegment(
         TtsSegmentModel(
