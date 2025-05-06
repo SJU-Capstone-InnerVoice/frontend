@@ -25,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+
     /// provider 설정
     _dio = context.read<DioProvider>().dio;
     _user = context.read<UserProvider>().user;
@@ -51,8 +52,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final dio = context.read<DioProvider>().dio;
       final userProvider = context.read<UserProvider>();
 
-      await userProvider.handleLogin(
-          dio, name, password);
+      await userProvider.handleLogin(dio, name, password);
+      await userProvider.setChildList(dio);
 
       context.go('/mode');
     } catch (e) {
@@ -75,8 +76,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(title: const Text("로그인")),
       body: Padding(
