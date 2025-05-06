@@ -17,6 +17,7 @@ class CallScreen extends StatefulWidget {
 
 class _CallScreenState extends State<CallScreen> {
   late final User _user;
+  final String childId = "12";
 
   // late final CallPollingService callPollingService;
   late final _dio;
@@ -119,7 +120,7 @@ class _CallScreenState extends State<CallScreen> {
                           color: Colors.blueAccent, size: 28),
                       const SizedBox(width: 12),
                       Text(
-                        '아이 선택됨:',
+                        '아이 선택됨:${childId}',
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600),
                       ),
