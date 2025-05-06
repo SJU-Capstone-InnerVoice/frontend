@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
+import '../../../../core/constants/api/login_api.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -11,7 +14,86 @@ class _SignupScreenState extends State<SignUpScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+
+  final Dio _dio = Dio();
   bool isAgreed = true;
+  String? selectedRole; // CHILD 또는 PARENT
+
+  void _onSignup() async {
+    final name = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (name.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      _showMessage("모든 항목을 입력해주세요.");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showMessage("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    if (selectedRole == null) {
+      _showMessage("역할을 선택해주세요.");
+      return;
+    }
+
+    try {
+      final data = {
+        'name': name,
+        'password': password,
+        'role': selectedRole!, // 'CHILD' 또는 'PARENT'
+      };
+
+      final response = await _dio.post(LoginApi.register, data: data);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _showMessage("회원가입이 완료되었습니다.");
+        context.go('/login');
+      } else {
+        _showMessage("회원가입 실패: 서버 응답 오류 (${response.statusCode})");
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data?['message'] ?? '회원가입 중 오류가 발생했습니다.';
+      _showMessage(message);
+      print('Dio 예외: ${e.response?.data}');
+    } catch (e) {
+      print('예외 발생: $e');
+      _showMessage("알 수 없는 오류가 발생했습니다.");
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildInputField(TextEditingController controller, String hintText, {bool obscureText = false}) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        hintText: hintText,
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.orange),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.orange, width: 2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,16 +116,12 @@ class _SignupScreenState extends State<SignUpScreen> {
               'https://picsum.photos/200/300',
               width: 120,
               height: 120,
-              fit: BoxFit.cover, // (필요하면 추가) 꽉 채워서 예쁘게 맞출 수 있음
+              fit: BoxFit.cover,
             ),
             const SizedBox(height: 20),
             const Text(
               '마음의 소리',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.orange,
-              ),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -57,6 +135,27 @@ class _SignupScreenState extends State<SignUpScreen> {
             _buildInputField(passwordController, '비밀번호 입력', obscureText: true),
             const SizedBox(height: 16),
             _buildInputField(confirmPasswordController, '비밀번호 확인', obscureText: true),
+            const SizedBox(height: 16),
+
+            // 역할 선택
+            DropdownButtonFormField<String>(
+              value: selectedRole,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              hint: const Text('역할 선택'),
+              items: const [
+                DropdownMenuItem(value: 'CHILD', child: Text('아이')),
+                DropdownMenuItem(value: 'PARENT', child: Text('부모')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  selectedRole = value;
+                });
+              },
+            ),
+
             const SizedBox(height: 24),
             Row(
               children: [
@@ -84,9 +183,7 @@ class _SignupScreenState extends State<SignUpScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('회원가입', style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
@@ -94,29 +191,5 @@ class _SignupScreenState extends State<SignUpScreen> {
         ),
       ),
     );
-  }
-
-  Widget _buildInputField(TextEditingController controller, String hintText, {bool obscureText = false}) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        hintText: hintText,
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.orange),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.orange, width: 2),
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-    );
-  }
-
-  void _onSignup() {
-    // TODO: 회원가입 로직 추가
-    print('회원가입 시도: ${emailController.text}');
   }
 }

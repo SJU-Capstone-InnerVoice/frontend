@@ -1,8 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
+import '../../../core/constants/api/login_api.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _pwController = TextEditingController();
+  final Dio _dio = Dio();
+
+  bool isLoading = false;
+  String? errorMessage;
+
+  Future<void> _handleLogin() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    final name = _idController.text.trim();
+    final password = _pwController.text.trim();
+
+    if (name.isEmpty || password.isEmpty) {
+      setState(() {
+        errorMessage = '아이디와 비밀번호를 모두 입력해주세요.';
+        isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      final response = await _dio.post(
+        LoginApi.login, // .env에 정의된 로그인 엔드포인트
+        data: {
+          'name': name,
+          'password': password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        context.go('/mode'); // 로그인 성공 시 메인 화면 이동
+      } else {
+        setState(() {
+          errorMessage = '로그인 실패: 서버 응답 오류 (${response.statusCode})';
+        });
+      }
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? '로그인 중 오류가 발생했습니다.';
+      setState(() {
+        errorMessage = msg;
+      });
+      print('Dio 예외: ${e.response?.data}');
+    } catch (e) {
+      setState(() {
+        errorMessage = '알 수 없는 오류가 발생했습니다.';
+      });
+      print('예외 발생: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _idController.dispose();
+    _pwController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +85,6 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Placeholder for logo
             Container(
               width: 100,
               height: 100,
@@ -26,23 +97,39 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
-            // Login Button
+
+            TextField(
+              controller: _idController,
+              decoration: const InputDecoration(labelText: '아이디'),
+            ),
+            const SizedBox(height: 12),
+
+            TextField(
+              controller: _pwController,
+              decoration: const InputDecoration(labelText: '비밀번호'),
+              obscureText: true,
+            ),
+            const SizedBox(height: 24),
+
+            if (errorMessage != null)
+              Text(errorMessage!, style: const TextStyle(color: Colors.red)),
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  context.go('/mode');
-                },
+                onPressed: isLoading ? null : _handleLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text("로그인", style: TextStyle(fontSize: 16)),
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text("로그인", style: TextStyle(fontSize: 16)),
               ),
             ),
             const SizedBox(height: 16),
-            // Sign Up Button
+
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -58,32 +145,24 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton(
-                  onPressed: () {
-                    // TODO: 아이디 찾기 화면 이동
-                    context.go('/find-id');
-                  },
+                  onPressed: () => context.go('/find-id'),
                   child: const Text('아이디 찾기', style: TextStyle(color: Colors.grey)),
                 ),
                 const Text('|', style: TextStyle(color: Colors.grey)),
                 TextButton(
-                  onPressed: () {
-                    // TODO: 비밀번호 찾기 화면 이동
-                    context.go('/login/find-password');
-                  },
+                  onPressed: () => context.go('/login/find-password'),
                   child: const Text('비밀번호 찾기', style: TextStyle(color: Colors.grey)),
                 ),
               ],
             ),
 
-            // Continue as Guest
             TextButton(
-              onPressed: () {
-                context.go('/');
-              },
+              onPressed: () => context.go('/'),
               child: const Text("비회원으로 계속하기", style: TextStyle(color: Colors.grey)),
             ),
           ],
