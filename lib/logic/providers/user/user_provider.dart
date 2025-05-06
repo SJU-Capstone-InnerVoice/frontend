@@ -19,9 +19,4 @@ class UserProvider with ChangeNotifier {
     _user = _user.copyWith(myParent: parentId);
     notifyListeners();
   }
-
-  void clearUser() {
-    // _user = null 불가 → 별도 상태로 관리해야 함
-    notifyListeners();
-  }
 }
