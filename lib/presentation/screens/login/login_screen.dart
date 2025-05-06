@@ -28,6 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     /// provider 설정
     _dio = context.read<DioProvider>().dio;
+    context.read<UserProvider>().clear();
     _user = context.read<UserProvider>().user;
   }
 

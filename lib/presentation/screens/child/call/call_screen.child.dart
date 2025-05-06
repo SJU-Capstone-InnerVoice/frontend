@@ -4,7 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../services/call_request_service.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
+import '../../../../logic/providers/communication/call_request_provider.dart';
 import '../../../../logic/providers/network/dio_provider.dart';
+import '../../../../logic/providers/user/user_provider.dart';
+import '../../../../data/models/user/user_model.dart';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -14,8 +17,9 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  // late final CallPollingService callPollingService;
   late final _dio;
+  late CallRequestProvider _callRequest;
+  late User _user;
   bool hasCallRequest = false;
   Timer? _pollingTimer;
 
@@ -23,26 +27,27 @@ class _CallScreenState extends State<CallScreen> {
   void initState() {
     super.initState();
     _dio = context.read<DioProvider>().dio;
-    // callPollingService = CallPollingService(
-    //   dio: _dio,
-    //   characterId: 'char1',
-    //   roomId: 'roomA',
-    //   parentId: 'parent001',
-    //   childId: 'child001',
-    // );
+    _callRequest = context.read<CallRequestProvider>();
+    _user = context.read<UserProvider>().user!;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _callRequest.setRoomId();
+      _callRequest.setChildId(int.parse(_user.userId));
+      _callRequest.setParentId(int.parse(_user.userId));
+    });
+
     _startPolling();
   }
 
   void _startPolling() {
     _pollingTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      await pollCallRequest();
+      await queryCallRequest();
     });
   }
 
-  Future<void> pollCallRequest() async {
-    // final data = await callPollingService.pollCallRequests();
+  Future<void> queryCallRequest() async {
+    final data = await _callRequest.query();
     setState(() {
-      // hasCallRequest = data.isNotEmpty;
+      hasCallRequest = data != null && data.isNotEmpty;
     });
   }
 
@@ -74,7 +79,7 @@ class _CallScreenState extends State<CallScreen> {
     context.push('/child/call/start').then((_) {
       // 돌아왔을 때 polling 재시작 + UI 갱신
       _startPolling();
-      pollCallRequest();
+      queryCallRequest();
     });
   }
 

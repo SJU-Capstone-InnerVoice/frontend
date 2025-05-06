@@ -90,9 +90,38 @@ class CallRequestProvider with ChangeNotifier {
     }
   }
 
-  Future<void> query() async {
-    notifyListeners();
+  Future<Map<String, dynamic>?> query() async {
+    if (_childId == null) {
+      debugPrint('❌ 자식 ID가 설정되어 있지 않습니다.');
+      return null;
+    }
+
+    try {
+      final responses = await _callRequestService.queryCallRequest(userId: _childId!);
+
+      if (responses.isEmpty) {
+        debugPrint('📭 조회된 통화 요청이 없습니다.');
+        return null;
+      }
+
+      final latest = responses.last;
+
+      _id = latest['id'];
+      _parentId = latest['senderId'];
+      _childId = latest['receiverId'];
+      _characterId = latest['characterImageId'];
+      _roomId = latest['roomId'];
+      _isAccepted = latest['isAccepted'] ?? false;
+
+      debugPrint('📡 통화 요청 정보 갱신 완료');
+      notifyListeners();
+      return latest;
+    } catch (e) {
+      debugPrint('🚨 Provider query() 실패: $e');
+      return null;
+    }
   }
+
   Future<void> accept() async {
     notifyListeners();
   }

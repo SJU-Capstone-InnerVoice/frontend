@@ -40,4 +40,8 @@ class UserProvider with ChangeNotifier {
       print('❌ childList 설정 실패: $e');
     }
   }
+  void clear() {
+    _user = null;
+    notifyListeners();
+  }
 }

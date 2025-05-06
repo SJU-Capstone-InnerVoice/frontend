@@ -35,6 +35,27 @@ class CallRequestService {
       rethrow;
     }
   }
+
+  Future<List<Map<String, dynamic>>> queryCallRequest({required int userId}) async {
+    try {
+      final response = await dio.get(
+        CallRequestAPI.queryCallRequest,
+        queryParameters: {'userId': userId},
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      if (response.statusCode == 200) {
+        print('📨 통화 요청 조회 성공: ${response.data}');
+        return List<Map<String, dynamic>>.from(response.data);
+      } else {
+        throw Exception('❗ 요청 실패: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ 통화 요청 조회 실패: $e');
+      rethrow;
+    }
+  }
+
   Future<void> deleteCallRequest({
     required int requestId,
   }) async {
