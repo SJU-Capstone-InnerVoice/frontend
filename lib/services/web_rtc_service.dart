@@ -9,6 +9,8 @@ import '../core/constants/api/socket_api.dart';
 typedef OnMessageReceived = void Function(String message);
 
 class WebRTCService {
+  final List<RTCIceCandidate> _pendingCandidates = [];
+
   late RTCVideoRenderer _localRenderer;
   late RTCVideoRenderer _remoteRenderer;
 
@@ -236,6 +238,15 @@ class WebRTCService {
         .setRemoteDescription(RTCSessionDescription(sdp, 'offer'));
     final answer = await _peerConnection!.createAnswer();
     await _peerConnection!.setLocalDescription(answer);
+    for (final c in _pendingCandidates) {
+      try {
+        await _peerConnection!.addCandidate(c);
+      } catch (e) {
+        print("❌ 지연된 Candidate 추가 실패: $e");
+      }
+    }
+    _pendingCandidates.clear();
+
     print('_handleOffer: $_roomId');
     _channel?.sink.add(jsonEncode({
       'type': 'answer',
@@ -265,6 +276,20 @@ class WebRTCService {
       data['sdpMid'],
       data['sdpMLineIndex'],
     );
+
+    if (_peerConnection == null) {
+      print("❌ PeerConnection이 아직 없음. Candidate 보류.");
+      _pendingCandidates.add(candidate);
+      return;
+    }
+
+    final remoteDesc = await _peerConnection!.getRemoteDescription();
+
+    if (remoteDesc == null) {
+      print("❌ Remote Description이 아직 없음. Candidate 보류.");
+      _pendingCandidates.add(candidate);
+      return;
+    }
 
     try {
       await _peerConnection!.addCandidate(candidate);
