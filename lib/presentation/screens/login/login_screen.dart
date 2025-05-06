@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
+import 'package:inner_voice/logic/providers/user/user_provider.dart';
+import 'package:provider/provider.dart';
+import '../../../data/models/user/user_model.dart';
+import '../../../logic/providers/network/dio_provider.dart';
 import '../../../core/constants/api/login_api.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,7 +17,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
-  final Dio _dio = Dio();
+  late final Dio _dio;
+  late final User _user;
 
   bool isLoading = false;
   String? errorMessage;
@@ -78,6 +83,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    /// provider 설정
+    _dio = context.read<DioProvider>().dio;
+    _user = context.read<UserProvider>().user;
+
+
     return Scaffold(
       appBar: AppBar(title: const Text("로그인")),
       body: Padding(
@@ -146,25 +156,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 24),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () => context.go('/find-id'),
-                  child: const Text('아이디 찾기', style: TextStyle(color: Colors.grey)),
-                ),
-                const Text('|', style: TextStyle(color: Colors.grey)),
-                TextButton(
-                  onPressed: () => context.go('/login/find-password'),
-                  child: const Text('비밀번호 찾기', style: TextStyle(color: Colors.grey)),
-                ),
-              ],
-            ),
-
-            TextButton(
-              onPressed: () => context.go('/'),
-              child: const Text("비회원으로 계속하기", style: TextStyle(color: Colors.grey)),
-            ),
           ],
         ),
       ),

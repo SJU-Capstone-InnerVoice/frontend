@@ -2,34 +2,35 @@ import '../../../core/constants/user/role.dart';
 
 class User {
   final String userId;
-  final List<String>? childList; // 부모 경우
-  final String? myParent; // 아이 경우
+  final List<String> childList;
+  final String? myParent;
   final UserRole role;
 
   User({
     required this.userId,
-    this.childList,
+    this.childList = const [],
     this.myParent,
     required this.role,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  User copyWith({
+    String? userId,
+    List<String>? childList,
+    String? myParent,
+    UserRole? role,
+  }) {
     return User(
-      userId: json['userId'],
-      childList: json['childList'] != null
-          ? List<String>.from(json['childList'])
-          : null,
-      myParent: json['myParent'],
-      role: UserRole.values.firstWhere((e) => e.name == json['role']),
+      userId: userId ?? this.userId,
+      childList: childList ?? this.childList,
+      myParent: myParent ?? this.myParent,
+      role: role ?? this.role,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'userId': userId,
-      'childList': childList,
-      'myParent': myParent,
-      'role': role.name,
-    };
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      userId: json['id'].toString(),
+      role: json['role'] == 'PARENT' ? UserRole.parent : UserRole.child,
+    );
   }
 }
