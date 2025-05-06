@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../services/call_request_service.dart';
 
 class CallRequestProvider with ChangeNotifier {
+  CallRequestService _callRequestService = CallRequestService();
   int? _id;
   int? _roomId;
   String? _childId;
@@ -43,14 +45,27 @@ class CallRequestProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void accept() {
+  void setAccept() {
     _isAccepted = true;
     notifyListeners();
   }
 
-  void reject() {
+  void setReject() {
     _isAccepted = false;
     notifyListeners();
+  }
+
+  Future<void> send() async {
+    notifyListeners();
+  }
+  Future<void> query() async {
+    notifyListeners();
+  }
+  Future<void> accept() async {
+    notifyListeners();
+  }
+  Future<void> delete() async {
+    clearRoom();
   }
 
   void clearRoom() {
@@ -62,4 +77,6 @@ class CallRequestProvider with ChangeNotifier {
     _isAccepted = false;
     notifyListeners();
   }
+
+
 }

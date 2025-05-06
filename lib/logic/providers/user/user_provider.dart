@@ -6,8 +6,8 @@ import '../../../services/login_service.dart';
 class UserProvider with ChangeNotifier {
   final LoginService _loginService = LoginService();
 
-  late User _user;
-  User get user => _user;
+  User? _user;
+  User? get user => _user;
 
   void setUser(User newUser) {
     _user = newUser;
@@ -15,12 +15,12 @@ class UserProvider with ChangeNotifier {
   }
 
   void addChild(String childId) {
-    _user = _user.copyWith(childList: [..._user.childList, childId]);
+    _user = _user!.copyWith(childList: [..._user!.childList, childId]);
     notifyListeners();
   }
 
   void setParent(String parentId) {
-    _user = _user.copyWith(myParent: parentId);
+    _user = _user!.copyWith(myParent: parentId);
     notifyListeners();
   }
 

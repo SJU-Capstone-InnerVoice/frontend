@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../../services/call_polling_service.dart';
+import '../../../../../services/call_request_service.dart';
 import '../../../../../logic/providers/network/dio_provider.dart';
 
 class CallWaitingScreen extends StatefulWidget {
@@ -14,7 +14,7 @@ class CallWaitingScreen extends StatefulWidget {
 
 class _CallWaitingScreenState extends State<CallWaitingScreen> {
   late final _dio;
-  late final CallPollingService pollingService;
+  // late final CallPollingService pollingService;
 
 
   Timer? _pollingTimer;
@@ -26,14 +26,14 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
   @override
   void initState() {
     super.initState();
-    _dio = context.read<DioProvider>().dio;
-    pollingService = CallPollingService(
-      dio: _dio,
-      characterId: 'char1',
-      roomId: 'roomA',
-      parentId: 'parent001',
-      childId: 'child001',
-    );
+    // _dio = context.read<DioProvider>().dio;
+    // pollingService = CallPollingService(
+    //   dio: _dio,
+    //   characterId: 'char1',
+    //   roomId: 'roomA',
+    //   parentId: 'parent001',
+    //   childId: 'child001',
+    // );
     _startPolling();
     _startDotAnimation();
 
@@ -41,16 +41,16 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
 
   void _startPolling() {
     _pollingTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      final result = await pollingService.pollCallRequests();
+      // final result = await pollingService.pollCallRequests();
 
-      if (result.any((e) => e['status'] == 'accepted')) {
-        _pollingTimer?.cancel();
-        _dotTimer?.cancel();
-        if (context.mounted) {
-          context.go('/parent/call/start');
-          await pollingService.deleteCallRequest();
-        }
-      }
+      // if (result.any((e) => e['status'] == 'accepted')) {
+      //   _pollingTimer?.cancel();
+      //   _dotTimer?.cancel();
+      //   if (context.mounted) {
+      //     context.go('/parent/call/start');
+      //     // await pollingService.deleteCallRequest();
+      //   }
+      // }
     });
   }
 
@@ -78,7 +78,7 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: ()  async {
-            await pollingService.deleteCallRequest();
+            // await pollingService.deleteCallRequest();
             context.pop();
           },
         ),

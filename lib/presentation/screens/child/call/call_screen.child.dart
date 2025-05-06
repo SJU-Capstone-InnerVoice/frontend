@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../services/call_polling_service.dart';
+import '../../../../services/call_request_service.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/network/dio_provider.dart';
 
@@ -14,7 +14,7 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  late final CallPollingService callPollingService;
+  // late final CallPollingService callPollingService;
   late final _dio;
   bool hasCallRequest = false;
   Timer? _pollingTimer;
@@ -23,13 +23,13 @@ class _CallScreenState extends State<CallScreen> {
   void initState() {
     super.initState();
     _dio = context.read<DioProvider>().dio;
-    callPollingService = CallPollingService(
-      dio: _dio,
-      characterId: 'char1',
-      roomId: 'roomA',
-      parentId: 'parent001',
-      childId: 'child001',
-    );
+    // callPollingService = CallPollingService(
+    //   dio: _dio,
+    //   characterId: 'char1',
+    //   roomId: 'roomA',
+    //   parentId: 'parent001',
+    //   childId: 'child001',
+    // );
     _startPolling();
   }
 
@@ -40,18 +40,18 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   Future<void> pollCallRequest() async {
-    final data = await callPollingService.pollCallRequests();
+    // final data = await callPollingService.pollCallRequests();
     setState(() {
-      hasCallRequest = data.isNotEmpty;
+      // hasCallRequest = data.isNotEmpty;
     });
   }
 
   Future<void> acceptCallRequest() async {
     _pollingTimer?.cancel();
-    await callPollingService.updateCallStatus('accepted');
-    final data = await callPollingService.pollCallRequests();
+    // await callPollingService.updateCallStatus('accepted');
+    // final data = await callPollingService.pollCallRequests();
     setState(() {
-      hasCallRequest = data.isNotEmpty;
+      // hasCallRequest = data.isNotEmpty;
     });
     final callSession = context.read<CallSessionProvider>();
 

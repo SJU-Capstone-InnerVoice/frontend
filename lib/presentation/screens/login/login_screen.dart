@@ -5,8 +5,6 @@ import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/user/user_model.dart';
 import '../../../logic/providers/network/dio_provider.dart';
-import '../../../core/constants/api/login_api.dart';
-import '../../../core/constants/user/role.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
   late final Dio _dio;
-  late final User _user;
+  late final User? _user;
 
   bool isLoading = false;
   String? errorMessage;

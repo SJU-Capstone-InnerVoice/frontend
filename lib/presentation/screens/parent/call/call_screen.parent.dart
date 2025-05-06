@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../../../services/call_polling_service.dart';
+import '../../../../services/call_request_service.dart';
 import '../../../../logic/providers/communication/call_polling_provider.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
@@ -15,7 +15,7 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  late final CallPollingService callPollingService;
+  // late final CallPollingService callPollingService;
   late final _dio;
   String? selectedCharacter;
 
@@ -23,13 +23,13 @@ class _CallScreenState extends State<CallScreen> {
   void initState() {
     super.initState();
     _dio = context.read<DioProvider>().dio;
-    callPollingService = CallPollingService(
-      dio: _dio,
-      characterId: 'char1',
-      roomId: 'roomA',
-      parentId: '1',
-      childId: 'child001',
-    );
+    // callPollingService = CallPollingService(
+    //   dio: _dio,
+    //   characterId: 'char1',
+    //   roomId: 'roomA',
+    //   parentId: '1',
+    //   childId: 'child001',
+    // );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CharacterImgProvider>().loadImagesFromServer('1');
@@ -46,7 +46,7 @@ class _CallScreenState extends State<CallScreen> {
 
     // 요청 생성 기능만 남김
     if (selectedCharacter != null) {
-      await callPollingService.createCallRequest();
+      // await callPollingService.createCallRequest();
       print('Creating call request for $selectedCharacter');
     }
     final rtcService = context.read<CallSessionProvider>().rtcService;
@@ -69,12 +69,12 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   Future<void> pollCallRequests(BuildContext context) async {
-    final data = await callPollingService.pollCallRequests();
-    context.read<CallPollingProvider>().updatePolledData(data);
+    // final data = await callPollingService.pollCallRequests();
+    // context.read<CallPollingProvider>().updatePolledData(data);
   }
 
   Future<void> updateCallStatus(BuildContext context, String newStatus) async {
-    await callPollingService.updateCallStatus(newStatus);
+    // await callPollingService.updateCallStatus(newStatus);
     await pollCallRequests(context);
   }
 

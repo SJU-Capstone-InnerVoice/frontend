@@ -1,7 +1,7 @@
-// core/constants/api/polling_api.dart
+// core/constants/api/CallRequest_api.dart
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class PollingAPI {
+class CallRequestAPI {
   static final String baseUrl = dotenv.env['POLLING_URL'] ?? '';
   static final String callRequest = '$baseUrl/call-requests';
   static final String updateCallStatus = '$baseUrl/update-call-status-by-parent';
