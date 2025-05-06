@@ -13,7 +13,7 @@ class CallRequestService {
   }) async {
     try {
       final response = await dio.post(
-        CallRequestAPI.callRequest,
+        CallRequestAPI.createCallRequest,
         data: {
           'userId': userId,
           'receiverId': receiverId,
@@ -32,6 +32,24 @@ class CallRequestService {
       }
     } catch (e) {
       print('❌ 통화 요청 중 오류 발생: $e');
+      rethrow;
+    }
+  }
+  Future<void> deleteCallRequest({
+    required int requestId,
+  }) async {
+    try {
+      final response = await dio.delete(
+        CallRequestAPI.deleteCallRequest(requestId),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+      if (response.statusCode == 200) {
+        print('🗑️ 통화 요청 삭제 성공: ID=$requestId');
+      } else {
+        throw Exception('⚠️ 삭제 실패: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ 통화 요청 삭제 중 오류 발생: $e');
       rethrow;
     }
   }

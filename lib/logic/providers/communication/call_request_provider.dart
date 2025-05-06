@@ -64,7 +64,7 @@ class CallRequestProvider with ChangeNotifier {
 
   Future<void> send() async {
     if (_parentId == null || _childId == null || _characterId == null || _roomId == null) {
-      print('❌ 필수 정보가 누락되었습니다.');
+      debugPrint('❌ 필수 정보가 누락되었습니다.');
       return;
     }
 
@@ -83,10 +83,10 @@ class CallRequestProvider with ChangeNotifier {
       _roomId = data['roomId'];
       _isAccepted = data['isAccepted'] ?? false;
 
-      print('📥 Provider에 통화 요청 응답 반영 완료');
+      debugPrint('📥 Provider에 통화 요청 응답 반영 완료');
       notifyListeners();
     } catch (e) {
-      print('🚨 Provider send() 실패: $e');
+      debugPrint('🚨 Provider send() 실패: $e');
     }
   }
 
@@ -97,9 +97,19 @@ class CallRequestProvider with ChangeNotifier {
     notifyListeners();
   }
   Future<void> delete() async {
-    clearRoom();
-  }
+    if (_id == null) {
+      print('❌ 삭제할 요청 ID가 없습니다.');
+      return;
+    }
 
+    try {
+      await _callRequestService.deleteCallRequest(requestId: _id!);
+      debugPrint('🗑️ 통화 요청 삭제 완료: ID=$_id');
+      clearRoom();
+    } catch (e) {
+      debugPrint('🚨 통화 요청 삭제 실패: $e');
+    }
+  }
   void clearRoom() {
     _roomId = null;
     _id = null;

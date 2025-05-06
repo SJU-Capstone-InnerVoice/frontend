@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../services/call_request_service.dart';
 import '../../../../../logic/providers/network/dio_provider.dart';
+import '../../../../../logic/providers/communication/call_request_provider.dart';
+
 
 class CallWaitingScreen extends StatefulWidget {
   const CallWaitingScreen({super.key});
@@ -14,6 +16,7 @@ class CallWaitingScreen extends StatefulWidget {
 
 class _CallWaitingScreenState extends State<CallWaitingScreen> {
   late final _dio;
+  late final CallRequestProvider _callRequest;
   // late final CallPollingService pollingService;
 
 
@@ -26,6 +29,8 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
   @override
   void initState() {
     super.initState();
+
+    _callRequest = context.read<CallRequestProvider>();
     // _dio = context.read<DioProvider>().dio;
     // pollingService = CallPollingService(
     //   dio: _dio,
@@ -78,7 +83,7 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: ()  async {
-            // await pollingService.deleteCallRequest();
+            await _callRequest.delete();
             context.pop();
           },
         ),
