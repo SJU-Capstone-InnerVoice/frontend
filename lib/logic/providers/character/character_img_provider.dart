@@ -2,29 +2,28 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../core/constants/api/character_img_api.dart';
+import '../../../data/models/character/character_image_model.dart';
 
 class CharacterImgProvider extends ChangeNotifier {
-  // userId → characterId → Image 위젯
-  final Map<String, Map<String, Image>> _imageWidgets = {};
-  bool _hasLoaded = false; /// 트래픽 절감용 최초 1번 or 업로드 시 trigger
-  late final Dio _dio;
+  final Dio _dio;
+  bool _hasLoaded = false;
+  final Map<String, List<CharacterImage>> _userCharacters = {};
 
   CharacterImgProvider(this._dio);
 
-  Map<String, Map<String, Image>> get imageWidgets => _imageWidgets;
+  List<CharacterImage> getCharacters(String userId) => _userCharacters[userId] ?? [];
 
   Future<void> uploadImage({
-    required dynamic userId, // 또는 Object
+    required dynamic userId,
     required String name,
     required String type,
     required File file,
   }) async {
     try {
       final String uploadUrl = CharacterImgApi.uploadCharacterImg;
-      print(uploadUrl);
 
       FormData formData = FormData.fromMap({
-        'userId': userId.toString(), // 여긴 여전히 문자열로 보내야 함
+        'userId': userId.toString(),
         'name': name,
         'type': type,
         'file': await MultipartFile.fromFile(
@@ -32,16 +31,6 @@ class CharacterImgProvider extends ChangeNotifier {
           filename: file.path.split('/').last,
         ),
       });
-
-      print('📦 FormData 필드 목록:');
-      for (var field in formData.fields) {
-        print('  ${field.key} : ${field.value}');
-      }
-
-      print('📦 FormData 파일 목록:');
-      for (var file in formData.files) {
-        print('  ${file.key} : ${file.value.filename}');
-      }
 
       Response response = await _dio.post(uploadUrl, data: formData);
 
@@ -55,7 +44,7 @@ class CharacterImgProvider extends ChangeNotifier {
       print('❌ 이미지 업로드 실패: $e');
     }
   }
-  /// 서버에서 이미지 불러오기 (초기 로딩용)
+
   Future<void> loadImagesFromServer(String userId) async {
     if (_hasLoaded) return;
     _hasLoaded = true;
@@ -63,18 +52,19 @@ class CharacterImgProvider extends ChangeNotifier {
     try {
       final String fetchUrl = CharacterImgApi.getCharacterImg(userId);
       Response response = await _dio.get(fetchUrl);
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        _imageWidgets[userId] = {};
-        for (var item in data) {
-          final String characterId = item['id'].toString();
-          final String imageUrl = item['imageUrl'];
+        final List<CharacterImage> characterList =
+        (response.data as List).map((item) => CharacterImage.fromJson(item)).toList();
 
-          print('🖼 characterId: $characterId');
-          print('🌐 imageUrl: $imageUrl');
+        _userCharacters[userId] = characterList;
 
-          _imageWidgets[userId]![characterId] = Image.network(imageUrl);
+        for (final c in characterList) {
+          print('🖼 characterId: ${c.id}');
+          print('🌐 imageUrl: ${c.imageUrl}');
+          print(" name: ${c.name}");
         }
+
         notifyListeners();
       } else {
         throw Exception('서버 응답 오류: ${response.statusCode}');

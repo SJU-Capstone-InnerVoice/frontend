@@ -85,8 +85,7 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final characterImgs = context.watch<CharacterImgProvider>().imageWidgets[_user.userId] ?? {};
-    final characterList = characterImgs.entries.toList();
+    final characters = context.watch<CharacterImgProvider>().getCharacters(_user.userId.toString());
 
 
     return Scaffold(
@@ -102,24 +101,26 @@ class _CallScreenState extends State<CallScreen> {
                   crossAxisSpacing: 16,
                   childAspectRatio: 0.8,
                 ),
-                itemCount: characterList.length + 1,
+                itemCount: characters.length + 1,
                 itemBuilder: (context, index) {
-                  if (index < characterList.length) {
-                    final entry = characterList[index];
-                    final characterId = entry.key;
-                    final imageWidget = entry.value;
-                    final isSelected = selectedCharacter == characterId;
+                  if (index < characters.length) {
+                    final character = characters[index];
+                    final isSelected = selectedCharacter == character.id;
 
                     return GestureDetector(
-                      onTap: () => selectCharacter(characterId),
+                      onTap: () => selectCharacter(character.id),
                       child: Card(
                         color: isSelected ? Colors.grey[300] : Colors.white,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SizedBox(width: 60, height: 60, child: imageWidget),
+                            SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: Image.network(character.imageUrl, fit: BoxFit.cover),
+                            ),
                             const SizedBox(height: 8),
-                            Text(characterId), // 이름 대신 ID 표시, 필요시 이름 매핑 추가
+                            Text(character.name), // 이제 이름으로 표시 가능
                           ],
                         ),
                       ),
