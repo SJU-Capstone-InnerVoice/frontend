@@ -77,6 +77,4 @@ class CallRequestProvider with ChangeNotifier {
     _isAccepted = false;
     notifyListeners();
   }
-
-
 }

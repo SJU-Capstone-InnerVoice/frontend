@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
-import 'logic/providers/communication/call_polling_provider.dart';
+import 'logic/providers/communication/call_request_provider.dart';
 import 'logic/providers/communication/call_session_provider.dart';
 import 'logic/providers/character/character_img_provider.dart';
 import 'logic/providers/network/dio_provider.dart';
@@ -10,7 +10,7 @@ import 'logic/providers/user/user_provider.dart';
 
 /// provider, bloc 등 상태 관리 추가
 final List<SingleChildWidget> providers = [
-  ChangeNotifierProvider(create: (_) => CallPollingProvider()),
+  ChangeNotifierProvider(create: (_) => CallRequestProvider()),
   ChangeNotifierProvider(create: (_) => CallSessionProvider()),
   ChangeNotifierProvider(create: (_) => CallRecordProvider()),
   ChangeNotifierProvider(create: (_) => DioProvider()),
