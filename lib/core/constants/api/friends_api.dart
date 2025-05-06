@@ -5,7 +5,7 @@ class FriendsApi {
   static final String baseUrl = dotenv.env['BACKEND_URL'] ?? '';
 
   static String getFriends = '$baseUrl/friends';
-  static String requestFriends = '$baseUrl/friends/request';
+  static String requestFriends = '$baseUrl/friends/requests';
   static String searchFriend = '$baseUrl/friends/search';
   static String checkRequestFriends = '$baseUrl/friends/requests';
   static String acceptRequestFriends(int requestId) =>

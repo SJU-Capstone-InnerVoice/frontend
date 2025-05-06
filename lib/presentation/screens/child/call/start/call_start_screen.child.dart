@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:io';
+import 'package:audio_session/audio_session.dart';
 
 import '../../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../../logic/providers/network/dio_provider.dart';
@@ -52,7 +53,6 @@ class _CallStartScreenState extends State<CallStartScreen> {
 
     Future.microtask(() async {
       try {
-        configureAudioSession();
         await _recordProvider.startRecording();
         print('🎙️ 녹음 시작됨');
       } catch (e) {
@@ -60,16 +60,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
       }
     });
   }
-  Future<void> configureAudioSession() async {
-    final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration(
-      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-      avAudioSessionCategoryOptions:
-      AVAudioSessionCategoryOptions.defaultToSpeaker,
-      avAudioSessionMode: AVAudioSessionMode.defaultMode,
-    ));
-    await session.setActive(true);
-  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -98,15 +89,15 @@ class _CallStartScreenState extends State<CallStartScreen> {
       //   options: Options(responseType: ResponseType.bytes),
       // );
 
-
+      /// real TTS Server
       final formData = FormData.fromMap({
         'user_id': 'colab_user',
-        'weight_name': 'musk',
+        'weight_name': 'ys',
         'text': text,
       });
 
       final response = await dio.post(
-        "https://210b-211-180-114-56.ngrok-free.app/synthesize",
+        "https://82ae-211-180-114-56.ngrok-free.app/synthesize",
         data: formData,
         options: Options(
           responseType: ResponseType.bytes,
