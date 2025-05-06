@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../../services/call_request_service.dart';
 import '../../../../logic/providers/communication/call_polling_provider.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
+import '../../../../logic/providers/user/user_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
 import '../../../../logic/providers/network/dio_provider.dart';
+import '../../../../data/models/user/user_model.dart';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -15,6 +18,7 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
+  late final User _user;
   // late final CallPollingService callPollingService;
   late final _dio;
   String? selectedCharacter;
@@ -22,6 +26,7 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void initState() {
     super.initState();
+    _user  = context.read<UserProvider>().user!;
     _dio = context.read<DioProvider>().dio;
     // callPollingService = CallPollingService(
     //   dio: _dio,
@@ -32,7 +37,7 @@ class _CallScreenState extends State<CallScreen> {
     // );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CharacterImgProvider>().loadImagesFromServer('1');
+      context.read<CharacterImgProvider>().loadImagesFromServer(_user.userId);
     });
   }
   void selectCharacter(String name) {
@@ -80,7 +85,7 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final characterImgs = context.watch<CharacterImgProvider>().imageWidgets['1'] ?? {}; // userId에 맞게 수정
+    final characterImgs = context.watch<CharacterImgProvider>().imageWidgets[_user.userId] ?? {};
     final characterList = characterImgs.entries.toList();
 
 

@@ -4,8 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inner_voice/logic/providers/character/character_img_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:provider/provider.dart';
-
+import '../../../../../data/models/user/user_model.dart';
+import '../../../../../logic/providers/user/user_provider.dart';
 class AddCharacterScreen extends StatefulWidget {
   const AddCharacterScreen({super.key});
 
@@ -29,6 +29,7 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final User user = context.read<UserProvider>().user!;
     final bool hasImage = _image != null;
     // 임시 설정: 서버에 이미지 업로드 테스트
     final hasVoice = true;
@@ -103,7 +104,7 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
                     ? () {
                         print("이미지 업로드");
                         context.read<CharacterImgProvider>().uploadImage(
-                              userId: "1",
+                              userId: user.userId,
                               name: "char001",
                               type: "USER",
                               file: _image!,
