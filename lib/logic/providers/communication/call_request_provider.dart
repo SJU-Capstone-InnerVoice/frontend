@@ -123,8 +123,21 @@ class CallRequestProvider with ChangeNotifier {
   }
 
   Future<void> accept() async {
-    notifyListeners();
+    if (_id == null) {
+      debugPrint('❌ 수락할 요청 ID가 없습니다.');
+      return;
+    }
+
+    try {
+      await _callRequestService.acceptCallRequest(requestId: _id!);
+      _isAccepted = true;
+      notifyListeners();
+      debugPrint('📥 요청 수락 후 상태 반영 완료');
+    } catch (e) {
+      debugPrint('🚨 Provider accept() 실패: $e');
+    }
   }
+
   Future<void> delete() async {
     if (_id == null) {
       print('❌ 삭제할 요청 ID가 없습니다.');

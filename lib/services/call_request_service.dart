@@ -45,7 +45,7 @@ class CallRequestService {
       );
 
       if (response.statusCode == 200) {
-        print('📨 통화 요청 조회 성공: ${response.data}');
+        print('📨 통화 요청 조회 성공: ${response.data.last}');
         return List<Map<String, dynamic>>.from(response.data);
       } else {
         throw Exception('❗ 요청 실패: ${response.statusCode}');
@@ -55,7 +55,23 @@ class CallRequestService {
       rethrow;
     }
   }
+  Future<void> acceptCallRequest({required int requestId}) async {
+    try {
+      final response = await dio.patch(
+        CallRequestAPI.acceptCallRequest(requestId),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
 
+      if (response.statusCode == 200) {
+        print('✅ 통화 요청 수락 완료!');
+      } else {
+        throw Exception('❌ 수락 실패: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('🚨 수락 중 오류 발생: $e');
+      rethrow;
+    }
+  }
   Future<void> deleteCallRequest({
     required int requestId,
   }) async {

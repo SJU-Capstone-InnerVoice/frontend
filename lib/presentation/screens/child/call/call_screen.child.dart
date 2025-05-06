@@ -30,7 +30,6 @@ class _CallScreenState extends State<CallScreen> {
     _callRequest = context.read<CallRequestProvider>();
     _user = context.read<UserProvider>().user!;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _callRequest.setRoomId();
       _callRequest.setChildId(int.parse(_user.userId));
       _callRequest.setParentId(int.parse(_user.userId));
     });
@@ -53,17 +52,14 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> acceptCallRequest() async {
     _pollingTimer?.cancel();
-    // await callPollingService.updateCallStatus('accepted');
-    // final data = await callPollingService.pollCallRequests();
-    setState(() {
-      // hasCallRequest = data.isNotEmpty;
-    });
+    await _callRequest.accept();
+
     final callSession = context.read<CallSessionProvider>();
 
     final rtcService = callSession.rtcService;
     await rtcService.init(
       isCaller: false,
-      roomId: 31,
+      roomId: _callRequest.roomId!,
       onMessage: (message) {
         callSession.addMessage(message);
         print("📩 받은 메시지: $message");
