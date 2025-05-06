@@ -1,4 +1,4 @@
-import '../../core/constants/user/role.dart';
+import '../../../core/constants/user/role.dart';
 
 class User {
   final String userId;

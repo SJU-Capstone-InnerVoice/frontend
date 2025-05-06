@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../logic/providers/network/dio_provider.dart';
 import '../../../../../../core/constants/api/friends_api.dart';
-import '../../../../../../data/models/friend_model.dart';
+import '../../../../../../data/models/friend/friend_model.dart';
 
 class FriendListScreen extends StatefulWidget {
   const FriendListScreen({super.key});

@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../core/constants/api/friends_api.dart';
-import '../../../../../../data/models/friend_request_model.dart';
+import '../../../../../../data/models/friend/friend_request_model.dart';
 import '../../../../../../logic/providers/network/dio_provider.dart';
 class FriendRequestCheckScreen extends StatefulWidget {
   const FriendRequestCheckScreen({super.key});
