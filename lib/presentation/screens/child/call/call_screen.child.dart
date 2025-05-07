@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
@@ -16,8 +18,10 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  late final _dio;
   late CallRequestProvider _callRequest;
+  late final CallSessionProvider _callSession;
+  late WebRTCService _rtc;
+
   late User _user;
   bool hasCallRequest = false;
   Timer? _pollingTimer;
@@ -25,12 +29,13 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void initState() {
     super.initState();
-    _dio = context.read<DioProvider>().dio;
-    _callRequest = context.read<CallRequestProvider>();
-    _user = context.read<UserProvider>().user!;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _callRequest = context.read<CallRequestProvider>();
+      _user = context.read<UserProvider>().user!;
+      _callSession = context.read<CallSessionProvider>();
       _callRequest.setChildId(int.parse(_user.userId));
       _callRequest.setParentId(int.parse(_user.userId));
+      _rtc = _callSession.rtcService;
     });
 
     _startPolling();
@@ -52,15 +57,11 @@ class _CallScreenState extends State<CallScreen> {
   Future<void> acceptCallRequest() async {
     _pollingTimer?.cancel();
     await _callRequest.accept();
-
-    final callSession = context.read<CallSessionProvider>();
-
-    final rtcService = callSession.rtcService;
-    await rtcService.init(
+    await _rtc.init(
       isCaller: false,
       roomId: _callRequest.roomId!,
       onMessage: (message) {
-        callSession.addMessage(message);
+        _callSession.addMessage(message);
         print("📩 받은 메시지: $message");
       },
       onDisconnected: () {

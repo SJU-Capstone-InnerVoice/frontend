@@ -322,9 +322,18 @@ class WebRTCService {
       _channel?.sink.add(jsonEncode({'type': 'leave', 'room': _roomId}));
       _channel?.sink.close();
     } catch (_) {}
+    _localStream?.getTracks().forEach((t) => t.stop());
     _localStream?.dispose();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
     _peerConnection?.close();
+
+    _peerConnection = null;
+    _dataChannel = null;
+    _localStream = null;
+    _remoteRenderer.srcObject = null;
+    _localRenderer.srcObject = null;
+    _channel = null;
+    _hasConnected = false;
   }
 }

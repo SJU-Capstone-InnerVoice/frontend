@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -13,9 +14,8 @@ class CallWaitingScreen extends StatefulWidget {
 }
 
 class _CallWaitingScreenState extends State<CallWaitingScreen> {
-  late final _dio;
+  late final Dio _dio;
   late final CallRequestProvider _callRequest;
-  // late final CallPollingService pollingService;
 
 
   Timer? _pollingTimer;
