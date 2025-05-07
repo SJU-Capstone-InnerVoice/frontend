@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import '../../../../../../core/constants/api/friends_api.dart';
@@ -13,7 +14,7 @@ class FriendRequestScreen extends StatefulWidget {
 }
 
 class _FriendRequestScreenState extends State<FriendRequestScreen> {
-  late final _dio;
+  late final Dio _dio;
   final TextEditingController _controller = TextEditingController();
 
   Map<String, dynamic>? _searchResult;
@@ -77,49 +78,10 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
     }
   }
 
-  Future<void> _sendFriendRequest(int friendId, String friendName) async {
-    const int userId = 1; // TODO: 실제 로그인 사용자 ID로 교체
-    final dio = context.read<DioProvider>().dio;
-
-    debugPrint('📨 친구 요청 시작 → userId: $userId, friendId: $friendId ($friendName)');
-
-    try {
-      final response = await dio.post(
-        FriendsApi.requestFriends,
-        data: {
-          'userId': userId,
-          'friendId': friendId,
-        },
-        options: Options(headers: {'Content-Type': 'application/json'}),
-      );
-
-      debugPrint('📥 요청 응답: ${response.data}');
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$friendName님에게 친구 요청을 보냈습니다.')),
-        );
-        setState(() {
-          _searchResult = null;
-          _controller.clear();
-        });
-        debugPrint('✅ 친구 요청 성공');
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('친구 요청 실패')),
-        );
-        debugPrint('❌ 친구 요청 실패 - status: ${response.statusCode}');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('요청 중 오류가 발생했습니다.')),
-      );
-      debugPrint('❗ 친구 요청 중 오류: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = context.read<UserProvider>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('친구 요청'),
@@ -166,9 +128,10 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                   ),
                   title: Text(_searchResult!['name']),
                   trailing: ElevatedButton(
-                    onPressed: () => _sendFriendRequest(
-                      _searchResult!['id'],
-                      _searchResult!['name'],
+                    onPressed: () => userProvider.requestFriend(
+                      dio: _dio,
+                      friendId: _searchResult!['id'],
+                      friendName: _searchResult!['name'],
                     ),
                     child: const Text('추가'),
                   ),

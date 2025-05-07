@@ -34,6 +34,32 @@ class FriendService {
       rethrow;
     }
   }
+  Future<Response> sendFriendRequest({
+    required Dio dio,
+    required int userId,
+    required int friendId,
+    required String friendName,
+  }) async {
+    debugPrint('📨 친구 요청 시작 → userId: $userId, friendId: $friendId ($friendName)');
+
+    try {
+      final response = await dio.post(
+        FriendsApi.requestFriends,
+        data: {
+          'userId': userId,
+          'friendId': friendId,
+        },
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      debugPrint('📥 요청 응답: ${response.data}');
+      return response;
+    } catch (e) {
+      debugPrint('❗ 친구 요청 중 오류: $e');
+      rethrow;
+    }
+  }
+
   static Future<List<FriendRequest>> queryRequestList({
     required Dio dio,
     required String userId,
