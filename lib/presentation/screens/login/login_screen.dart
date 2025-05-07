@@ -27,9 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
 
     /// provider 설정
-    _dio = context.read<DioProvider>().dio;
-    context.read<UserProvider>().clear();
-    _user = context.read<UserProvider>().user;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _dio = context.read<DioProvider>().dio;
+      context.read<UserProvider>().clear();
+      _user = context.read<UserProvider>().user;
+    });
   }
 
   Future<void> _handleLogin() async {

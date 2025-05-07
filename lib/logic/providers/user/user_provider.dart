@@ -41,7 +41,9 @@ class UserProvider with ChangeNotifier {
     }
   }
   void clear() {
+    debugPrint('🧹 [UserProvider] clear() 호출됨 - 현재 user: ${_user?.userId}');
     _user = null;
+    debugPrint('🧹 [UserProvider] user null로 초기화됨');
     notifyListeners();
   }
 }

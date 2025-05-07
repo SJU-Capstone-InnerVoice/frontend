@@ -44,16 +44,16 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
 
   void _startPolling() {
     _pollingTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      // final result = await pollingService.pollCallRequests();
+      final result = await _callRequest.query();
 
-      // if (result.any((e) => e['status'] == 'accepted')) {
-      //   _pollingTimer?.cancel();
-      //   _dotTimer?.cancel();
-      //   if (context.mounted) {
-      //     context.go('/parent/call/start');
-      //     // await pollingService.deleteCallRequest();
-      //   }
-      // }
+      if (result != null && result['isAccepted'] == true) {
+        _pollingTimer?.cancel();
+        _dotTimer?.cancel();
+        if (context.mounted) {
+          context.go('/parent/call/start');
+          await _callRequest.delete();
+        }
+      }
     });
   }
 
