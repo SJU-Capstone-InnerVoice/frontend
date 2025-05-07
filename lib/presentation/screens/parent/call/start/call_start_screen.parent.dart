@@ -60,28 +60,30 @@ class _CallStartScreenState extends State<CallStartScreen> {
           children: [
             // 🔵 상단 영상
             ValueListenableBuilder<MediaStream?>(
-              valueListenable: _callSession.remoteStreamNotifier,
-              builder: (context, stream, _) {
-                final rtc = _callSession.rtcService;
+                valueListenable: _callSession.remoteStreamNotifier,
+                builder: (context, stream, _) {
+                  final rtc = _callSession.rtcService;
+                  print("📡 remoteStream: $stream");
+                  print(
+                      "📡 remoteRenderer.srcObject: ${rtc.remoteRenderer.srcObject}");
 
-                if (!rtc.initialized) {
-                  return const Center(child: Text('영상 초기화 중입니다...'));
-                }
+                  if (!rtc.initialized) {
+                    return const Center(child: Text('영상 초기화 중입니다...'));
+                  }
 
-                return AspectRatio(
-                  aspectRatio: 4 / 3,
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        color: Colors.black12,
-                        child: RTCVideoView(rtc.remoteRenderer),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                  return AspectRatio(
+                    aspectRatio: 4 / 3,
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          color: Colors.black12,
+                          child: RTCVideoView(rtc.remoteRenderer),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
 
             // 🔴 전화 끊기 버튼
             Padding(
@@ -161,7 +163,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
                           borderSide: BorderSide.none,
                         ),
                         contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 16),
+                            const EdgeInsets.symmetric(horizontal: 16),
                       ),
                     ),
                   ),

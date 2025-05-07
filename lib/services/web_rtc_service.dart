@@ -4,7 +4,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter/foundation.dart';
 import '../core/constants/api/socket_api.dart';
-
+import 'package:audio_session/audio_session.dart';
 typedef OnMessageReceived = void Function(String message);
 
 class WebRTCService {
@@ -44,6 +44,7 @@ class WebRTCService {
     _roomId = roomId;
     onMessageReceived = onMessage;
     onRemoteDisconnected = onDisconnected;
+
     _remoteRenderer = RTCVideoRenderer();
     await remoteRenderer.initialize();
 
@@ -51,7 +52,9 @@ class WebRTCService {
     await localRenderer.initialize();
 
     await _startLocalStream();
+    await _setSpeakerOn(true);
     await _connectWebSocket();
+    await _configureAudioSession();
   }
 
   /// 디바이스 내부의 카메라 및 마이크 Stream을 localRenderer에 연결
@@ -73,7 +76,6 @@ class WebRTCService {
     // localRenderer에 위에서 설정한 조건을 등록
     _localRenderer.srcObject = _localStream;
     print("✅ localRenderer connected to stream.");
-    await _setSpeakerOn(true);
   }
 
   /// WebSocket 연결
@@ -183,10 +185,20 @@ class WebRTCService {
     /// 그것을 remoteRenderer의 오브젝트로 등록을 해주는 작업
     /// 이를 통해 상대방 렌더링이 가능해진다.
     _peerConnection!.onTrack = (event) {
+      print("🎯 onTrack fired: streams=${event.streams.length}");
+      if (event.track.kind == 'audio' && !_isCaller) {
+        print("🔇 Callee이므로 상대방 오디오 트랙 비활성화 처리");
+        event.track.enabled = false; // <- 실제로 재생되지 않음
+      }
+
       if (event.streams.isNotEmpty) {
-        _remoteRenderer.srcObject =
-            event.streams[0]; // [0]은 영상, 음성 이 모두 포함되어 있음.
         remoteStreamNotifier.value = event.streams[0];
+        _remoteRenderer.srcObject =
+            event.streams[0]; // [0]은 영상, 음성이 모두 포함되어 있음.
+        print("✅ Remote stream 연결 완료: ${event.streams[0].id}");
+
+      } else {
+        print("❌ onTrack fired but streams is empty");
       }
     };
 
@@ -208,6 +220,8 @@ class WebRTCService {
 
       if (state == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
         _hasConnected = true;
+        Helper.setSpeakerphoneOn(true);
+
       }
 
       if (_hasConnected &&
@@ -238,6 +252,13 @@ class WebRTCService {
         .setRemoteDescription(RTCSessionDescription(sdp, 'offer'));
     final answer = await _peerConnection!.createAnswer();
     await _peerConnection!.setLocalDescription(answer);
+    print('_handleOffer: $_roomId');
+    _channel?.sink.add(jsonEncode({
+      'type': 'answer',
+      'sdp': answer.sdp,
+      'roomId': _roomId,
+    }));
+
     for (final c in _pendingCandidates) {
       try {
         await _peerConnection!.addCandidate(c);
@@ -246,14 +267,8 @@ class WebRTCService {
       }
     }
     _pendingCandidates.clear();
-
-    print('_handleOffer: $_roomId');
-    _channel?.sink.add(jsonEncode({
-      'type': 'answer',
-      'sdp': answer.sdp,
-      'roomId': _roomId,
-    }));
   }
+
 
   /// SDP 교환 3단계 : 받은 Answer 등록
   Future<void> _handleAnswer(String sdp) async {
@@ -276,10 +291,11 @@ class WebRTCService {
       data['sdpMLineIndex'],
     );
 
-    if (_peerConnection == null) {
-      print("❌ PeerConnection이 아직 없음. Candidate 보류.");
+    if (_peerConnection == null || (await _peerConnection!.getRemoteDescription()) == null) {
       _pendingCandidates.add(candidate);
-      return;
+      print("⚠️ ICE 후보 보류됨");
+    } else {
+      await _peerConnection!.addCandidate(candidate);
     }
 
     final remoteDesc = await _peerConnection!.getRemoteDescription();
@@ -319,7 +335,15 @@ class WebRTCService {
   Future<void> _setSpeakerOn(bool enable) async {
     await Helper.setSpeakerphoneOn(enable);
   }
-
+  Future<void> _configureAudioSession() async {
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionMode: AVAudioSessionMode.voiceChat,
+    ));
+    await session.setActive(true);
+  }
   void dispose() {
     try {
       _channel?.sink.add(jsonEncode({'type': 'leave', 'room': _roomId}));

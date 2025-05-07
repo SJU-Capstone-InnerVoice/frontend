@@ -6,6 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:io';
+import 'package:audio_session/audio_session.dart';
+
 
 import '../../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../../logic/providers/network/dio_provider.dart';
@@ -41,8 +43,17 @@ class CallStartScreen extends StatefulWidget {
 class _CallStartScreenState extends State<CallStartScreen> {
   late final CallSessionProvider _callSession;
   late final CallRecordProvider _recordProvider;
-  String? _lastSpoken;
 
+  String? _lastSpoken;
+  Future<void> _configureAudioSession() async {
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionMode: AVAudioSessionMode.voiceChat,
+    ));
+    await session.setActive(true);
+  }
   @override
   void initState() {
     super.initState();
@@ -51,6 +62,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
     Future.microtask(() async {
       try {
         await _recordProvider.startRecording();
+        await _configureAudioSession();
         print('🎙️ 녹음 시작됨');
       } catch (e) {
         print('❌ 녹음 시작 실패: $e');
@@ -72,10 +84,13 @@ class _CallStartScreenState extends State<CallStartScreen> {
     super.dispose();
   }
 
+
   Future<void> _speak(
       BuildContext context, String text, String characterId) async {
     final dio = context.read<DioProvider>().dio;
-    final player = AudioPlayer();
+
+    final player = AudioPlayer(handleAudioSessionActivation: false);
+
     try {
       final response = await dio.post(
         TtsAPI.requestTTS,
@@ -194,7 +209,7 @@ class _CallStartScreenState extends State<CallStartScreen> {
                     icon: const Icon(Icons.call_end, color: Colors.white),
                     iconSize: 48,
                     onPressed: () async {
-                      await Future.delayed(Duration(seconds: 5));
+                      // await Future.delayed(Duration(seconds: 5));
                       context.go('/child/call/end');
                     },
                     style: IconButton.styleFrom(

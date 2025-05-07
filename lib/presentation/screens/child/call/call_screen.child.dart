@@ -72,6 +72,7 @@ class _CallScreenState extends State<CallScreen> {
         });
       },
     );
+    await Future.delayed(Duration(milliseconds: 1000));
     context.push('/child/call/start').then((_) {
       // 돌아왔을 때 polling 재시작 + UI 갱신
       _startPolling();

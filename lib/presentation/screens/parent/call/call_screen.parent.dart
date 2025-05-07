@@ -61,7 +61,7 @@ class _CallScreenState extends State<CallScreen> {
         });
       },
     );
-
+    await Future.delayed(Duration(milliseconds: 1000));
     context.push('/parent/call/waiting');
   }
 
