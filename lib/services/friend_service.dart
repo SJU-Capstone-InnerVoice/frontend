@@ -59,6 +59,42 @@ class FriendService {
       rethrow;
     }
   }
+  Future<Map<String, dynamic>?> searchFriendByName({
+    required Dio dio,
+    required String name,
+  }) async {
+    debugPrint('🔍 검색 시작: $name');
+
+    try {
+      final response = await dio.get(
+        FriendsApi.searchFriend,
+        queryParameters: {'name': name},
+      );
+
+      debugPrint('📥 검색 응답: ${response.data}');
+
+      if (response.statusCode == 200 && response.data['id'] != null) {
+        debugPrint('✅ 친구 찾음: id=${response.data['id']}, name=${response.data['name']}');
+        return response.data;
+      } else {
+        debugPrint('❌ 친구 없음');
+        return null;
+      }
+    } on DioError catch (e) {
+      if (e.response?.data['code'] == 2002) {
+        debugPrint('⚠️ 검색 실패 - code 2002 (친구 없음)');
+        return null;
+      } else {
+        debugPrint('❗ 검색 중 Dio 오류: $e');
+        rethrow;
+      }
+    } catch (e) {
+      debugPrint('❗ 검색 중 일반 오류: $e');
+      rethrow;
+    } finally {
+      debugPrint('🔍 검색 종료');
+    }
+  }
 
   static Future<List<FriendRequest>> queryRequestList({
     required Dio dio,

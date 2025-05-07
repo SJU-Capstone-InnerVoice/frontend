@@ -26,8 +26,9 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
     super.initState();
     _dio = context.read<DioProvider>().dio;
   }
-
-  Future<void> _searchFriend() async {
+  Future<void> _searchFriend(
+      Future<Map<String, dynamic>?> Function(String name) searchFriendCallback,
+      ) async {
     final String friendName = _controller.text.trim();
     if (friendName.isEmpty) return;
 
@@ -40,18 +41,13 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
     });
 
     try {
-      final response = await _dio.get(
-        FriendsApi.searchFriend,
-        queryParameters: {'name': friendName},
-      );
+      final result = await searchFriendCallback(friendName);
 
-      debugPrint('📥 검색 응답: ${response.data}');
-
-      if (response.statusCode == 200 && response.data['id'] != null) {
+      if (result != null) {
         setState(() {
-          _searchResult = response.data;
+          _searchResult = result;
         });
-        debugPrint('✅ 친구 찾음: id=${response.data['id']}, name=${response.data['name']}');
+        debugPrint('✅ 친구 찾음: id=${result['id']}, name=${result['name']}');
       } else {
         setState(() {
           _error = '해당 이름의 친구를 찾을 수 없습니다.';
@@ -59,17 +55,10 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
         debugPrint('❌ 친구 없음');
       }
     } catch (e) {
-      if (e is DioError && e.response?.data['code'] == 2002) {
-        setState(() {
-          _error = '해당 이름의 친구를 찾을 수 없습니다.';
-        });
-        debugPrint('⚠️ 검색 실패 - code 2002 (친구 없음)');
-      } else {
-        setState(() {
-          _error = '검색 중 오류가 발생했습니다.';
-        });
-        debugPrint('❗ 검색 중 오류: $e');
-      }
+      setState(() {
+        _error = '검색 중 오류가 발생했습니다.';
+      });
+      debugPrint('❗ 검색 중 오류: $e');
     } finally {
       setState(() {
         _isSearching = false;
@@ -109,7 +98,14 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: _isSearching ? null : _searchFriend,
+                  onPressed: _isSearching
+                      ? null
+                      : () => _searchFriend(
+                        (name) => userProvider.searchFriend(
+                      dio: _dio,
+                      friendName: name,
+                    ),
+                  ),
                   child: const Text('검색'),
                 ),
               ],
@@ -128,11 +124,25 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                   ),
                   title: Text(_searchResult!['name']),
                   trailing: ElevatedButton(
-                    onPressed: () => userProvider.requestFriend(
-                      dio: _dio,
-                      friendId: _searchResult!['id'],
-                      friendName: _searchResult!['name'],
-                    ),
+                    onPressed: () async {
+                      final name = _searchResult!['name'];
+                      final id = _searchResult!['id'];
+
+                      await userProvider.requestFriend(
+                        dio: _dio,
+                        friendId: id,
+                        friendName: name,
+                      );
+
+                      setState(() {
+                        _searchResult = null;
+                        _controller.clear();
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('$name님에게 친구 요청을 보냈습니다.')),
+                      );
+                    },
                     child: const Text('추가'),
                   ),
                 ),

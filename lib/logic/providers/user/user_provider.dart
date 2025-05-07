@@ -62,6 +62,26 @@ class UserProvider with ChangeNotifier {
     );
   }
 
+  Future<Map<String, dynamic>?> searchFriend({
+    required Dio dio,
+    required String friendName,
+  }) async {
+    if (friendName.trim().isEmpty) {
+      debugPrint('⚠️ searchFriend: 이름이 비어 있습니다.');
+      return null;
+    }
+
+    try {
+      final result = await _friendService.searchFriendByName(
+        dio: dio,
+        name: friendName,
+      );
+      return result;
+    } catch (e) {
+      debugPrint('❗ UserProvider.searchFriend 에러: $e');
+      return null;
+    }
+  }
   void clear() {
     debugPrint('🧹 [UserProvider] clear() 호출됨 - 현재 user: ${_user?.userId}');
     _user = null;
