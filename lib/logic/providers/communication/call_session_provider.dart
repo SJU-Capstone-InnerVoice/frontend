@@ -37,6 +37,7 @@ class CallSessionProvider with ChangeNotifier {
 
   void addMessage(String message) {
     _messages.add(message);
+    print(_messages);
     notifyListeners();
   }
 

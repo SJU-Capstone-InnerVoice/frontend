@@ -5,20 +5,9 @@ import 'package:provider/provider.dart';
 import 'injection.dart';
 import 'package:audio_session/audio_session.dart';
 
-Future<void> configureAudioSession() async {
-  final session = await AudioSession.instance;
-  await session.configure(AudioSessionConfiguration(
-    avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-    avAudioSessionCategoryOptions:
-            AVAudioSessionCategoryOptions.defaultToSpeaker,
-    avAudioSessionMode: AVAudioSessionMode.defaultMode,
-  ));
-  await session.setActive(true);
-}
 
 void main() async {
   await dotenv.load(fileName: ".env"); // server endpoint address
-  await configureAudioSession();
   runApp(
     MultiProvider(
       providers: providers,

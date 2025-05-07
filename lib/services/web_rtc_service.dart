@@ -5,7 +5,6 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter/foundation.dart';
 import '../core/constants/api/socket_api.dart';
 
-
 typedef OnMessageReceived = void Function(String message);
 
 class WebRTCService {
@@ -22,25 +21,25 @@ class WebRTCService {
   bool _isCaller = false;
   bool _hasConnected = false;
 
-
   VoidCallback? onRemoteDisconnected;
 
   late int _roomId;
   late OnMessageReceived onMessageReceived; // callback
 
   RTCVideoRenderer get localRenderer => _localRenderer;
+
   RTCVideoRenderer get remoteRenderer => _remoteRenderer;
+
   bool get initialized =>
       remoteRenderer.textureId != null && localRenderer.textureId != null;
   final ValueNotifier<MediaStream?> remoteStreamNotifier = ValueNotifier(null);
 
-
-  Future<void> init(
-      {required bool isCaller,
-      required int roomId,
-      required OnMessageReceived onMessage,
-      required VoidCallback onDisconnected,
-      }) async {
+  Future<void> init({
+    required bool isCaller,
+    required int roomId,
+    required OnMessageReceived onMessage,
+    required VoidCallback onDisconnected,
+  }) async {
     _isCaller = isCaller;
     _roomId = roomId;
     onMessageReceived = onMessage;
@@ -74,6 +73,7 @@ class WebRTCService {
     // localRenderer에 위에서 설정한 조건을 등록
     _localRenderer.srcObject = _localStream;
     print("✅ localRenderer connected to stream.");
+    await _setSpeakerOn(true);
   }
 
   /// WebSocket 연결
@@ -129,11 +129,11 @@ class WebRTCService {
       }, onDone: () {
         print('🛑 WebSocket 연결 종료됨');
       });
-
     } catch (e) {
       print('❌ WebSocket 연결 실패: $e');
     }
   }
+
   /// P2P 연결을 위한 초기화:
   /// STUN 연결
   /// DataStream 설정
@@ -260,7 +260,6 @@ class WebRTCService {
     await _peerConnection!
         .setRemoteDescription(RTCSessionDescription(sdp, 'answer'));
     print('_handleAnswer: $_roomId');
-
   }
 
   /// SDP 교환 4단계 : 양측에 candidate 등록
@@ -315,6 +314,10 @@ class WebRTCService {
     _dataChannel?.send(RTCDataChannelMessage(text));
     // 본인이 보낸 메시지도 본인이 볼 수 있도록 해준다.
     onMessageReceived("나: $text");
+  }
+
+  Future<void> _setSpeakerOn(bool enable) async {
+    await Helper.setSpeakerphoneOn(enable);
   }
 
   void dispose() {
