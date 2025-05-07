@@ -3,11 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
+import 'package:dio/dio.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
 import '../../../../logic/providers/network/dio_provider.dart';
 import '../../../../logic/providers/communication/call_request_provider.dart';
 import '../../../../data/models/user/user_model.dart';
+import '../../../../data/models/friend/friend_model.dart';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -20,10 +22,7 @@ class _CallScreenState extends State<CallScreen> {
   late final CallRequestProvider _callRequest;
   late final WebRTCService _rtc;
   late final User _user;
-  final int childId = 12;
 
-  // late final CallPollingService callPollingService;
-  late final _dio;
   String? selectedCharacter;
 
   @override
@@ -31,7 +30,6 @@ class _CallScreenState extends State<CallScreen> {
     super.initState();
     /// provider 초기화
     _user = context.read<UserProvider>().user!;
-    _dio = context.read<DioProvider>().dio;
     _callRequest = context.read<CallRequestProvider>();
     _rtc = context.read<CallSessionProvider>().rtcService;
   }
@@ -42,7 +40,7 @@ class _CallScreenState extends State<CallScreen> {
     });
   }
 
-  Future<void> createCallRequest(int characterId) async {
+  Future<void> createCallRequest(int characterId, int childId) async {
     if (!mounted) return;
 
     _callRequest.setRoomId();
@@ -69,21 +67,27 @@ class _CallScreenState extends State<CallScreen> {
     context.push('/parent/call/waiting');
   }
 
-  Future<void> pollCallRequests(BuildContext context) async {
-    // final data = await callPollingService.pollCallRequests();
-    // context.read<CallPollingProvider>().updatePolledData(data);
-  }
-
-  Future<void> updateCallStatus(BuildContext context, String newStatus) async {
-    // await callPollingService.updateCallStatus(newStatus);
-    await pollCallRequests(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     final userId = _user.userId.toString();
     final characters =
         context.watch<CharacterImgProvider>().getCharacters(userId);
+
+    final userProvider = context.watch<UserProvider>();
+    final childList = userProvider.user?.childList ?? [];
+    final activeChildId = userProvider.activeChildId;
+
+    Friend? activeChild;
+    try {
+      activeChild = childList.firstWhere(
+            (c) => c.friendId.toString() == activeChildId,
+      );
+    } catch (_) {
+      activeChild = null;
+    }
+
+    final activeChildName = activeChild?.friendName ?? '없음';
+
 
     if (characters.isEmpty) {
       Future.microtask(() {
@@ -117,7 +121,7 @@ class _CallScreenState extends State<CallScreen> {
                           color: Colors.blueAccent, size: 28),
                       const SizedBox(width: 12),
                       Text(
-                        '아이 선택됨:${childId}',
+                        '아이 선택됨:${activeChildName}',
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600),
                       ),
@@ -187,7 +191,12 @@ class _CallScreenState extends State<CallScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: selectedCharacter == null ? null : () => createCallRequest(int.parse(selectedCharacter!)),
+                onPressed: selectedCharacter == null || activeChildId == null
+                    ? null
+                    : () => createCallRequest(
+                  int.parse(selectedCharacter!),
+                  int.parse(activeChildId!),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: selectedCharacter == null ? Colors.grey : null,
                   minimumSize: const Size(double.infinity, 50),

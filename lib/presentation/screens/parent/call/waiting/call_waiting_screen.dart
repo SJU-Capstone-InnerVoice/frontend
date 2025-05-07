@@ -29,14 +29,6 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
     super.initState();
 
     _callRequest = context.read<CallRequestProvider>();
-    // _dio = context.read<DioProvider>().dio;
-    // pollingService = CallPollingService(
-    //   dio: _dio,
-    //   characterId: 'char1',
-    //   roomId: 'roomA',
-    //   parentId: 'parent001',
-    //   childId: 'child001',
-    // );
     _startPolling();
     _startDotAnimation();
 
@@ -50,8 +42,8 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
         _pollingTimer?.cancel();
         _dotTimer?.cancel();
         if (context.mounted) {
-          context.go('/parent/call/start');
           await _callRequest.delete();
+          context.go('/parent/call/start');
         }
       }
     });

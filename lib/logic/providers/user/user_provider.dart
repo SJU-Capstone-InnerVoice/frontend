@@ -10,8 +10,10 @@ class UserProvider with ChangeNotifier {
   final FriendService _friendService = FriendService();
 
   User? _user;
+  String? _activeChildId;
 
   User? get user => _user;
+  String? get activeChildId => _activeChildId;
 
   void setUser(User newUser) {
     _user = newUser;
@@ -26,6 +28,23 @@ class UserProvider with ChangeNotifier {
   Future<void> handleLogin(Dio dio, String name, String password) async {
     final user = await _loginService.login(dio, name, password);
     setUser(user);
+  }
+
+  void setActivateChild(String childId) {
+    if (_user == null || _user!.childList == null) return;
+
+    debugPrint('📋 childList friendIds: ${_user!.childList!.map((e) => e.friendId)}');
+    debugPrint('📍 요청한 활성화 ID: $childId');
+
+    final exists = _user!.childList!.any((c) => c.friendId.toString() == childId);
+    if (!exists) {
+      debugPrint('❌ activateChild: childList에 해당 ID 없음 ($childId)');
+      return;
+    }
+
+    _activeChildId = childId;
+    notifyListeners();
+    debugPrint('✅ 활성 자식 설정됨: $childId');
   }
 
   Future<void> setChildList(Dio dio) async {
@@ -85,6 +104,7 @@ class UserProvider with ChangeNotifier {
   void clear() {
     debugPrint('🧹 [UserProvider] clear() 호출됨 - 현재 user: ${_user?.userId}');
     _user = null;
+    _activeChildId = null;
     debugPrint('🧹 [UserProvider] user null로 초기화됨');
     notifyListeners();
   }
