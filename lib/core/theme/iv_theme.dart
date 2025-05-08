@@ -1,10 +1,13 @@
 // core/theme/iv_theme.dart
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'iv_colors.dart';
 
 class IVTheme {
   static ThemeData lightTheme = ThemeData(
+    fontFamily: GoogleFonts.ibmPlexSansKr().fontFamily,
     primaryColor: IVColors.primary,
     scaffoldBackgroundColor: IVColors.background,
     colorScheme: ColorScheme.light(
@@ -23,8 +26,8 @@ class IVTheme {
         fontWeight: FontWeight.bold,
       ),
     ),
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(
+    textTheme: GoogleFonts.ibmPlexSansKrTextTheme().copyWith(
+      displayLarge: const TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.bold,
         color: IVColors.textPrimary,

@@ -61,7 +61,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
                 final activeChildId = userProvider.activeChildId;
                 final isActive = child.friendId.toString() == activeChildId;
                 return ListTile(
-                  tileColor: isActive ? Colors.blue : null,
+                  tileColor: isActive ? Colors.orange : null,
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(
                       'https://picsum.photos/seed/${child.friendId}/100/100',

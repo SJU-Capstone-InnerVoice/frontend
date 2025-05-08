@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'injection.dart';
 import 'package:audio_session/audio_session.dart';
 import 'core/theme/iv_theme.dart';
-
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> setupAudioSession() async {
   final session = await AudioSession.instance;
@@ -13,6 +13,7 @@ Future<void> setupAudioSession() async {
 }
 void main() async {
   await dotenv.load(fileName: ".env"); // server endpoint address
+  await initializeDateFormatting('ko_KR', null);
   await setupAudioSession();
   runApp(
     MultiProvider(

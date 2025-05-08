@@ -137,7 +137,9 @@ class _CallStartScreenState extends State<CallStartScreen> {
                     child: Text(
                       '$todayDate\n아이가 입장하였습니다',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.grey),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

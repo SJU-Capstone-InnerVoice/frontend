@@ -108,15 +108,15 @@ class _CallScreenState extends State<CallScreen> {
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    border: Border.all(color: Colors.blueAccent),
+                    color: Colors.orange.shade50,
+                    border: Border.all(color: Colors.orange),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const Icon(Icons.child_care,
-                          color: Colors.blueAccent, size: 28),
+                           size: 28),
                       const SizedBox(width: 12),
                       Text(
                         '아이 선택됨:${activeChildName}',
