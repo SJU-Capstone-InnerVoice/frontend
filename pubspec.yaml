@@ -54,6 +54,7 @@ dependencies:
   http_parser: ^4.0.2
   audio_session: ^0.2.1
 
+
   ffmpeg_kit_flutter:
     git:
       url: https://github.com/Sahad2701/ffmpeg-kit.git
