@@ -59,3 +59,9 @@ flutter_launcher_icons:
   adaptive_icon_background: "#ffffff"
   adaptive_icon_foreground: "assets/icons/iv_icon.png"
 ```
+
+8. 테스트플라이트 빌드 시 암호화 없음을 자동 명시
+```html
+ios/Runner/Info.plist
+<key>ITSAppUsesNonExemptEncryption</key><false/>
+```

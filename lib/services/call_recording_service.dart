@@ -29,7 +29,7 @@ class CallRecordingService {
     final config = RecordConfig(
       encoder: AudioEncoder.wav,
       bitRate: 128000,
-      sampleRate: 24000,
+      sampleRate: 44100,
       numChannels: 1,
       echoCancel: true,
     );
@@ -116,7 +116,7 @@ class CallRecordingService {
         'file': await MultipartFile.fromFile(
           filePath,
           filename: fileName,
-          contentType: MediaType('audio', 'wav'), // 'audio/wav' 또는 'audio/mpeg' 등
+          contentType: MediaType('audio', 'wav'),
         ),
       });
 
