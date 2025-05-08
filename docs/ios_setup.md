@@ -47,3 +47,15 @@ ios/Runner/Info.plist
 <key>NSAppleMusicUsageDescription</key>
 <string>오디오 재생을 위해 필요합니다.</string>
 ```
+
+7. icon 적용을 위한 파일 추가
+```html
+flutter_launcher_icons.yaml
+flutter_launcher_icons:
+  ios: true
+  android: true
+  remove_alpha_ios: true
+  image_path: "assets/icons/iv_icon.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/icons/iv_icon.png"
+```
