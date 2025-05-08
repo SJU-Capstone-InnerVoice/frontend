@@ -17,7 +17,8 @@ final parentRoutes = ShellRoute(
   routes: [
     GoRoute(
       path: '/parent/call',
-      builder: (context, state) => const CallScreen(),
+      pageBuilder: (context, state) =>
+      const NoTransitionPage(child: CallScreen()),
       routes: [
         GoRoute(
           path: 'waiting',

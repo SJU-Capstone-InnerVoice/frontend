@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
+import 'package:inner_voice/data/datasources/local/auth_local_datasource.dart';
 import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:inner_voice/presentation/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/user/user_model.dart';
 import '../../../logic/providers/network/dio_provider.dart';
 import '../../../core/constants/user/role.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,7 +33,6 @@ class _LoginScreenState extends State<LoginScreen> {
     /// provider 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _dio = context.read<DioProvider>().dio;
-      context.read<UserProvider>().clear();
       _user = context.read<UserProvider>().user;
     });
   }
@@ -58,8 +59,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final userProvider = context.read<UserProvider>();
 
       await userProvider.handleLogin(dio, name, password);
-      await userProvider.setChildList(dio);
 
+      await userProvider.setChildList(dio);
+      final user = userProvider.user;
+      if (user != null) {
+        await AuthLocalDataSource.saveUser(user.userId, user.role.name);
+      }
       userProvider.user?.role == UserRole.parent
           ? context.go('/parent/call')
           : context.go('/child/call');

@@ -4,17 +4,19 @@ import '../screens/login/login_screen.dart';
 import '../screens/go_design_screen.dart';
 import 'child_routes.dart';
 import 'parent_routes.dart';
+import 'auth_gate.dart';
 
 final GoRouter IVRouter = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/',
   routes: [
     GoRoute(
       path: '/',
-      redirect: (context, state) => '/login',
+      builder: (context, state) => const AuthGate(),
     ),
     GoRoute(
       path: '/login',
-      builder: (context, state) => const LoginScreen(),
+      pageBuilder: (context, state) =>
+      const NoTransitionPage(child: LoginScreen()),
       routes: [
         GoRoute(
           path: 'sign-up',

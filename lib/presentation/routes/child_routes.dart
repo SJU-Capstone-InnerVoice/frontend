@@ -12,7 +12,8 @@ final childRoutes = ShellRoute(
   routes: [
     GoRoute(
       path: '/child/call',
-      builder: (context, state) => const CallScreen(),
+      pageBuilder: (context, state) =>
+      const NoTransitionPage(child: CallScreen()),
       routes: [
         GoRoute(
           path: 'start',
