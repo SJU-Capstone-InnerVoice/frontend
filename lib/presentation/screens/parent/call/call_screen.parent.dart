@@ -22,7 +22,8 @@ class _CallScreenState extends State<CallScreen> {
   late final CallRequestProvider _callRequest;
   late final WebRTCService _rtc;
   late final User _user;
-
+  Set<String> _renderedCharacterIds = {};
+  bool _allImagesRendered = false;
 
   String? selectedCharacter;
 
@@ -34,6 +35,21 @@ class _CallScreenState extends State<CallScreen> {
     _user = context.read<UserProvider>().user!;
     _callRequest = context.read<CallRequestProvider>();
     _rtc = context.read<CallSessionProvider>().rtcService;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final userId = context.read<UserProvider>().user!.userId;
+    final currentCharacters = context.read<CharacterImgProvider>().getCharacters(userId);
+
+    if (_renderedCharacterIds.length != currentCharacters.length) {
+      setState(() {
+        _renderedCharacterIds.clear();
+        _allImagesRendered = false;
+      });
+    }
   }
 
   void selectCharacter(String name) {
@@ -137,7 +153,6 @@ class _CallScreenState extends State<CallScreen> {
                         if (index < characters.length) {
                           final character = characters[index];
                           final isSelected = selectedCharacter == character.id;
-
                           return GestureDetector(
                             onTap: () => selectCharacter(character.id),
                             child: Container(
@@ -162,27 +177,53 @@ class _CallScreenState extends State<CallScreen> {
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(16),
-                                    child: SizedBox(
-                                      width: 75,
-                                      height: 75,
-                                      child: Image.network(
-                                        character.imageUrl,
-                                        fit: BoxFit.cover,
-                                        frameBuilder: (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
-                                          if (frame == null) {
-                                            return Shimmer.fromColors(
-                                              baseColor: Colors.grey[300]!,
-                                              highlightColor: Colors.grey[100]!,
-                                              child: Container(
+                                    child: Stack(
+                                      children: [
+                                        // 이미지
+                                        SizedBox(
+                                          width: 75,
+                                          height: 75,
+                                          child: Image.network(
+                                            character.imageUrl,
+                                            fit: BoxFit.cover,
+                                            frameBuilder: (context, child, frame, wasSyncLoaded) {
+                                              if (frame != null && !_renderedCharacterIds.contains(character.id)) {
+                                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                                  if (mounted) {
+                                                    setState(() {
+                                                      _renderedCharacterIds.add(character.id);
+                                                      if (_renderedCharacterIds.length == characters.length) {
+                                                        _allImagesRendered = true;
+                                                      }
+                                                    });
+                                                  }
+                                                });
+                                                return Shimmer.fromColors(
+                                                  baseColor: Colors.grey[300]!,
+                                                  highlightColor: Colors.grey[100]!,
+                                                  child: Container(color: Colors.white),
+                                                );
+                                              }
+                                              return child;
+                                            },
+                                          ),
+                                        ),
+
+                                        // 시머 오버레이
+                                        if (!_allImagesRendered)
+                                          Positioned.fill(
+                                            child: Container(
+                                              decoration: BoxDecoration(
                                                 color: Colors.white,
                                               ),
-                                            );
-                                          } else {
-                                            // 로딩 완료
-                                            return child;
-                                          }
-                                        },
-                                      ),
+                                              child: Shimmer.fromColors(
+                                                baseColor: Colors.grey[300]!,
+                                                highlightColor: Colors.grey[100]!,
+                                                child: Container(color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
                                   const SizedBox(height: 8),
