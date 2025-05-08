@@ -9,6 +9,7 @@ import '../../../../logic/providers/character/character_img_provider.dart';
 import '../../../../logic/providers/communication/call_request_provider.dart';
 import '../../../../data/models/user/user_model.dart';
 import '../../../../data/models/friend/friend_model.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -21,6 +22,7 @@ class _CallScreenState extends State<CallScreen> {
   late final CallRequestProvider _callRequest;
   late final WebRTCService _rtc;
   late final User _user;
+
 
   String? selectedCharacter;
 
@@ -166,6 +168,20 @@ class _CallScreenState extends State<CallScreen> {
                                       child: Image.network(
                                         character.imageUrl,
                                         fit: BoxFit.cover,
+                                        frameBuilder: (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
+                                          if (frame == null) {
+                                            return Shimmer.fromColors(
+                                              baseColor: Colors.grey[300]!,
+                                              highlightColor: Colors.grey[100]!,
+                                              child: Container(
+                                                color: Colors.white,
+                                              ),
+                                            );
+                                          } else {
+                                            // 로딩 완료
+                                            return child;
+                                          }
+                                        },
                                       ),
                                     ),
                                   ),
