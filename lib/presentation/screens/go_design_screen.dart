@@ -12,7 +12,6 @@ class GoDesignScreen extends StatelessWidget {
         items: [
           _DesignJumpItem(label: '로그인 화면', path: '/login'),
           _DesignJumpItem(label: '회원가입', path: '/login/sign-up'),
-          _DesignJumpItem(label: '모드 선택', path: '/mode'),
         ],
       ),
       _Section(

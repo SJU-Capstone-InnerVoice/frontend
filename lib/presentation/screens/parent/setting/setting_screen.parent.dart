@@ -24,12 +24,7 @@ class SettingScreen extends StatelessWidget {
               context.push('/parent/settings/friend/list');
             },
           ),
-          ListTile(
-            title: const Text('모드 선택하기'),
-            onTap: () {
-              context.go('/mode');
-            },
-          ),
+
           ListTile(
             title: const Text('보안 설정'),
             onTap: () {

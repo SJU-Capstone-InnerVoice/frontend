@@ -5,6 +5,7 @@ import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/user/user_model.dart';
 import '../../../logic/providers/network/dio_provider.dart';
+import '../../../core/constants/user/role.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -58,7 +59,10 @@ class _LoginScreenState extends State<LoginScreen> {
       await userProvider.handleLogin(dio, name, password);
       await userProvider.setChildList(dio);
 
-      context.go('/mode');
+      userProvider.user?.role == UserRole.parent
+          ? context.go('/parent/call')
+          : context.go('/child/call');
+
     } catch (e) {
       setState(() {
         errorMessage = '로그인 실패: ${e.toString()}';
@@ -146,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: ()  {
+              onPressed: () {
                 context.push("/design");
               },
               child: Text("페이지 디자인용 라우팅"),
