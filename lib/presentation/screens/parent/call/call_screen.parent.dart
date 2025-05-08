@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
+import 'dart:ui';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
 import '../../../../logic/providers/communication/call_request_provider.dart';
@@ -26,6 +27,7 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void initState() {
     super.initState();
+
     /// provider 초기화
     _user = context.read<UserProvider>().user!;
     _callRequest = context.read<CallRequestProvider>();
@@ -67,6 +69,7 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     final userId = _user.userId.toString();
     final characters =
         context.watch<CharacterImgProvider>().getCharacters(userId);
@@ -74,18 +77,18 @@ class _CallScreenState extends State<CallScreen> {
     final userProvider = context.watch<UserProvider>();
     final childList = userProvider.user?.childList ?? [];
     final activeChildId = userProvider.activeChildId;
+    final bool isChildSelected = activeChildId != null;
 
     Friend? activeChild;
     try {
       activeChild = childList.firstWhere(
-            (c) => c.friendId.toString() == activeChildId,
+        (c) => c.friendId.toString() == activeChildId,
       );
     } catch (_) {
       activeChild = null;
     }
 
-    final activeChildName = activeChild?.friendName ?? '없음';
-
+    final activeChildName = activeChild?.friendName ?? '선택하러가기';
 
     if (characters.isEmpty) {
       Future.microtask(() {
@@ -97,106 +100,169 @@ class _CallScreenState extends State<CallScreen> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(10),
           child: Column(
             children: [
+
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration:  BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                  child: ScrollConfiguration(
+                    behavior: const ScrollBehavior().copyWith(
+                      scrollbars: false,
+                      dragDevices: {
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.mouse,
+                      },
+                    ),
+                    child: GridView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 0.8,
+                      ),
+                      itemCount: characters.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index < characters.length) {
+                          final character = characters[index];
+                          final isSelected = selectedCharacter == character.id;
+
+                          return GestureDetector(
+                            onTap: () => selectCharacter(character.id),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withOpacity(0.1)
+                                    : null,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: SizedBox(
+                                      width: 75,
+                                      height: 75,
+                                      child: Image.network(
+                                        character.imageUrl,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    character.name,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        } else {
+                          return GestureDetector(
+                            onTap: () {
+                              context.push('/parent/character/add');
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.orange),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              child: const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add,
+                                      color: Colors.orange, size: 32),
+                                  SizedBox(height: 8),
+                                  Text('직접 추가',
+                                      style: TextStyle(color: Colors.orange)),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   context.push('/parent/settings/friend/list');
                 },
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    border: Border.all(color: Colors.orange),
+                    color: isChildSelected
+                        ? Theme.of(context).colorScheme.primary.withOpacity(0.05)
+                        : Colors.grey.shade100,
+                    border: Border.all(
+                      color: isChildSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Colors.grey,
+                    ),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Icon(Icons.child_care,
-                           size: 28),
+                      Icon(
+                        Icons.child_care,
+                        size: 28,
+                        color: isChildSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey,
+                      ),
                       const SizedBox(width: 12),
                       Text(
-                        '아이 선택됨:${activeChildName}',
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
+                        activeChildName,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: isChildSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.grey,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 0.8,
-                  ),
-                  itemCount: characters.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index < characters.length) {
-                      final character = characters[index];
-                      final isSelected = selectedCharacter == character.id;
-
-                      return GestureDetector(
-                        onTap: () => selectCharacter(character.id),
-                        child: Card(
-                          color: isSelected ? Colors.grey[300] : Colors.white,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 60,
-                                height: 60,
-                                child: Image.network(character.imageUrl,
-                                    fit: BoxFit.cover),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(character.name), // 이제 이름으로 표시 가능
-                            ],
-                          ),
-                        ),
-                      );
-                    } else {
-                      return GestureDetector(
-                        onTap: () {
-                          context.push('/parent/character/add');
-                        },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.orange),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.add, color: Colors.orange, size: 32),
-                                SizedBox(height: 8),
-                                Text('직접 추가',
-                                    style: TextStyle(color: Colors.orange)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
               const SizedBox(height: 16),
+
               ElevatedButton(
                 onPressed: selectedCharacter == null || activeChildId == null
                     ? null
                     : () => createCallRequest(
-                  int.parse(selectedCharacter!),
-                  int.parse(activeChildId!),
-                ),
+                          int.parse(selectedCharacter!),
+                          int.parse(activeChildId!),
+                        ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: selectedCharacter == null ? Colors.grey : null,
+                  backgroundColor:
+                      selectedCharacter == null ? Colors.grey : null,
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 child: const Text('대화방 생성'),

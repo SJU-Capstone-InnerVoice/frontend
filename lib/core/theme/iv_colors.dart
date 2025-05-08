@@ -14,7 +14,7 @@ class IVColors {
 
   // Text Colors
   static const Color textPrimary = Color(0xFF333333);
-  static const Color textSecondary = Color(0xFF757575);
+  static const Color textSecondary = Color(0xFF202020);
   static const Color textLight = Color(0xFFFFFFFF);
 
   // Functional Colors
