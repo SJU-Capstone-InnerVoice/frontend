@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'package:inner_voice/logic/providers/user/user_provider.dart';
+import 'package:inner_voice/presentation/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/user/user_model.dart';
 import '../../../logic/providers/network/dio_provider.dart';
@@ -64,9 +65,13 @@ class _LoginScreenState extends State<LoginScreen> {
           : context.go('/child/call');
 
     } catch (e) {
-      setState(() {
-        errorMessage = '로그인 실패: ${e.toString()}';
-      });
+      showDialog(
+        context: context,
+        builder: (context) => ErrorDialog(
+          title: "로그인 실패",
+          message: "아이디와 비밀번호를 다시 확인해주세요",
+        ),
+      );
     } finally {
       setState(() {
         isLoading = false;
@@ -113,9 +118,10 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: const InputDecoration(labelText: '비밀번호'),
               obscureText: true,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 5),
             if (errorMessage != null)
               Text(errorMessage!, style: const TextStyle(color: Colors.red)),
+            const SizedBox(height: 5),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
