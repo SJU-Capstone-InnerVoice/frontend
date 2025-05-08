@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:io';
 
 class VoiceSynthesisScreen extends StatefulWidget {
@@ -35,7 +36,16 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
         : '선택된 파일 없음';
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('음성 합성하기'),
+        leading: IconButton(
+            onPressed: () {
+              context.pop();
+            },
+            icon: Icon(Icons.arrow_back)),
+      ),
       body: SafeArea(
+
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
           child: Column(

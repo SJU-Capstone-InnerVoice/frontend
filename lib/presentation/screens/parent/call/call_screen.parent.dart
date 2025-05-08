@@ -163,7 +163,7 @@ class _CallScreenState extends State<CallScreen> {
                     } else {
                       return GestureDetector(
                         onTap: () {
-                          context.go('/parent/character/add');
+                          context.push('/parent/character/add');
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(

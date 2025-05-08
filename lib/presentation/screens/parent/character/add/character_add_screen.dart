@@ -6,12 +6,14 @@ import 'package:inner_voice/logic/providers/character/character_img_provider.dar
 import 'package:provider/provider.dart';
 import '../../../../../data/models/user/user_model.dart';
 import '../../../../../logic/providers/user/user_provider.dart';
+
 class AddCharacterScreen extends StatefulWidget {
   const AddCharacterScreen({super.key});
 
   @override
   State<AddCharacterScreen> createState() => _AddCharacterScreenState();
 }
+
 class _AddCharacterScreenState extends State<AddCharacterScreen> {
   File? _image;
   final TextEditingController _nameController = TextEditingController();
@@ -41,7 +43,16 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
     final bool hasName = _nameController.text.trim().isNotEmpty;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text("캐릭터 생성"),
+        leading: IconButton(
+            onPressed: () {
+              context.pop();
+            },
+            icon: Icon(Icons.arrow_back)),
+      ),
       body: SafeArea(
+
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32),
           child: Column(
@@ -90,19 +101,9 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
               ),
               const SizedBox(height: 24),
 
-              // 이름 입력 필드
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: '캐릭터 이름',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 24),
-
               ElevatedButton(
                 onPressed: () {
-                  context.go('/parent/character/voice/synthesis');
+                  context.push('/parent/character/voice/synthesis');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],
@@ -111,34 +112,45 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
                 ),
                 child: const Text('음성 합성하기'),
               ),
+              const SizedBox(height: 24),
 
+              // 이름 입력 필드
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: '캐릭터 이름',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value){
+                  setState(() {
+                  });
+                },
+              ),
               const Spacer(),
 
               ElevatedButton(
                 onPressed: (hasImage && hasVoice && hasName)
                     ? () async {
-                  print("이미지 업로드");
-                  await context.read<CharacterImgProvider>().uploadImage(
-                    userId: user.userId,
-                    name: _nameController.text.trim(),
-                    type: "USER",
-                    file: _image!,
-                  );
-                  context.go("/parent/call");
-                }
+                        print("이미지 업로드");
+                        await context.read<CharacterImgProvider>().uploadImage(
+                              userId: user.userId,
+                              name: _nameController.text.trim(),
+                              type: "USER",
+                              file: _image!,
+                            );
+                        context.go("/parent/call");
+                      }
                     : null,
                 style: (hasImage && hasVoice && hasName)
                     ? ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange[300],
-                  foregroundColor: Colors.orange[600],
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                )
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      )
                     : ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.grey[600],
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('현재 캐릭터로 대화방 생성'),
+                        backgroundColor: Colors.grey[300],
+                        foregroundColor: Colors.grey[600],
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                child: const Text('캐릭터 생성'),
               ),
             ],
           ),
