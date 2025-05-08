@@ -55,7 +55,7 @@ dependencies:
   audio_session: ^0.2.1
   google_fonts: ^6.2.1
   flutter_launcher_icons: ^0.14.3
-
+  shimmer: ^3.0.0
 
   ffmpeg_kit_flutter:
     git:

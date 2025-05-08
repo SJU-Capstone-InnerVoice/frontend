@@ -12,6 +12,7 @@ Future<void> setupAudioSession() async {
   await session.configure(AudioSessionConfiguration.speech());
 }
 void main() async {
+
   await dotenv.load(fileName: ".env"); // server endpoint address
   await initializeDateFormatting('ko_KR', null);
   await setupAudioSession();

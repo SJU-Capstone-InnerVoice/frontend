@@ -60,11 +60,14 @@ class CharacterImgProvider extends ChangeNotifier {
 
         _userCharacters[userId] = characterList;
 
-        for (final c in characterList) {
-          print('🖼 characterId: ${c.id}');
-          print('🌐 imageUrl: ${c.imageUrl}');
-          print(" name: ${c.name}");
+
+        for (final character in characterList) {
+          print('🖼 characterId: ${character.id}');
+          print('🌐 imageUrl: ${character.imageUrl}');
+          print(" name: ${character.name}");
         }
+
+
 
         notifyListeners();
       } else {

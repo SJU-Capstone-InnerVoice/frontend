@@ -9,6 +9,7 @@ import '../../../../logic/providers/character/character_img_provider.dart';
 import '../../../../logic/providers/communication/call_request_provider.dart';
 import '../../../../data/models/user/user_model.dart';
 import '../../../../data/models/friend/friend_model.dart';
+import '../../../../presentation/routes/iv_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CallScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class CallScreen extends StatefulWidget {
   State<CallScreen> createState() => _CallScreenState();
 }
 
-class _CallScreenState extends State<CallScreen> {
+class _CallScreenState extends State<CallScreen> with RouteAware {
   late final CallRequestProvider _callRequest;
   late final WebRTCService _rtc;
   late final User _user;
@@ -30,6 +31,9 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      GoRouter.of(context).routerDelegate.addListener(_onRouteChange);
+    });
 
     /// provider 초기화
     _user = context.read<UserProvider>().user!;
@@ -40,16 +44,25 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _resetRenderedImages();
+  }
 
-    final userId = context.read<UserProvider>().user!.userId;
-    final currentCharacters = context.read<CharacterImgProvider>().getCharacters(userId);
+  void _onRouteChange() {
+    final location = GoRouter.of(context).state.path;
+    if (location == '/parent/call') {
+      _resetRenderedImages();
+    }
+  }
 
-    if (_renderedCharacterIds.length != currentCharacters.length) {
-      setState(() {
+  void _resetRenderedImages() => setState(() {
         _renderedCharacterIds.clear();
         _allImagesRendered = false;
       });
-    }
+
+  @override
+  void dispose() {
+    GoRouter.of(context).routerDelegate.removeListener(_onRouteChange);
+    super.dispose();
   }
 
   void selectCharacter(String name) {
@@ -87,11 +100,10 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final userId = _user.userId.toString();
     final characters =
         context.watch<CharacterImgProvider>().getCharacters(userId);
-
+    final charactersProvider = context.watch<CharacterImgProvider>();
     final userProvider = context.watch<UserProvider>();
     final childList = userProvider.user?.childList ?? [];
     final activeChildId = userProvider.activeChildId;
@@ -121,11 +133,10 @@ class _CallScreenState extends State<CallScreen> {
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
-
               Expanded(
                 child: Container(
                   padding: EdgeInsets.all(8),
-                  decoration:  BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.orange.shade50,
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -181,33 +192,37 @@ class _CallScreenState extends State<CallScreen> {
                                       children: [
                                         // 이미지
                                         SizedBox(
-                                          width: 75,
-                                          height: 75,
-                                          child: Image.network(
-                                            character.imageUrl,
-                                            fit: BoxFit.cover,
-                                            frameBuilder: (context, child, frame, wasSyncLoaded) {
-                                              if (frame != null && !_renderedCharacterIds.contains(character.id)) {
-                                                WidgetsBinding.instance.addPostFrameCallback((_) {
-                                                  if (mounted) {
-                                                    setState(() {
-                                                      _renderedCharacterIds.add(character.id);
-                                                      if (_renderedCharacterIds.length == characters.length) {
-                                                        _allImagesRendered = true;
-                                                      }
-                                                    });
-                                                  }
-                                                });
-                                                return Shimmer.fromColors(
-                                                  baseColor: Colors.grey[300]!,
-                                                  highlightColor: Colors.grey[100]!,
-                                                  child: Container(color: Colors.white),
-                                                );
-                                              }
-                                              return child;
-                                            },
-                                          ),
-                                        ),
+                                            width: 75,
+                                            height: 75,
+                                            child: Image.network(
+                                              character.imageUrl,
+                                              fit: BoxFit.cover,
+                                              frameBuilder: (context, child,
+                                                  frame, wasSyncLoaded) {
+                                                if (frame != null &&
+                                                    !_renderedCharacterIds
+                                                        .contains(
+                                                            character.id)) {
+                                                  WidgetsBinding.instance
+                                                      .addPostFrameCallback(
+                                                          (_) {
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        _renderedCharacterIds
+                                                            .add(character.id);
+                                                        if (_renderedCharacterIds
+                                                                .length ==
+                                                            characters.length) {
+                                                          _allImagesRendered =
+                                                              true;
+                                                        }
+                                                      });
+                                                    }
+                                                  });
+                                                }
+                                                return child;
+                                              },
+                                            )),
 
                                         // 시머 오버레이
                                         if (!_allImagesRendered)
@@ -218,8 +233,10 @@ class _CallScreenState extends State<CallScreen> {
                                               ),
                                               child: Shimmer.fromColors(
                                                 baseColor: Colors.grey[300]!,
-                                                highlightColor: Colors.grey[100]!,
-                                                child: Container(color: Colors.white),
+                                                highlightColor:
+                                                    Colors.grey[100]!,
+                                                child: Container(
+                                                    color: Colors.white),
                                               ),
                                             ),
                                           ),
@@ -271,10 +288,14 @@ class _CallScreenState extends State<CallScreen> {
                   context.push('/parent/settings/friend/list');
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: isChildSelected
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.05)
+                        ? Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.05)
                         : Colors.grey.shade100,
                     border: Border.all(
                       color: isChildSelected
@@ -309,7 +330,6 @@ class _CallScreenState extends State<CallScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
               ElevatedButton(
                 onPressed: selectedCharacter == null || activeChildId == null
                     ? null
