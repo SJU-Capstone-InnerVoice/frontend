@@ -138,6 +138,8 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
                               type: "USER",
                               file: _image!,
                             );
+                        await context.read<CharacterImgProvider>().loadImagesFromServer(user.userId); // 추가
+
                         context.go("/parent/call");
                       }
                     : null,

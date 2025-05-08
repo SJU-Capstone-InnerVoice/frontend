@@ -43,6 +43,7 @@ class CharacterImgProvider extends ChangeNotifier {
     } catch (e) {
       print('❌ 이미지 업로드 실패: $e');
     }
+    notifyListeners();
   }
 
   Future<void> loadImagesFromServer(String userId) async {
