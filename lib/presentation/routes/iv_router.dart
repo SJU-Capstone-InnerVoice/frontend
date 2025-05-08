@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import '../screens/login/sign-up/sign-up_screen.dart';
 import '../screens/login/login_screen.dart';
 import '../screens/mode/mode_screen.dart';
-
+import '../screens/go_design_screen.dart';
 import 'child_routes.dart';
 import 'parent_routes.dart';
 
@@ -26,6 +26,10 @@ final GoRouter IVRouter = GoRouter(
     GoRoute(
       path: '/mode',
       builder: (context, state) => const ModeScreen(),
+    ),
+    GoRoute(
+      path: '/design',
+      builder: (context, state) => const GoDesignScreen(),
     ),
     childRoutes,
     parentRoutes,
