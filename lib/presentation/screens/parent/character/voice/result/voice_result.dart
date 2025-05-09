@@ -5,7 +5,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import '../synthesis/widgets/audio_item_widget.dart';
+enum VoiceResultState { loading, waitingApi, requestingApi, done }
+VoiceResultState _state = VoiceResultState.loading;
 
 class VoiceResultScreen extends StatefulWidget {
   const VoiceResultScreen({super.key});
@@ -14,16 +17,27 @@ class VoiceResultScreen extends StatefulWidget {
   State<VoiceResultScreen> createState() => _VoiceResultScreenState();
 }
 
-class _VoiceResultScreenState extends State<VoiceResultScreen> {
+class _VoiceResultScreenState extends State<VoiceResultScreen> with SingleTickerProviderStateMixin{
+
+  VoiceResultState _state = VoiceResultState.loading;
   File? mergedFile;
   late final AudioPlayer _player;
   Duration? _duration;
   bool _isPrepared = false;
-
+  late final AnimationController _fadeController;
+  late final Animation<double> _fadeAnimation;
   @override
   void initState() {
     super.initState();
     _player = AudioPlayer();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
   }
   @override
   void didChangeDependencies() {
@@ -34,9 +48,11 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> {
       _prepare();
     }
   }
+
   Future<void> _prepare() async {
     final filePaths = GoRouterState.of(context).extra as List<String>;
     final files = filePaths.map((path) => File(path)).toList();
+    await Future.delayed(const Duration(seconds: 5));
 
     final merged = await _mergeAudioFilesAndClean(files);
     await _player.setFilePath(merged.path);
@@ -45,7 +61,19 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> {
     setState(() {
       mergedFile = merged;
       _duration = dur;
+      _state = VoiceResultState.waitingApi;
     });
+    _fadeController.forward();
+    await Future.delayed(const Duration(seconds: 3));
+    setState(() => _state = VoiceResultState.requestingApi);
+    await _sendApiRequest();
+    setState(() => _state = VoiceResultState.done);
+  }
+
+  Future<void> _sendApiRequest() async {
+    print('🌐 API 요청 시작...');
+    await Future.delayed(const Duration(seconds: 5));
+    print('✅ API 요청 완료!');
   }
 
   Future<File> _mergeAudioFilesAndClean(List<File> files) async {
@@ -59,8 +87,11 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> {
     await FFmpegKit.execute(command);
 
     final allFiles = tempDir.listSync();
-    for (var f in allFiles) {
-      if (f is File && f.path != output.path) {
+    for (var f in tempDir.listSync()) {
+      if (f is File &&
+          f.path != output.path &&
+          (f.path.endsWith('.m4a') || f.path.endsWith('.wav') || f.path.endsWith('.mp3'))) {
+        print('🧹 Deleting audio file: ${f.path}');
         try {
           await f.delete();
         } catch (_) {}
@@ -73,6 +104,7 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> {
   @override
   void dispose() {
     _player.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -96,17 +128,99 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> {
         ),
       ),
       body: SafeArea(
-        child: mergedFile == null
-            ? const Center(child: CircularProgressIndicator())
-            : Padding(
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: _buildContentByState(),
+              ),
+            ),
+            if (mergedFile != null)
+              Padding(
                 padding: const EdgeInsets.all(16),
-                child: AudioItemWidget(
-                  file: mergedFile!,
-                  player: _player,
-                  duration: _duration,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: AudioItemWidget(
+                    file: mergedFile!,
+                    player: _player,
+                    duration: _duration,
+                  ),
                 ),
               ),
+          ],
+        ),
       ),
+    );
+  }
+  Widget _buildContentByState() {
+    Widget child;
+
+    switch (_state) {
+      case VoiceResultState.loading:
+        child = Column(
+          key: const ValueKey('loading'),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text(
+              '병합 중입니다...',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        );
+        break;
+
+      case VoiceResultState.waitingApi:
+        child = Column(
+          key: const ValueKey('waiting'),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lottie.asset('assets/animations/loading_elephant.json'),
+            const SizedBox(height: 16),
+            const Text(
+              '잠시만 기다려 주세요...',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        );
+        break;
+
+      case VoiceResultState.requestingApi:
+        child = Column(
+          key: const ValueKey('requesting'),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lottie.asset('assets/animations/work_bear.json'),
+            const SizedBox(height: 16),
+            const Text(
+              'AI가 분석 중입니다...',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        );
+        break;
+
+      case VoiceResultState.done:
+        child = Column(
+          key: const ValueKey('done'),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lottie.asset('assets/animations/pigeon.json'),
+            const SizedBox(height: 16),
+            const Text(
+              '완료되었습니다!',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.green),
+            ),
+          ],
+        );
+        break;
+    }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      switchInCurve: Curves.easeInOut,
+      child: child,
     );
   }
 }
