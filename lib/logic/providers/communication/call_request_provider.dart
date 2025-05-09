@@ -15,13 +15,12 @@ class CallRequestProvider with ChangeNotifier {
   int? _characterId;
   bool _isAccepted = false;
   bool _isDisposed = false;
+  bool _isRespond = false;
   Timer? _timer;
-  bool get isPolling => _timer != null && _timer!.isActive;
-  set dio(Dio dio) => _dio = dio;
+
+  /// Getters
   Dio get dio => _dio;
 
-
-  // Getters
   int? get id => _id;
 
   int? get roomId => _roomId;
@@ -34,15 +33,22 @@ class CallRequestProvider with ChangeNotifier {
 
   bool get isAccepted => _isAccepted;
 
-  void setChildId(int id) => _childId = id;
+  bool get isRespond => _isRespond;
 
-  void setParentId(int id) => _parentId = id;
+  bool get isPolling => _timer != null && _timer!.isActive;
 
   CallRequestProvider(Dio dio) {
     _dio = dio;
     _callRequestService = CallRequestService(dio: _dio);
   }
-  // Setters
+
+  /// Setters
+  set dio(Dio dio) => _dio = dio;
+
+  void setChildId(int id) => _childId = id;
+
+  void setParentId(int id) => _parentId = id;
+
   void setRoomId() {
     _roomId = Random().nextInt(900000) + 100000; // 100000 ~ 999999
     notifyListeners();
@@ -60,16 +66,6 @@ class CallRequestProvider with ChangeNotifier {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
-  }
-
-  void setAccept() {
-    _isAccepted = true;
-    notifyListeners();
-  }
-
-  void setReject() {
-    _isAccepted = false;
-    notifyListeners();
   }
 
   void configure({required int child, required int parent}) {
@@ -92,10 +88,12 @@ class CallRequestProvider with ChangeNotifier {
       await query();
     });
   }
+
   void stopPolling() {
     _timer?.cancel();
     _timer = null;
   }
+
   Future<void> send() async {
     if (_parentId == null ||
         _childId == null ||
@@ -138,7 +136,8 @@ class CallRequestProvider with ChangeNotifier {
           await _callRequestService.queryCallRequest(userId: _childId!);
 
       if (responses.isEmpty) {
-        debugPrint('📭 조회된 통화 요청이 없습니다.');
+        _isAccepted = true;
+        notifyListeners();
         return null;
       }
 
@@ -150,6 +149,7 @@ class CallRequestProvider with ChangeNotifier {
       _characterId = latest['characterImageId'];
       _roomId = latest['roomId'];
       _isAccepted = latest['isAccepted'] ?? false;
+
 
       debugPrint('📡 통화 요청 정보 갱신 완료');
       notifyListeners();

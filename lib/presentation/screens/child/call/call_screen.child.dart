@@ -123,8 +123,11 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                     ),
                   ),
                   Consumer<CallRequestProvider>(
-                    builder: (context, callRequest, _) {
-                      final callExists = callRequest.id != null && !callRequest.isAccepted;
+                  builder: (context, callRequest, _) {
+                    final callExists =
+                        (callRequest.id != null && !callRequest.isAccepted);
+
+
                       if (callExists)
                         return Stack(
                           children: [

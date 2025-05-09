@@ -23,7 +23,8 @@ class CallRecordingService {
     }
 
     final dir = await getApplicationDocumentsDirectory();
-    final filePath = '${dir.path}/conversation_${DateTime.now().millisecondsSinceEpoch}.wav';
+    final filePath =
+        '${dir.path}/conversation_${DateTime.now().millisecondsSinceEpoch}.wav';
     _currentFilePath = filePath;
 
     final config = RecordConfig(
@@ -42,7 +43,6 @@ class CallRecordingService {
 
   Future<String?> stopRecording() async {
     if (await _recorder.isRecording()) {
-
       await _recorder.stop();
       await AudioLogger.printWavInfo(_currentFilePath!);
 
@@ -61,34 +61,42 @@ class CallRecordingService {
   }) async {
     final outputDir = (await getApplicationDocumentsDirectory()).path;
     final outputPath = '$outputDir/$outputFileName.wav';
+    if (ttsSegments.isEmpty) {
+      print("⚠️ TTS 세그먼트 없음. 원본 파일만 복사");
+      final originalFile = File(micPath);
+      await originalFile.copy(outputPath);
+      AudioLogger.printWavInfo(outputPath);
+      _sendMergedAudioAndPrintSummary(outputPath);
+      return outputPath;
+    }
+
+
     AudioLogger.printWavInfo(micPath);
     // 입력 리스트 구성
     final inputs = <String>["-i '$micPath'"];
     for (final seg in ttsSegments) {
       inputs.add("-i '${seg.audioPath}'");
       AudioLogger.printWavInfo(seg.audioPath);
-
     }
-
 
     // ffmpeg 실행
     final durationSec = (durationMs / 1000).toStringAsFixed(2);
     final filterComplex = [
       "[0:0]atrim=duration=${durationSec}[mic]",
-      ...ttsSegments.mapIndexed((i, seg) =>
-      "[${i + 1}:0]adelay=${seg.startMs}|${seg.startMs}[td$i]"
-      ),
-      "[mic]" + List.generate(ttsSegments.length, (i) => "[td$i]").join() +
+      ...ttsSegments.mapIndexed(
+          (i, seg) => "[${i + 1}:0]adelay=${seg.startMs}|${seg.startMs}[td$i]"),
+      "[mic]" +
+          List.generate(ttsSegments.length, (i) => "[td$i]").join() +
           "amix=inputs=${ttsSegments.length + 1}:duration=first:dropout_transition=0[aout]"
     ].join("; ");
 
     final command = [
-    ...inputs,
-    "-t $durationSec",
-    "-filter_complex \"$filterComplex\"",
-    "-map \"[aout]\"",
-    "-c:a pcm_s16le -ar 44100 -ac 1",
-    "'$outputPath'"
+      ...inputs,
+      "-t $durationSec",
+      "-filter_complex \"$filterComplex\"",
+      "-map \"[aout]\"",
+      "-c:a pcm_s16le -ar 44100 -ac 1",
+      "'$outputPath'"
     ].join(' ');
 
     print("🎛️ FFmpeg 명령어:\n$command");
@@ -106,6 +114,7 @@ class CallRecordingService {
       return null;
     }
   }
+
   Future<void> _sendMergedAudioAndPrintSummary(String filePath) async {
     final dio = Dio();
     final serverUrl = SummaryApi.summary;

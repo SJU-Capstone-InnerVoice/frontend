@@ -101,7 +101,7 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
   @override
   void dispose() {
     print("📴 CallStartScreen dispose 실행됨");
-
+    _lastSpoken = null;
     _callSession.disposeCall();
     _callRequest.stopPolling();
 
