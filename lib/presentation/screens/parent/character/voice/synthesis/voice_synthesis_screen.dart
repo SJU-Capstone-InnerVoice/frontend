@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'widgets/audio_item_widget.dart';
 import 'widgets/recording_bottom_sheet.dart';
 import 'package:another_flushbar/flushbar.dart';
+
 class VoiceSynthesisScreen extends StatefulWidget {
   const VoiceSynthesisScreen({super.key});
 
@@ -42,6 +43,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
       }
     }
   }
+
   void addRecordedAudio(File file, AudioPlayer player, Duration duration) {
     setState(() {
       _audioFiles.add(file);
@@ -49,6 +51,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
       _durations.add(duration);
     });
   }
+
   void _showRecordingBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -96,9 +99,11 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                     child: ListView.builder(
                       itemCount: _audioFiles.length,
                       itemBuilder: (context, index) {
-                        final fileName = _audioFiles[index].path.split('/').last;
+                        final fileName =
+                            _audioFiles[index].path.split('/').last;
                         return ListTile(
-                          title: Text(fileName, overflow: TextOverflow.ellipsis),
+                          title:
+                              Text(fileName, overflow: TextOverflow.ellipsis),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete_outline),
                             onPressed: () {
@@ -110,11 +115,14 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                                 flushbarPosition: FlushbarPosition.TOP,
                                 flushbarStyle: FlushbarStyle.FLOATING,
                                 duration: const Duration(milliseconds: 1500),
-                                animationDuration: const Duration(milliseconds: 1),
-                                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                animationDuration:
+                                    const Duration(milliseconds: 1),
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 16),
                                 borderRadius: BorderRadius.circular(12),
                                 backgroundColor: Colors.black.withAlpha(200),
-                                icon: const Icon(Icons.delete, color: Colors.white),
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.white),
                               ).show(context);
                             },
                           ),
@@ -134,6 +142,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
       }
     });
   }
+
   void removeAudio(int index) {
     _players[index].dispose();
     setState(() {
@@ -153,6 +162,15 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final totalDuration = _durations
+        .where((d) => d != null)
+        .fold(Duration.zero, (prev, d) => prev + d!);
+
+    final totalSeconds = totalDuration.inSeconds;
+    final goalSeconds = 20;
+    final progress = totalSeconds / goalSeconds;
+    final isReadyToSynthesize = totalSeconds >= goalSeconds;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('음성 합성하기'),
@@ -222,7 +240,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 32, 16, 75),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 75),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -230,6 +248,43 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                 '합쳐서 최소 40초 이상으로 음성을 녹음해주세요!',
                 style: TextStyle(fontSize: 14),
                 textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 6),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${_audioFiles.length}개',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      Text(
+                        '${totalSeconds}s / ${goalSeconds}s',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: totalSeconds >= goalSeconds
+                              ? Colors.green
+                              : Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: LinearProgressIndicator(
+                      value: progress.clamp(0, 1),
+                      minHeight: 10,
+                      backgroundColor: Colors.grey.shade300,
+                      color: totalSeconds >= goalSeconds
+                          ? Colors.redAccent
+                          : Colors.orangeAccent,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
 
@@ -251,11 +306,12 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: null,
+                  onPressed: isReadyToSynthesize ? () {
+                    // ✅ 합성 실행 로직
+                  } : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    foregroundColor: Colors.grey[600],
-                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor: isReadyToSynthesize ? Colors.orange : Colors.grey[300],
+                    foregroundColor: isReadyToSynthesize ? Colors.white : Colors.grey[600],
                   ),
                   child: const Text('음성 합성 시작'),
                 ),
