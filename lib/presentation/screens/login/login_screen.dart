@@ -159,13 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(fontSize: 16, color: Colors.black)),
               ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                context.push("/design");
-              },
-              child: Text("페이지 디자인용 라우팅"),
-            ),
+
           ],
         ),
       ),
