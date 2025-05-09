@@ -42,7 +42,13 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
       }
     }
   }
-
+  void addRecordedAudio(File file, AudioPlayer player, Duration duration) {
+    setState(() {
+      _audioFiles.add(file);
+      _players.add(player);
+      _durations.add(duration);
+    });
+  }
   void _showRecordingBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -52,7 +58,13 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return const RecordingBottomSheet();
+        return RecordingBottomSheet(
+          onRecordingComplete: (File file, Duration duration) async {
+            final player = AudioPlayer();
+            await player.setFilePath(file.path);
+            addRecordedAudio(file, player, duration);
+          },
+        );
       },
     );
   }

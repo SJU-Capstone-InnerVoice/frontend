@@ -2,60 +2,70 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:async';
 import 'package:another_flushbar/flushbar.dart';
+import 'dart:io';
+import 'package:record/record.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 
 class RecordingBottomSheet extends StatefulWidget {
-  const RecordingBottomSheet({super.key});
+  const RecordingBottomSheet({super.key, required this.onRecordingComplete});
+
+  final void Function(File file, Duration duration) onRecordingComplete;
 
   @override
   State<RecordingBottomSheet> createState() => _RecordingBottomSheetState();
 }
 
 class _RecordingBottomSheetState extends State<RecordingBottomSheet> {
-  bool isRecording = false;
-  Duration duration = Duration.zero;
+  bool _isRecording = false;
+  Duration _duration = Duration.zero;
   Timer? _timer;
+  final _recorder = AudioRecorder();
+  String? _recordedPath;
 
-  void _startRecording() {
-    // TODO: 실제 녹음 시작 로직
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() => duration += const Duration(seconds: 1));
-    });
-
-    setState(() => isRecording = true);
-  }
-
-  void _stopRecording() {
-    // TODO: 실제 녹음 종료 후 임시 저장
-    _timer?.cancel();
-    setState(() => isRecording = false);
-  }
-
-  void _cancelRecording() {
-    setState(() {
-      isRecording = false;
-      duration = Duration.zero;
-    });
-    _timer?.cancel();
-  }
-
-  void _attachRecording() {
-    Flushbar(
-      message: "녹음이 업로드되었습니다.",
-      flushbarPosition: FlushbarPosition.TOP,
-      flushbarStyle: FlushbarStyle.FLOATING,
-      duration: const Duration(milliseconds: 1000),
-      animationDuration: const Duration(milliseconds: 1),
-
-
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      borderRadius: BorderRadius.circular(12),
-      backgroundColor: Colors.black.withAlpha(200),
-      icon: const Icon(Icons.check, color: Colors.white),
-    ).show(context).then((_) {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
+  void _toggleRecording() async {
+    if (!_isRecording) {
+      final dir = await getTemporaryDirectory();
+      _recordedPath =
+          '${dir.path}/recorded_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      await _recorder.start(
+        const RecordConfig(encoder: AudioEncoder.aacLc),
+        path: _recordedPath!,
+      );
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        setState(() => _duration += const Duration(seconds: 1));
+      });
+      setState(() => _isRecording = true);
+    } else {
+      final path = await _recorder.stop();
+      if (_timer != null && _timer!.isActive) {
+        _timer!.cancel();
       }
-    });
+      setState(() => _isRecording = false);
+
+      if (path != null) {
+        final file = File(path);
+        final player = AudioPlayer();
+        await player.setFilePath(file.path);
+        final d = await player.duration ?? _duration;
+        player.dispose();
+        setState(() => _duration = Duration.zero);
+
+        widget.onRecordingComplete(file, d);
+
+        Flushbar(
+          message: "녹음이 업로드되었습니다.",
+          flushbarPosition: FlushbarPosition.TOP,
+          flushbarStyle: FlushbarStyle.FLOATING,
+          duration: const Duration(milliseconds: 1000),
+          animationDuration: const Duration(milliseconds: 1),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          borderRadius: BorderRadius.circular(12),
+          backgroundColor: Colors.black.withAlpha(200),
+          icon: const Icon(Icons.check, color: Colors.white),
+        ).show(context);
+      }
+    }
   }
 
   @override
@@ -64,7 +74,6 @@ class _RecordingBottomSheetState extends State<RecordingBottomSheet> {
     super.dispose();
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -84,7 +93,7 @@ class _RecordingBottomSheetState extends State<RecordingBottomSheet> {
                   width: 200,
                   fit: BoxFit.fitWidth,
                   repeat: true,
-                  animate: isRecording, // ✅ 녹음 중일 때만 움직이게
+                  animate: _isRecording,
                 ),
               ),
             ),
@@ -94,8 +103,7 @@ class _RecordingBottomSheetState extends State<RecordingBottomSheet> {
 
             // 하단 타이머
             Text(
-              '${duration.inMinutes.toString().padLeft(2, '0')}:${duration
-                  .inSeconds.remainder(60).toString().padLeft(2, '0')}',
+              '${_duration.inMinutes.toString().padLeft(2, '0')}:${_duration.inSeconds.remainder(60).toString().padLeft(2, '0')}',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
 
@@ -103,42 +111,21 @@ class _RecordingBottomSheetState extends State<RecordingBottomSheet> {
 
             // 버튼 영역
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(width: 20),
-                IconButton(
-                  onPressed: _cancelRecording,
-                  icon: const Icon(Icons.delete_outline, size: 40),
-                  tooltip: '삭제',
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.grey.shade200,
-                    shape: const CircleBorder(),
-                  ),
-                ),
                 ElevatedButton(
-                  onPressed: isRecording ? _stopRecording : _startRecording,
+                  onPressed: _toggleRecording,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isRecording ? Colors.black : Colors.black,
+                    backgroundColor: _isRecording ? Colors.black : Colors.black,
                     foregroundColor: Colors.white,
                     shape: const CircleBorder(),
                     padding: const EdgeInsets.all(24),
                   ),
                   child: Icon(
-                    isRecording ? Icons.stop : Icons.mic,
+                    _isRecording ? Icons.stop : Icons.mic,
                     size: 32,
                   ),
                 ),
-                IconButton(
-                  onPressed: _attachRecording,
-                  icon: const Icon(Icons.upload_rounded, size: 40),
-                  tooltip: '첨부',
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    shape: const CircleBorder(),
-                  ),
-                ),
-                SizedBox(width: 20),
               ],
             ),
           ],
