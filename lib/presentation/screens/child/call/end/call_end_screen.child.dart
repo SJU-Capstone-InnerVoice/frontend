@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:inner_voice/logic/providers/communication/call_request_provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +18,8 @@ class _CallEndScreenState extends State<CallEndScreen> {
   String? _mergedFilePath;
   bool _hasMerged = false;
   final AudioPlayer _player = AudioPlayer();
-  Duration? _duration; // 재생 길이 저장
+  Duration? _duration;
+  late final CallRequestProvider _callRequest;
 
 
   final AudioPlayer _originalPlayer = AudioPlayer();
@@ -91,6 +93,7 @@ class _CallEndScreenState extends State<CallEndScreen> {
   @override
   void initState() {
     super.initState();
+    _callRequest = context.read<CallRequestProvider>();
     _recordProvider = context.read<CallRecordProvider>();
     (() async {
       try {
@@ -129,7 +132,10 @@ class _CallEndScreenState extends State<CallEndScreen> {
   void dispose() {
     _player.dispose();
     _originalPlayer.dispose();
-
+    if (!_callRequest.isPolling) {
+      _callRequest.startPolling();
+      debugPrint("🔁 CallEndScreen dispose에서 polling 재시작");
+    }
     super.dispose();
   }
 

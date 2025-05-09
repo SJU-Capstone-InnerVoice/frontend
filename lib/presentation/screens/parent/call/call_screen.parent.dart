@@ -9,7 +9,6 @@ import '../../../../logic/providers/character/character_img_provider.dart';
 import '../../../../logic/providers/communication/call_request_provider.dart';
 import '../../../../data/models/user/user_model.dart';
 import '../../../../data/models/friend/friend_model.dart';
-import '../../../../presentation/routes/iv_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CallScreen extends StatefulWidget {
@@ -25,6 +24,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
   late final User _user;
   Set<String> _renderedCharacterIds = {};
   bool _allImagesRendered = false;
+  late final GoRouterDelegate _routerDelegate;
 
   String? selectedCharacter;
 
@@ -32,7 +32,8 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      GoRouter.of(context).routerDelegate.addListener(_onRouteChange);
+      _routerDelegate = GoRouter.of(context).routerDelegate;
+      _routerDelegate.addListener(_onRouteChange);
     });
 
     /// provider 초기화
@@ -61,7 +62,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
 
   @override
   void dispose() {
-    GoRouter.of(context).routerDelegate.removeListener(_onRouteChange);
+    _routerDelegate.removeListener(_onRouteChange);
     super.dispose();
   }
 
@@ -94,7 +95,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
         });
       },
     );
-    await Future.delayed(Duration(milliseconds: 1000));
+    await Future.delayed(Duration(milliseconds: 100));
     context.push('/parent/call/waiting');
   }
 

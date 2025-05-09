@@ -1,14 +1,13 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/communication/call_request_provider.dart';
-import '../../../../logic/providers/network/dio_provider.dart';
 import '../../../../logic/providers/user/user_provider.dart';
 import '../../../../data/models/user/user_model.dart';
+import 'package:lottie/lottie.dart';
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -17,147 +16,164 @@ class CallScreen extends StatefulWidget {
   State<CallScreen> createState() => _CallScreenState();
 }
 
-class _CallScreenState extends State<CallScreen> {
-  late CallRequestProvider _callRequest;
+class _CallScreenState extends State<CallScreen> with RouteAware {
+  late final CallRequestProvider _callRequest;
   late final CallSessionProvider _callSession;
-  late WebRTCService _rtc;
+  late final WebRTCService _rtc;
+  late final User _user;
 
-  late User _user;
   bool hasCallRequest = false;
-  Timer? _pollingTimer;
 
   @override
   void initState() {
     super.initState();
+    _callRequest = context.read<CallRequestProvider>();
+    _callSession = context.read<CallSessionProvider>();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _callRequest = context.read<CallRequestProvider>();
       _user = context.read<UserProvider>().user!;
-      _callSession = context.read<CallSessionProvider>();
-      _callRequest.setChildId(int.parse(_user.userId));
-      _callRequest.setParentId(int.parse(_user.userId));
       _rtc = _callSession.rtcService;
-    });
 
-    _startPolling();
-  }
-
-  void _startPolling() {
-    _pollingTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      await queryCallRequest();
-    });
-  }
-
-  Future<void> queryCallRequest() async {
-    final data = await _callRequest.query();
-    setState(() {
-      hasCallRequest = data != null && data.isNotEmpty;
+      if (!_callRequest.isPolling) {
+        debugPrint("🔄 configure() (initState에서 polling 꺼져 있음)");
+        _callRequest.configure(
+          child: int.parse(_user.userId),
+          parent: int.parse(_user.userId),
+        );
+      }
     });
   }
 
   Future<void> acceptCallRequest() async {
-    _pollingTimer?.cancel();
+    if (!mounted) return;
     await _callRequest.accept();
+
+    if (!mounted) return;
     await _rtc.init(
       isCaller: false,
       roomId: _callRequest.roomId!,
       onMessage: (message) {
-        _callSession.addMessage(message);
-        print("📩 받은 메시지: $message");
+        if (mounted) _callSession.addMessage(message);
       },
       onDisconnected: () {
-        Future.microtask(() {
-          if (mounted && Navigator.of(context).canPop()) {
+        if (mounted) {
+          Future.microtask(() {
             context.go('/child/call/end');
-          }
-        });
+          });
+        }
       },
     );
-    await Future.delayed(Duration(milliseconds: 1000));
-    context.push('/child/call/start').then((_) {
-      // 돌아왔을 때 polling 재시작 + UI 갱신
-      _startPolling();
-      queryCallRequest();
+
+
+
+    if (!mounted) return;
+    setState(() {
+      hasCallRequest = false;
     });
+
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (mounted) context.push('/child/call/start');
   }
 
   @override
   void dispose() {
-    _pollingTimer?.cancel();
-
+    _callRequest.stopPolling();
+    hasCallRequest = false;
     super.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
+    final callRequest = context.watch<CallRequestProvider>();
+
+    debugPrint("🆔 build() 안 Provider 인스턴스: ${identityHashCode(callRequest)}");
+
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              Center(
-                child: Text(
-                  hasCallRequest ? '대화 요청이 왔어요!' : '대화 요청이 없어요',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Lottie.asset(
+                'assets/animations/work_bear.json',
+                fit: BoxFit.fitWidth,
+                repeat: true,
+                animate: true,
               ),
-              const SizedBox(height: 40),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      '대화방 이름',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+            ),
+            const SizedBox(height: 40),
+            const Spacer(),
+            SizedBox(
+              height: 170,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SizedBox(
+                      height: 200,
+                      width: double.infinity,
+                      child: Lottie.asset(
+                        'assets/animations/grass.json',
+                        fit: BoxFit.fitWidth,
+                        repeat: true,
+                        animate: true,
                       ),
                     ),
-                    SizedBox(height: 16),
-                    Text(
-                      '캐릭터 정보',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-
-              // ✅ 대화 하고 싶어요 버튼
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: hasCallRequest ? acceptCallRequest : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
                   ),
-                  child: const Text(
-                    '대화 하고 싶어요!',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Consumer<CallRequestProvider>(
+                    builder: (context, callRequest, _) {
+                      final callExists = callRequest.id != null && !callRequest.isAccepted;
+                      if (callExists)
+                        return Stack(
+                          children: [
+                            Positioned(
+                              top: -40,
+                              right: 40,
+                              child: SizedBox(
+                                height: 80,
+                                child: Lottie.asset(
+                                  'assets/animations/mole.json',
+                                  repeat: true,
+                                  animate: true,
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: GestureDetector(
+                                onTap: acceptCallRequest,
+                                child: SizedBox(
+                                  height: 100,
+                                  child: Lottie.asset(
+                                    'assets/animations/call_button.json',
+                                    fit: BoxFit.contain,
+                                    repeat: true,
+                                    animate: true,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      else
+                        return Center(
+                          child: CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.grey.shade300,
+                            child: Icon(
+                              Icons.phone,
+                              size: 40,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        );
+                    },
                   ),
-                ),
+                ],
               ),
-
-              const SizedBox(height: 24),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
