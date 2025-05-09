@@ -72,8 +72,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
       hasCallRequest = false;
     });
 
-    await Future.delayed(const Duration(milliseconds: 1000));
-    if (mounted) context.push('/child/call/start');
+    if (mounted) context.push('/child/call/waiting');
   }
 
   @override

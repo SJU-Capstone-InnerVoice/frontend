@@ -77,4 +77,34 @@ class CharacterImgProvider extends ChangeNotifier {
       print('❌ 이미지 로딩 실패: $e');
     }
   }
+  /// 아이의 call start 화면에 띄우기 위한 메소드
+  Future<CharacterImage?> loadImageByCharacterId({
+    required String userId,
+    required String characterId,
+  }) async {
+    try {
+      final String fetchUrl = CharacterImgApi.getCharacterImg(userId);
+      final Response response = await _dio.get(fetchUrl);
+
+      if (response.statusCode == 200) {
+        final List<CharacterImage> characterList =
+        (response.data as List).map((item) => CharacterImage.fromJson(item)).toList();
+
+        _userCharacters[userId] = characterList;
+        notifyListeners();
+
+        final result = characterList.firstWhere(
+              (character) => character.id == characterId,
+        );
+
+        if (result.id == '') return null;
+        return result;
+      } else {
+        throw Exception('❌ 서버 응답 오류: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ 단일 캐릭터 필터링 실패: $e');
+      return null;
+    }
+  }
 }

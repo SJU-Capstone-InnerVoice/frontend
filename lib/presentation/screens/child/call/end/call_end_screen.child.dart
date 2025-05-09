@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:inner_voice/logic/providers/communication/call_request_provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
-
+import 'package:go_router/go_router.dart';
 import '../../../../../logic/providers/record/call_record_provider.dart';
 
 class CallEndScreen extends StatefulWidget {
@@ -20,7 +20,6 @@ class _CallEndScreenState extends State<CallEndScreen> {
   final AudioPlayer _player = AudioPlayer();
   Duration? _duration;
   late final CallRequestProvider _callRequest;
-
 
   final AudioPlayer _originalPlayer = AudioPlayer();
   Duration? _originalDuration;
@@ -50,8 +49,6 @@ class _CallEndScreenState extends State<CallEndScreen> {
       print('❌ 원본 재생 실패: $e');
     }
   }
-
-
 
   Future<void> _mergeRecording() async {
     final outputFileName = 'merged_${DateTime.now().millisecondsSinceEpoch}';
@@ -128,6 +125,7 @@ class _CallEndScreenState extends State<CallEndScreen> {
       }
     })();
   }
+
   @override
   void dispose() {
     _player.dispose();
@@ -157,103 +155,109 @@ class _CallEndScreenState extends State<CallEndScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('📼 통화 종료')),
       body: Center(
-        child: _mergedFilePath == null
-            ? const CircularProgressIndicator()
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.green, size: 48),
-                  const SizedBox(height: 16),
-                  const Text('병합 완료!'),
-                  const SizedBox(height: 8),
-                  Text(_mergedFilePath ?? '',
-                      style: const TextStyle(fontSize: 12)),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: _playMergedFile,
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('재생하기'),
-                  ),
-                  if (_duration != null) ...[
-                    Text(
-                      '⏱️ 재생 길이: ${_duration!.inMinutes}:${(_duration!.inSeconds % 60).toString().padLeft(2, '0')}',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    const SizedBox(height: 8),
-                    StreamBuilder<Duration>(
-                      stream: _player.positionStream,
-                      builder: (context, snapshot) {
-                        final position = snapshot.data ?? Duration.zero;
-                        final total = _duration ?? Duration.zero;
-
-                        return Column(
-                          children: [
-                            Slider(
-                              min: 0,
-                              max: total.inMilliseconds.toDouble(),
-                              value: position.inMilliseconds
-                                  .clamp(0, total.inMilliseconds)
-                                  .toDouble(),
-                              onChanged: (value) {
-                                _player.seek(
-                                    Duration(milliseconds: value.toInt()));
-                              },
-                            ),
-                            Text(
-                              '🔊 ${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')} / '
-                              '${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}',
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: _playOriginalFile,
-                    icon: const Icon(Icons.record_voice_over),
-                    label: const Text('원본 녹음 재생'),
-                  ),
-                  if (_originalDuration != null) ...[
-                    Text(
-                      '🎙️ 원본 길이: ${_originalDuration!.inMinutes}:${(_originalDuration!.inSeconds % 60).toString().padLeft(2, '0')}',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    const SizedBox(height: 8),
-                    StreamBuilder<Duration>(
-                      stream: _originalPlayer.positionStream,
-                      builder: (context, snapshot) {
-                        final position = snapshot.data ?? Duration.zero;
-                        final total = _originalDuration ?? Duration.zero;
-
-                        return Column(
-                          children: [
-                            Slider(
-                              min: 0,
-                              max: total.inMilliseconds.toDouble(),
-                              value: position.inMilliseconds
-                                  .clamp(0, total.inMilliseconds)
-                                  .toDouble(),
-                              onChanged: (value) {
-                                _originalPlayer.seek(Duration(milliseconds: value.toInt()));
-                              },
-                            ),
-                            Text(
-                              '🔊 ${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')} / '
-                                  '${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}',
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ]
-                ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton.icon(
+              onPressed: canMerge ? _mergeRecording : null,
+              icon: const Icon(Icons.merge_type),
+              label: const Text('병합하기'),
+            ),
+            const SizedBox(height: 16),
+            if (_mergedFilePath != null) ...[
+              const Icon(Icons.check_circle, color: Colors.green, size: 48),
+              const SizedBox(height: 16),
+              const Text('병합 완료!'),
+              const SizedBox(height: 8),
+              Text(_mergedFilePath ?? '', style: const TextStyle(fontSize: 12)),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _playMergedFile,
+                icon: const Icon(Icons.play_arrow),
+                label: const Text('재생하기'),
               ),
+              const SizedBox(height: 8),
+              StreamBuilder<Duration>(
+                stream: _player.positionStream,
+                builder: (context, snapshot) {
+                  final position = snapshot.data ?? Duration.zero;
+                  final total = _duration ?? Duration.zero;
+
+                  return Column(
+                    children: [
+                      Slider(
+                        min: 0,
+                        max: total.inMilliseconds.toDouble(),
+                        value: position.inMilliseconds
+                            .clamp(0, total.inMilliseconds)
+                            .toDouble(),
+                        onChanged: (value) {
+                          _player.seek(Duration(milliseconds: value.toInt()));
+                        },
+                      ),
+                      Text(
+                        '🔊 ${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')} / '
+                        '${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _playOriginalFile,
+              icon: const Icon(Icons.record_voice_over),
+              label: const Text('원본 녹음 재생'),
+            ),
+            if (_originalDuration != null) ...[
+              Text(
+                '🎙️ 원본 길이: ${_originalDuration!.inMinutes}:${(_originalDuration!.inSeconds % 60).toString().padLeft(2, '0')}',
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              StreamBuilder<Duration>(
+                stream: _originalPlayer.positionStream,
+                builder: (context, snapshot) {
+                  final position = snapshot.data ?? Duration.zero;
+                  final total = _originalDuration ?? Duration.zero;
+
+                  return Column(
+                    children: [
+                      Slider(
+                        min: 0,
+                        max: total.inMilliseconds.toDouble(),
+                        value: position.inMilliseconds
+                            .clamp(0, total.inMilliseconds)
+                            .toDouble(),
+                        onChanged: (value) {
+                          _originalPlayer
+                              .seek(Duration(milliseconds: value.toInt()));
+                        },
+                      ),
+                      Text(
+                        '🔊 ${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')} / '
+                        '${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () {
+                context.go("/child/call");
+              },
+              icon: const Icon(Icons.arrow_back),
+              label: const Text("뒤로가기"),
+            ),
+          ],
+        ),
       ),
     );
   }

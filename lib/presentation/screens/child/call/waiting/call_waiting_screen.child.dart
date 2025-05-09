@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+
 class CallWaitingScreen extends StatefulWidget {
   const CallWaitingScreen({super.key});
 
@@ -8,6 +10,16 @@ class CallWaitingScreen extends StatefulWidget {
 }
 
 class _CallWaitingScreenState extends State<CallWaitingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        context.go('/child/call/start');
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
