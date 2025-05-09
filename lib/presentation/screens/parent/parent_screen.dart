@@ -16,7 +16,7 @@ class _ParentScreenState extends State<ParentScreen> {
     '/parent/call',
     '/parent/character/info',
     '/parent/summary',
-    '/parent/settings'
+    '/parent/settings',
   ];
 
   void _onItemTapped(int index) {
@@ -40,6 +40,7 @@ class _ParentScreenState extends State<ParentScreen> {
       // '/parent/character/info',
       '/parent/character/add',
       '/parent/character/voice/synthesis',
+      '/parent/character/voice/result',
     ];
     final hideBottomNav = hiddenRoutes.any((path) => location.startsWith(path));
 

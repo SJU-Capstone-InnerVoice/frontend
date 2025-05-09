@@ -7,6 +7,7 @@ import '../screens/parent/call/start/call_start_screen.parent.dart';
 import '../screens/parent/character/info/character_info_screen.dart';
 import '../screens/parent/character/add/character_add_screen.dart';
 import '../screens/parent/character/voice/synthesis/voice_synthesis_screen.dart';
+import '../screens/parent/character/voice/result/voice_result.dart';
 import '../screens/parent/summary/summary_screen.dart';
 import '../screens/parent/setting/setting_screen.parent.dart';
 import '../screens/parent/setting/friends/list/friend_list_screen.dart';
@@ -49,6 +50,10 @@ final parentRoutes = ShellRoute(
             GoRoute(
               path: 'synthesis',
               builder: (context, state) => const VoiceSynthesisScreen(),
+            ),
+            GoRoute(
+              path: 'result',
+              builder: (context, state) => const VoiceResultScreen(),
             ),
           ],
         ),

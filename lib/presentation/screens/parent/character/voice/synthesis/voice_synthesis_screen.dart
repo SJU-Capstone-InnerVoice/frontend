@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:another_flushbar/flushbar.dart';
+import 'package:go_router/go_router.dart';
+
 import 'widgets/audio_item_widget.dart';
 import 'widgets/recording_bottom_sheet.dart';
-import 'package:another_flushbar/flushbar.dart';
 
 class VoiceSynthesisScreen extends StatefulWidget {
   const VoiceSynthesisScreen({super.key});
@@ -167,7 +169,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
         .fold(Duration.zero, (prev, d) => prev + d!);
 
     final totalSeconds = totalDuration.inSeconds;
-    final goalSeconds = 20;
+    final goalSeconds = 0;
     final progress = totalSeconds / goalSeconds;
     final isReadyToSynthesize = totalSeconds >= goalSeconds;
 
@@ -306,12 +308,19 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: isReadyToSynthesize ? () {
-                    // ✅ 합성 실행 로직
-                  } : null,
+                  onPressed: isReadyToSynthesize
+                      ? () {
+                          context.push(
+                            '/parent/character/voice/result',
+                            extra: _audioFiles.map((f) => f.path).toList(),
+                          );
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isReadyToSynthesize ? Colors.orange : Colors.grey[300],
-                    foregroundColor: isReadyToSynthesize ? Colors.white : Colors.grey[600],
+                    backgroundColor:
+                        isReadyToSynthesize ? Colors.orange : Colors.grey[300],
+                    foregroundColor:
+                        isReadyToSynthesize ? Colors.white : Colors.grey[600],
                   ),
                   child: const Text('음성 합성 시작'),
                 ),
