@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 import 'widgets/audio_item_widget.dart';
 import 'widgets/recording_bottom_sheet.dart';
-
+import 'package:another_flushbar/flushbar.dart';
 class VoiceSynthesisScreen extends StatefulWidget {
   const VoiceSynthesisScreen({super.key});
 
@@ -69,6 +69,71 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
     );
   }
 
+  void _showDeleteBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              height: 700,
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    '삭제할 음성을 선택하세요',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _audioFiles.length,
+                      itemBuilder: (context, index) {
+                        final fileName = _audioFiles[index].path.split('/').last;
+                        return ListTile(
+                          title: Text(fileName, overflow: TextOverflow.ellipsis),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () {
+                              setModalState(() {
+                                removeAudio(index);
+                              });
+                              Flushbar(
+                                message: "${fileName}이 삭제되었습니다.",
+                                flushbarPosition: FlushbarPosition.TOP,
+                                flushbarStyle: FlushbarStyle.FLOATING,
+                                duration: const Duration(milliseconds: 1500),
+                                animationDuration: const Duration(milliseconds: 1),
+                                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                borderRadius: BorderRadius.circular(12),
+                                backgroundColor: Colors.black.withAlpha(200),
+                                icon: const Icon(Icons.delete, color: Colors.white),
+                              ).show(context);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).then((_) {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+    });
+  }
   void removeAudio(int index) {
     _players[index].dispose();
     setState(() {
@@ -134,7 +199,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                         ListTile(
                           leading: const Icon(Icons.delete),
                           title: const Text('삭제'),
-                          onTap: () => (),
+                          onTap: () => _showDeleteBottomSheet(),
                         ),
                       ],
                     ),
