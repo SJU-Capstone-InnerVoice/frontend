@@ -66,7 +66,8 @@ class AudioItemWidget extends StatelessWidget {
                         .clamp(0, total.inMilliseconds)
                         .toDouble(),
                     onChanged: (value) {
-                      player.seek(Duration(milliseconds: value.toInt()));
+                      player
+                          .seek(Duration(microseconds: (value * 1000).toInt()));
                     },
                   ),
                   Row(
@@ -92,13 +93,28 @@ class AudioItemWidget extends StatelessWidget {
                             stream: player.playerStateStream,
                             builder: (context, snapshot) {
                               final isPlaying = snapshot.data?.playing ?? false;
+                              final isEnded =
+                                  total <= current && total > Duration.zero;
+
+                              if (isEnded && isPlaying) {
+                                if (player.playing) {
+                                  player.pause();
+                                  player.seek(Duration(
+                                      milliseconds: total.inMilliseconds));
+                                }
+                              }
                               return IconButton(
                                 icon: Icon(
                                   isPlaying ? Icons.pause : Icons.play_arrow,
                                   size: 30,
                                 ),
                                 onPressed: () {
-                                  isPlaying ? player.pause() : player.play();
+                                  if (isEnded) {
+                                    player.seek(Duration.zero);
+                                    player.play();
+                                  } else {
+                                    isPlaying ? player.pause() : player.play();
+                                  }
                                 },
                               );
                             },
