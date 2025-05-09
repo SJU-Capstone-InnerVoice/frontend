@@ -6,49 +6,59 @@ import '../../../logic/providers/user/user_provider.dart';
 import '../../../core/constants/user/role.dart';
 import '../../../data/models/user/user_model.dart';
 import '../../../data/datasources/local/auth_local_datasource.dart';
-
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
 
   @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  bool _navigated = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    Future.microtask(() async {
+      if (_navigated) return;
+
+      final data = await AuthLocalDataSource.getStoredUser();
+
+      if (!mounted) return;
+
+      if (data == null) {
+        _navigated = true;
+        context.go('/login');
+        return;
+      }
+
+      final user = User(
+        userId: data['id']!,
+        role: data['role'] == 'parent' ? UserRole.parent : UserRole.child,
+        childList: [],
+        myParent: null,
+      );
+
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.user == null) {
+        userProvider.setUser(user);
+      }
+
+      _navigated = true;
+      final redirectRoute = user.role == UserRole.parent
+          ? '/parent/call'
+          : '/child/call';
+
+      context.go(redirectRoute);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: AuthLocalDataSource.getStoredUser(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        final data = snapshot.data;
-        if (data == null) {
-          Future.microtask(() => context.go('/login'));
-          return const Scaffold(
-            backgroundColor: Colors.white,
-            body: SizedBox.expand(),
-          );
-        }
-
-        final user = User(
-          userId: data['id']!,
-          role: data['role'] == 'parent' ? UserRole.parent : UserRole.child,
-          childList: [],
-          myParent: null,
-        );
-
-        context.read<UserProvider>().setUser(user);
-
-        final redirectRoute =
-        user.role == UserRole.parent ? '/parent/call' : '/child/call';
-
-        Future.microtask(() => context.go(redirectRoute));
-
-        return const Scaffold(
-          backgroundColor: Colors.white,
-          body: SizedBox.expand(),
-        );
-      },
+    return const Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }

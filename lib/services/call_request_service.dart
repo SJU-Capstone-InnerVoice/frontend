@@ -45,16 +45,24 @@ class CallRequestService {
       );
 
       if (response.statusCode == 200) {
-        print('📨 통화 요청 조회 성공: ${response.data.last}');
-        return List<Map<String, dynamic>>.from(response.data);
+        final data = response.data;
+
+        if (data is List && data.isNotEmpty) {
+          print('📨 통화 요청 조회 성공: ${data.last}');
+          return List<Map<String, dynamic>>.from(data);
+        } else {
+          print('📭 조회된 통화 요청이 없습니다.');
+          return [];
+        }
       } else {
         throw Exception('❗ 요청 실패: ${response.statusCode}');
       }
     } catch (e) {
       print('❌ 통화 요청 조회 실패: $e');
-      rethrow;
+      return [];
     }
   }
+
   Future<void> acceptCallRequest({required int requestId}) async {
     try {
       final response = await dio.patch(

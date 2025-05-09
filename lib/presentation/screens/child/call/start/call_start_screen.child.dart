@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inner_voice/core/constants/api/tts_api.dart';
+import 'package:inner_voice/logic/providers/communication/call_request_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:dio/dio.dart';
@@ -43,7 +44,7 @@ class CallStartScreen extends StatefulWidget {
 class _CallStartScreenState extends State<CallStartScreen> {
   late final CallSessionProvider _callSession;
   late final CallRecordProvider _recordProvider;
-
+  late final CallRequestProvider _callRequest;
   String? _lastSpoken;
   Future<void> _configureAudioSession() async {
     final session = await AudioSession.instance;
@@ -57,6 +58,8 @@ class _CallStartScreenState extends State<CallStartScreen> {
   @override
   void initState() {
     super.initState();
+    _callRequest = context.read<CallRequestProvider>();
+    _callRequest.stopPolling();
     _recordProvider = context.read<CallRecordProvider>();
 
     Future.microtask(() async {
@@ -80,7 +83,13 @@ class _CallStartScreenState extends State<CallStartScreen> {
   void dispose() {
     print("📴 CallStartScreen dispose 실행됨");
     _callSession.disposeCall();
-    _callSession.clearMessages();
+    _callRequest.stopPolling();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<CallSessionProvider>().clearMessages();
+      }
+    });
     super.dispose();
   }
 

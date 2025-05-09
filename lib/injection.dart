@@ -15,16 +15,18 @@ final List<SingleChildWidget> providers = [
   ChangeNotifierProvider(create: (_) => DioProvider()),
   ChangeNotifierProvider(create: (_) => UserProvider()),
 
-  // CharacterImgProvider는 DioProvider를 사용해야 해서 의존성 주입
+  /// CharacterImgProvider는 DioProvider를 사용해야 해서 의존성 주입
   ChangeNotifierProxyProvider<DioProvider, CharacterImgProvider>(
-    // create는 구조상 생성이 필요해서 만들어진 것이고,
-    // update는 의존하고 있는 게 바뀔 때 계속해주어야 하기 때문
+    /// create는 구조상 생성이 필요해서 만들어진 것이고,
+    /// update는 의존하고 있는 게 바뀔 때 계속해주어야 하기 때문
     create: (_) => CharacterImgProvider(Dio()),
     update: (_, dioProvider, __) => CharacterImgProvider(dioProvider.dio),
   ),
   ChangeNotifierProxyProvider<DioProvider, CallRequestProvider>(
     create: (_) => CallRequestProvider(Dio()),
-    update: (_, dioProvider, __) => CallRequestProvider(dioProvider.dio),
-  ),
-];
+    update: (_, dioProvider, previous) {
+      previous?.dio = dioProvider.dio;
+      return previous!;
+    },
+  ),];
 

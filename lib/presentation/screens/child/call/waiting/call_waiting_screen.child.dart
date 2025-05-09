@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'l';
+import 'package:lottie/lottie.dart';
 class CallWaitingScreen extends StatefulWidget {
   const CallWaitingScreen({super.key});
 

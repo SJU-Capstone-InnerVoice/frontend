@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
@@ -5,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../../../services/call_request_service.dart';
 
 class CallRequestProvider with ChangeNotifier {
-  late final Dio _dio;
+  late Dio _dio;
   late final CallRequestService _callRequestService;
   int? _id;
   int? _roomId;
@@ -13,19 +14,34 @@ class CallRequestProvider with ChangeNotifier {
   int? _parentId;
   int? _characterId;
   bool _isAccepted = false;
+  bool _isDisposed = false;
+  Timer? _timer;
+  bool get isPolling => _timer != null && _timer!.isActive;
+  set dio(Dio dio) => _dio = dio;
+  Dio get dio => _dio;
+
 
   // Getters
   int? get id => _id;
+
   int? get roomId => _roomId;
+
   int? get childId => _childId;
+
   int? get parentId => _parentId;
+
   int? get characterId => _characterId;
+
   bool get isAccepted => _isAccepted;
 
-  CallRequestProvider(this._dio) {
+  void setChildId(int id) => _childId = id;
+
+  void setParentId(int id) => _parentId = id;
+
+  CallRequestProvider(Dio dio) {
+    _dio = dio;
     _callRequestService = CallRequestService(dio: _dio);
   }
-
   // Setters
   void setRoomId() {
     _roomId = Random().nextInt(900000) + 100000; // 100000 ~ 999999
@@ -34,22 +50,16 @@ class CallRequestProvider with ChangeNotifier {
 
   void setId(int id) {
     _id = id;
-    notifyListeners();
-  }
-
-  void setChildId(int id) {
-    _childId = id;
-    notifyListeners();
-  }
-
-  void setParentId(int id) {
-    _parentId = id;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void setCharacterId(int id) {
     _characterId = id;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void setAccept() {
@@ -62,8 +72,35 @@ class CallRequestProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void configure({required int child, required int parent}) {
+    if (_isDisposed) {
+      debugPrint("❌ query() 중단됨: 이미 dispose된 Provider");
+      return null;
+    }
+    debugPrint("✅ configure() called with child=$child, parent=$parent");
+    debugPrint("🆔 configure() 인스턴스: ${identityHashCode(this)}");
+    _childId = child;
+    _parentId = parent;
+    startPolling();
+  }
+
+  void startPolling() {
+    if (_isDisposed) return;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 2), (_) async {
+      print("📡 polling 중...");
+      await query();
+    });
+  }
+  void stopPolling() {
+    _timer?.cancel();
+    _timer = null;
+  }
   Future<void> send() async {
-    if (_parentId == null || _childId == null || _characterId == null || _roomId == null) {
+    if (_parentId == null ||
+        _childId == null ||
+        _characterId == null ||
+        _roomId == null) {
       debugPrint('❌ 필수 정보가 누락되었습니다.');
       return;
     }
@@ -97,7 +134,8 @@ class CallRequestProvider with ChangeNotifier {
     }
 
     try {
-      final responses = await _callRequestService.queryCallRequest(userId: _childId!);
+      final responses =
+          await _callRequestService.queryCallRequest(userId: _childId!);
 
       if (responses.isEmpty) {
         debugPrint('📭 조회된 통화 요청이 없습니다.');
@@ -123,6 +161,7 @@ class CallRequestProvider with ChangeNotifier {
   }
 
   Future<void> accept() async {
+    stopPolling();
     if (_id == null) {
       debugPrint('❌ 수락할 요청 ID가 없습니다.');
       return;
@@ -152,13 +191,18 @@ class CallRequestProvider with ChangeNotifier {
       debugPrint('🚨 통화 요청 삭제 실패: $e');
     }
   }
+
   void clearRoom() {
     _roomId = null;
-    _id = null;
-    _childId = null;
-    _parentId = null;
     _characterId = null;
     _isAccepted = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _timer?.cancel();
+    super.dispose();
   }
 }
