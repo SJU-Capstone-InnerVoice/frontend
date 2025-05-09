@@ -67,6 +67,11 @@ class CallRecordingService {
       await originalFile.copy(outputPath);
       AudioLogger.printWavInfo(outputPath);
       _sendMergedAudioAndPrintSummary(outputPath);
+      if (await originalFile.exists()) {
+        await originalFile.delete();
+        print('🗑️ 원본 파일 삭제됨: $micPath');
+      }
+
       return outputPath;
     }
 
@@ -106,8 +111,11 @@ class CallRecordingService {
     final returnCode = await session.getReturnCode();
     if (ReturnCode.isSuccess(returnCode)) {
       print("✅ 믹싱 완료: $outputPath");
+
       AudioLogger.printWavInfo(outputPath);
       _sendMergedAudioAndPrintSummary(outputPath);
+
+      await _deleteAllWavFilesExcept(outputPath);
       return outputPath;
     } else {
       print("❌ 믹싱 실패: ${returnCode?.getValue()}");
@@ -165,6 +173,23 @@ class CallRecordingService {
       }
     } catch (e) {
       print('❌ 오디오 파일 삭제 중 오류: $e');
+    }
+  }
+  Future<void> _deleteAllWavFilesExcept(String exceptPath) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final files = Directory(dir.path).listSync();
+
+      for (var file in files) {
+        if (file is File &&
+            file.path.endsWith('.wav') &&
+            file.path != exceptPath) {
+          await file.delete();
+          print('🗑️ 삭제됨: ${file.path}');
+        }
+      }
+    } catch (e) {
+      print('❌ 파일 삭제 중 오류 발생: $e');
     }
   }
 }
