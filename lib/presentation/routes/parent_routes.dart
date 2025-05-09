@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../screens/parent/parent_screen.dart';
 import '../screens/parent/call/call_screen.parent.dart';
-import '../screens/parent/call/waiting/call_waiting_screen.dart';
+import '../screens/parent/call/waiting/call_waiting_screen.parent.dart';
 import '../screens/parent/call/start/call_start_screen.parent.dart';
 import '../screens/parent/character/info/character_info_screen.dart';
 import '../screens/parent/character/add/character_add_screen.dart';
