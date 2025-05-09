@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 import 'widgets/audio_item_widget.dart';
+import 'widgets/recording_bottom_sheet.dart';
 
 class VoiceSynthesisScreen extends StatefulWidget {
   const VoiceSynthesisScreen({super.key});
@@ -40,6 +41,20 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
         }
       }
     }
+  }
+
+  void _showRecordingBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return const RecordingBottomSheet();
+      },
+    );
   }
 
   void removeAudio(int index) {
@@ -87,52 +102,55 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
         ),
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.grey[600],
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('음성 합성 시작'),
-              ),
+            IconButton(
+              icon: const Icon(Icons.menu, size: 32),
+              tooltip: '설정',
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  builder: (context) => Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.delete),
+                          title: const Text('삭제'),
+                          onTap: () => (),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // 녹음 기능 구현 예정
-                },
-                icon: const Icon(Icons.mic),
-                label: const Text('음성 녹음'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
+            IconButton(
+              onPressed: () => _showRecordingBottomSheet(),
+              icon: const Icon(Icons.mic, size: 32),
+              tooltip: '음성 녹음',
             ),
-            ElevatedButton.icon(
+            IconButton(
               onPressed: pickAudioFile,
-              icon: const Icon(Icons.upload_file),
-              label: const Text('음성 파일 업로드'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
+              icon: const Icon(Icons.upload_file, size: 32),
+              tooltip: '파일 업로드',
             ),
           ],
         ),
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 90),
+          padding: const EdgeInsets.fromLTRB(16, 32, 16, 75),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                '모두 합쳐서 최소 40초 이상으로 음성을 녹음해주세요',
+                '합쳐서 최소 40초 이상으로 음성을 녹음해주세요!',
                 style: TextStyle(fontSize: 14),
                 textAlign: TextAlign.center,
               ),
@@ -151,7 +169,20 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                   },
                 ),
               ),
-
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[300],
+                    foregroundColor: Colors.grey[600],
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  child: const Text('음성 합성 시작'),
+                ),
+              ),
             ],
           ),
         ),

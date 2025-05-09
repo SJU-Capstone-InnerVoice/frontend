@@ -20,7 +20,9 @@ class AudioItemWidget extends StatelessWidget {
     if (duration == null) return "--:--";
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    return NumberFormat('00').format(minutes) + ":" + NumberFormat('00').format(seconds);
+    return NumberFormat('00').format(minutes) +
+        ":" +
+        NumberFormat('00').format(seconds);
   }
 
   @override
@@ -60,7 +62,9 @@ class AudioItemWidget extends StatelessWidget {
                   Slider(
                     min: 0,
                     max: total.inMilliseconds.toDouble(),
-                    value: current.inMilliseconds.clamp(0, total.inMilliseconds).toDouble(),
+                    value: current.inMilliseconds
+                        .clamp(0, total.inMilliseconds)
+                        .toDouble(),
                     onChanged: (value) {
                       player.seek(Duration(milliseconds: value.toInt()));
                     },
@@ -70,15 +74,18 @@ class AudioItemWidget extends StatelessWidget {
                     children: [
                       Text(
                         formatDuration(current),
-                        style: const TextStyle(fontSize: 12, color: Colors.black54),
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.black54),
                       ),
                       Row(
                         children: [
                           IconButton(
                             icon: const Icon(Icons.replay_5, size: 24),
                             onPressed: () {
-                              final back = player.position - const Duration(seconds: 5);
-                              player.seek(back > Duration.zero ? back : Duration.zero);
+                              final back =
+                                  player.position - const Duration(seconds: 5);
+                              player.seek(
+                                  back > Duration.zero ? back : Duration.zero);
                             },
                           ),
                           StreamBuilder<PlayerState>(
@@ -99,7 +106,8 @@ class AudioItemWidget extends StatelessWidget {
                           IconButton(
                             icon: const Icon(Icons.forward_5, size: 24),
                             onPressed: () {
-                              final forward = player.position + const Duration(seconds: 5);
+                              final forward =
+                                  player.position + const Duration(seconds: 5);
                               player.seek(forward < total ? forward : total);
                             },
                           ),
@@ -107,7 +115,8 @@ class AudioItemWidget extends StatelessWidget {
                       ),
                       Text(
                         formatDuration(total),
-                        style: const TextStyle(fontSize: 12, color: Colors.black54),
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.black54),
                       ),
                     ],
                   ),
