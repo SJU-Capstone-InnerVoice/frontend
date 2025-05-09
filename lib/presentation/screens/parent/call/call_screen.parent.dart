@@ -190,72 +190,77 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Stack(
-                                        children: [
-                                          // 이미지
-                                          SizedBox(
-                                            width: 100,
-                                            height: 100,
-                                            child: Image.network(
-                                              character.imageUrl,
-                                              fit: BoxFit.cover,
-                                              frameBuilder: (context, child,
-                                                  frame, wasSyncLoaded) {
-                                                if (frame != null &&
-                                                    !_renderedCharacterIds
-                                                        .contains(
-                                                            character.id)) {
-                                                  WidgetsBinding.instance
-                                                      .addPostFrameCallback(
-                                                          (_) {
-                                                    if (mounted) {
-                                                      setState(() {
-                                                        _renderedCharacterIds
-                                                            .add(character.id);
-                                                        if (_renderedCharacterIds
-                                                                .length ==
-                                                            characters.length) {
-                                                          _allImagesRendered =
-                                                              true;
-                                                        }
-                                                      });
-                                                    }
-                                                  });
-                                                }
-                                                return child;
-                                              },
-                                            ),
-                                          ),
-
-                                          // 시머 오버레이
-                                          if (!_allImagesRendered)
-                                            Positioned.fill(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                ),
-                                                child: Shimmer.fromColors(
-                                                  baseColor: Colors.grey[300]!,
-                                                  highlightColor:
-                                                      Colors.grey[100]!,
-                                                  child: Container(
-                                                      color: Colors.white),
-                                                ),
+                                    Flexible(
+                                      flex:5,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Stack(
+                                          children: [
+                                            // 이미지
+                                            SizedBox(
+                                              width: 100,
+                                              height: 100,
+                                              child: Image.network(
+                                                character.imageUrl,
+                                                fit: BoxFit.cover,
+                                                frameBuilder: (context, child,
+                                                    frame, wasSyncLoaded) {
+                                                  if (frame != null &&
+                                                      !_renderedCharacterIds
+                                                          .contains(
+                                                              character.id)) {
+                                                    WidgetsBinding.instance
+                                                        .addPostFrameCallback(
+                                                            (_) {
+                                                      if (mounted) {
+                                                        setState(() {
+                                                          _renderedCharacterIds
+                                                              .add(character.id);
+                                                          if (_renderedCharacterIds
+                                                                  .length ==
+                                                              characters.length) {
+                                                            _allImagesRendered =
+                                                                true;
+                                                          }
+                                                        });
+                                                      }
+                                                    });
+                                                  }
+                                                  return child;
+                                                },
                                               ),
                                             ),
-                                        ],
+                                      
+                                            // 시머 오버레이
+                                            if (!_allImagesRendered)
+                                              Positioned.fill(
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                  ),
+                                                  child: Shimmer.fromColors(
+                                                    baseColor: Colors.grey[300]!,
+                                                    highlightColor:
+                                                        Colors.grey[100]!,
+                                                    child: Container(
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        character.name,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium,
-                                        maxLines: 1,
+                                    Flexible(
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          character.name,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                          maxLines: 1,
+                                        ),
                                       ),
                                     ),
                                   ],

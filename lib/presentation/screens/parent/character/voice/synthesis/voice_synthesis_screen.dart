@@ -16,6 +16,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
   Future<void> pickAudioFile() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
+      allowMultiple: true,
       allowedExtensions: ['mp3', 'wav', 'm4a'],
     );
 
