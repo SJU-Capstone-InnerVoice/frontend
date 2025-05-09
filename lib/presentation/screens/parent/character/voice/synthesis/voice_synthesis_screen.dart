@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:intl/intl.dart';
-import 'dart:ui';
 import 'widgets/audio_item_widget.dart';
 
 class VoiceSynthesisScreen extends StatefulWidget {
@@ -44,15 +42,6 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
     }
   }
 
-  String formatDuration(Duration? duration) {
-    if (duration == null) return "--:--";
-    final minutes = duration.inMinutes.remainder(60);
-    final seconds = duration.inSeconds.remainder(60);
-    return NumberFormat('00').format(minutes) +
-        ":" +
-        NumberFormat('00').format(seconds);
-  }
-
   void removeAudio(int index) {
     _players[index].dispose();
     setState(() {
@@ -81,9 +70,64 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
             },
             icon: const Icon(Icons.arrow_back)),
       ),
+      bottomSheet: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[300],
+                  foregroundColor: Colors.grey[600],
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('음성 합성 시작'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // 녹음 기능 구현 예정
+                },
+                icon: const Icon(Icons.mic),
+                label: const Text('음성 녹음'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: pickAudioFile,
+              icon: const Icon(Icons.upload_file),
+              label: const Text('음성 파일 업로드'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 90),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -107,47 +151,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                   },
                 ),
               ),
-              // 파일 업로드 버튼
-              ElevatedButton.icon(
-                onPressed: pickAudioFile,
-                icon: const Icon(Icons.upload_file),
-                label: const Text('음성 파일 업로드'),
-                style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16)),
-              ),
-              const SizedBox(height: 16),
 
-              // 하단 버튼
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        foregroundColor: Colors.grey[600],
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('음성 합성 시작'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // 녹음 기능 구현 예정
-                      },
-                      icon: const Icon(Icons.mic),
-                      label: const Text('음성 녹음'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
