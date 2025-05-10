@@ -3,6 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/constants/api/summary_api.dart';
 import 'widgets/summary_calendar.dart';
+import 'package:flutter/cupertino.dart';
 
 class SummaryScreen extends StatefulWidget {
   const SummaryScreen({super.key});
@@ -13,8 +14,11 @@ class SummaryScreen extends StatefulWidget {
 
 class _SummaryScreenState extends State<SummaryScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.week;
+  bool _isCalendarVisible = true;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
+  String _searchQuery = '';
+  bool _isSearchMode = false;
   List<DateTime> eventDays = [];
   List<Map<String, dynamic>> summaries = [];
   List<Map<String, dynamic>> filteredSummaries = [];
@@ -23,6 +27,78 @@ class _SummaryScreenState extends State<SummaryScreen> {
   void initState() {
     super.initState();
     fetchDummyData();
+  }
+  void _filterSummariesBySearch(String query) {
+    setState(() {
+      _searchQuery = query;
+      _isSearchMode = true;
+      _isCalendarVisible = false;
+      filteredSummaries = summaries.where((item) {
+        return item['title'].toString().contains(query) ||
+            item['content'].toString().contains(query);
+      }).toList();
+    });
+  }
+  void _exitSearchMode() {
+    setState(() {
+      _isSearchMode = false;
+      _searchQuery = '';
+      _isCalendarVisible = true;
+      _filterSummariesBySelectedDay();
+    });
+  }
+
+  void _showCupertinoDatePicker(BuildContext context) {
+    DateTime tempSelectedDate = _focusedDay;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SizedBox(
+          height: 300,
+          child: Column(
+            children: [
+              // 완료 버튼에서 context 대신 외부 context 사용
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _focusedDay = tempSelectedDate;
+                        _selectedDay = tempSelectedDate;
+                        _filterSummariesBySelectedDay();
+                        if (mounted) {
+                          /// BottomSheet 스택이 2번 쌓임
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        }
+                      });
+                    },
+                    child: const Text(
+                      '완료',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: _focusedDay,
+                  minimumDate: DateTime(2000),
+                  maximumDate: DateTime(2100),
+                  onDateTimeChanged: (DateTime newDate) {
+                    tempSelectedDate = newDate;
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> fetchDummyData() async {
@@ -36,7 +112,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
         summaries = data.cast<Map<String, dynamic>>();
         eventDays =
             summaries.map((item) => DateTime.parse(item['startAt'])).toList();
-        _filterSummariesBySelectedDay(); // 최초 필터링
+        _filterSummariesBySelectedDay();
       });
     } catch (e) {
       print('❌ 요청 실패: $e');
@@ -65,28 +141,56 @@ class _SummaryScreenState extends State<SummaryScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            SummaryCalendar(
-              calendarFormat: _calendarFormat,
-              focusedDay: _focusedDay,
-              selectedDay: _selectedDay,
-              eventDays: eventDays,
-              onDaySelected: (selected, focused) {
-                setState(() {
-                  _selectedDay = selected;
-                  _focusedDay = focused;
-                  _filterSummariesBySelectedDay();
-                });
-              },
-              onFormatChanged: (format) {
-                setState(() {
-                  _calendarFormat = format;
-                });
-              },
-              onPageChanged: (newFocusedDay) {
-                setState(() {
-                  _focusedDay = newFocusedDay;
-                });
-              },
+            if (_isSearchMode)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const Text(
+                      '🔍 검색 결과 보기',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.close),
+                        tooltip: '검색 종료',
+                        onPressed: _exitSearchMode,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: Visibility(
+                visible: _isCalendarVisible,
+                child: SummaryCalendar(
+                  calendarFormat: _calendarFormat,
+                  focusedDay: _focusedDay,
+                  selectedDay: _selectedDay,
+                  eventDays: eventDays,
+                  onDaySelected: (selected, focused) {
+                    setState(() {
+                      _selectedDay = selected;
+                      _focusedDay = focused;
+                      _filterSummariesBySelectedDay();
+                    });
+                  },
+                  onFormatChanged: (format) {
+                    setState(() {
+                      _calendarFormat = format;
+                    });
+                  },
+                  onPageChanged: (newFocusedDay) {
+                    setState(() {
+                      _focusedDay = newFocusedDay;
+                    });
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 12),
             const Divider(
@@ -99,27 +203,6 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 color: Colors.grey.shade200,
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Center(child: Text('이름')),
-                            height: 30,
-                            width: 70,
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 15),
-                          child: Icon(Icons.menu_sharp),
-                        ),
-                      ],
-                    ),
                     Expanded(
                       child: ListView.builder(
                         itemCount: filteredSummaries.length,
@@ -196,6 +279,116 @@ class _SummaryScreenState extends State<SummaryScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: _isSearchMode ? null :FloatingActionButton(
+        backgroundColor: Colors.orange,
+        child: const Icon(Icons.menu),
+        onPressed: () {
+          // 메뉴 열기, 예: showModalBottomSheet
+          showModalBottomSheet(
+            context: context,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (context) => Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.search),
+                    title: Text('검색'),
+                    onTap: () {
+                      Navigator.pop(context); // 기존 바텀시트 닫기
+
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        builder: (ctx) {
+                          String query = '';
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                              left: 24,
+                              right: 24,
+                              top: 24,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  '검색어 입력',
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 16),
+                                TextField(
+                                  onChanged: (value) {
+                                    query = value;
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: '검색어 입력',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      _filterSummariesBySearch(query);
+                                      Navigator.pop(ctx);
+                                    },
+                                    child: const Text('검색'),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+
+                  ListTile(
+                    leading: const Icon(Icons.calendar_view_month),
+                    // 캘린더 년도별 보기
+                    title: const Text('날짜 지정 보기'),
+                    onTap: () {
+                      _showCupertinoDatePicker(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.today),
+                    title: Text('오늘 보기'),
+                    onTap: () {
+                      setState(() {
+                        final now = DateTime.now();
+                        _focusedDay = now;
+                        _selectedDay = now;
+                        _filterSummariesBySelectedDay();
+                      });
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(_isCalendarVisible ? Icons.visibility_off : Icons.visibility),
+                    title: Text(_isCalendarVisible ? '캘린더 가리기' : '캘린더 보기'),
+                    onTap: () {
+                      setState(() {
+                        _isCalendarVisible = !_isCalendarVisible;
+                      });
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
