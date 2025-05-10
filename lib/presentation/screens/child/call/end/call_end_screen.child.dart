@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:inner_voice/logic/providers/communication/call_request_provider.dart';
+import 'package:inner_voice/logic/providers/summary/summary_provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../logic/providers/record/call_record_provider.dart';
-
 class CallEndScreen extends StatefulWidget {
   const CallEndScreen({super.key});
 
@@ -57,6 +57,20 @@ class _CallEndScreenState extends State<CallEndScreen> {
         .read<CallRecordProvider>()
         .mergeRecordingsToSingleFile(outputFileName);
     final duration = await _player.setFilePath(mergedPath!);
+    final record = context.read<CallRecordProvider>().record;
+
+    if (record != null) {
+      final startAt = DateTime.parse(record.metadata.startedAt);
+      final durationMs = record.metadata.durationMs;
+
+      await context.read<SummaryProvider>().fetchAndAddSummary(
+        filePath: mergedPath,
+        duration: durationMs,
+        startAt: startAt,
+      );
+      context.read<SummaryProvider>().printSummaries();
+    }
+
 
     setState(() {
       _mergedFilePath = mergedPath;
@@ -201,7 +215,7 @@ class _CallEndScreenState extends State<CallEndScreen> {
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 300),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange,
@@ -224,95 +238,95 @@ class _CallEndScreenState extends State<CallEndScreen> {
                         ],
                       ),
                     ),
-                    const Divider(thickness: 2),
-                    ElevatedButton.icon(
-                      onPressed: canMerge ? _mergeRecording : null,
-                      icon: const Icon(Icons.merge_type),
-                      label: const Text('병합하기'),
-                    ),
-                    const SizedBox(height: 16),
-                    if (_mergedFilePath != null) ...[
-                      const Icon(Icons.check_circle,
-                          color: Colors.green, size: 48),
-                      const SizedBox(height: 16),
-                      const Text('병합 완료!'),
-                      const SizedBox(height: 8),
-                      Text(_mergedFilePath ?? '',
-                          style: const TextStyle(fontSize: 12)),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: _playMergedFile,
-                        icon: const Icon(Icons.play_arrow),
-                        label: const Text('재생하기'),
-                      ),
-                      const SizedBox(height: 8),
-                      StreamBuilder<Duration>(
-                        stream: _player.positionStream,
-                        builder: (context, snapshot) {
-                          final position = snapshot.data ?? Duration.zero;
-                          final total = _duration ?? Duration.zero;
-                          return Column(
-                            children: [
-                              Slider(
-                                min: 0,
-                                max: total.inMilliseconds.toDouble(),
-                                value: position.inMilliseconds
-                                    .clamp(0, total.inMilliseconds)
-                                    .toDouble(),
-                                onChanged: (value) {
-                                  _player.seek(
-                                      Duration(milliseconds: value.toInt()));
-                                },
-                              ),
-                              Text(
-                                '🔊 ${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')} / '
-                                '${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                    ElevatedButton.icon(
-                      onPressed: _playOriginalFile,
-                      icon: const Icon(Icons.record_voice_over),
-                      label: const Text('원본 녹음 재생'),
-                    ),
-                    if (_originalDuration != null) ...[
-                      Text(
-                        '🎙️ 원본 길이: ${_originalDuration!.inMinutes}:${(_originalDuration!.inSeconds % 60).toString().padLeft(2, '0')}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      StreamBuilder<Duration>(
-                        stream: _originalPlayer.positionStream,
-                        builder: (context, snapshot) {
-                          final position = snapshot.data ?? Duration.zero;
-                          final total = _originalDuration ?? Duration.zero;
-                          return Column(
-                            children: [
-                              Slider(
-                                min: 0,
-                                max: total.inMilliseconds.toDouble(),
-                                value: position.inMilliseconds
-                                    .clamp(0, total.inMilliseconds)
-                                    .toDouble(),
-                                onChanged: (value) {
-                                  _originalPlayer.seek(
-                                      Duration(milliseconds: value.toInt()));
-                                },
-                              ),
-                              Text(
-                                '🔊 ${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')} / '
-                                '${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ],
+                    // const Divider(thickness: 2),
+                    // ElevatedButton.icon(
+                    //   onPressed: canMerge ? _mergeRecording : null,
+                    //   icon: const Icon(Icons.merge_type),
+                    //   label: const Text('병합하기'),
+                    // ),
+                    // const SizedBox(height: 16),
+                    // if (_mergedFilePath != null) ...[
+                    //   const Icon(Icons.check_circle,
+                    //       color: Colors.green, size: 48),
+                    //   const SizedBox(height: 16),
+                    //   const Text('병합 완료!'),
+                    //   const SizedBox(height: 8),
+                    //   Text(_mergedFilePath ?? '',
+                    //       style: const TextStyle(fontSize: 12)),
+                    //   const SizedBox(height: 16),
+                    //   ElevatedButton.icon(
+                    //     onPressed: _playMergedFile,
+                    //     icon: const Icon(Icons.play_arrow),
+                    //     label: const Text('재생하기'),
+                    //   ),
+                    //   const SizedBox(height: 8),
+                    //   StreamBuilder<Duration>(
+                    //     stream: _player.positionStream,
+                    //     builder: (context, snapshot) {
+                    //       final position = snapshot.data ?? Duration.zero;
+                    //       final total = _duration ?? Duration.zero;
+                    //       return Column(
+                    //         children: [
+                    //           Slider(
+                    //             min: 0,
+                    //             max: total.inMilliseconds.toDouble(),
+                    //             value: position.inMilliseconds
+                    //                 .clamp(0, total.inMilliseconds)
+                    //                 .toDouble(),
+                    //             onChanged: (value) {
+                    //               _player.seek(
+                    //                   Duration(milliseconds: value.toInt()));
+                    //             },
+                    //           ),
+                    //           Text(
+                    //             '🔊 ${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')} / '
+                    //             '${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}',
+                    //             style: const TextStyle(fontSize: 12),
+                    //           ),
+                    //         ],
+                    //       );
+                    //     },
+                    //   ),
+                    //   const SizedBox(height: 8),
+                    // ],
+                    // ElevatedButton.icon(
+                    //   onPressed: _playOriginalFile,
+                    //   icon: const Icon(Icons.record_voice_over),
+                    //   label: const Text('원본 녹음 재생'),
+                    // ),
+                    // if (_originalDuration != null) ...[
+                    //   Text(
+                    //     '🎙️ 원본 길이: ${_originalDuration!.inMinutes}:${(_originalDuration!.inSeconds % 60).toString().padLeft(2, '0')}',
+                    //     style: const TextStyle(fontSize: 14),
+                    //   ),
+                    //   StreamBuilder<Duration>(
+                    //     stream: _originalPlayer.positionStream,
+                    //     builder: (context, snapshot) {
+                    //       final position = snapshot.data ?? Duration.zero;
+                    //       final total = _originalDuration ?? Duration.zero;
+                    //       return Column(
+                    //         children: [
+                    //           Slider(
+                    //             min: 0,
+                    //             max: total.inMilliseconds.toDouble(),
+                    //             value: position.inMilliseconds
+                    //                 .clamp(0, total.inMilliseconds)
+                    //                 .toDouble(),
+                    //             onChanged: (value) {
+                    //               _originalPlayer.seek(
+                    //                   Duration(milliseconds: value.toInt()));
+                    //             },
+                    //           ),
+                    //           Text(
+                    //             '🔊 ${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')} / '
+                    //             '${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}',
+                    //             style: const TextStyle(fontSize: 12),
+                    //           ),
+                    //         ],
+                    //       );
+                    //     },
+                    //   ),
+                    // ],
                   ],
                 ),
               ),

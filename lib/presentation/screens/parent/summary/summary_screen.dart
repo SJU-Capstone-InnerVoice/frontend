@@ -105,7 +105,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
     final dio = Dio();
 
     try {
-      final response = await dio.get(SummaryApi.summary);
+      final response = await dio.get(SummaryApi.querySummary);
       final List<dynamic> data = response.data;
 
       setState(() {

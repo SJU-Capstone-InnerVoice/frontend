@@ -7,6 +7,7 @@ import 'logic/providers/character/character_img_provider.dart';
 import 'logic/providers/network/dio_provider.dart';
 import 'logic/providers/record/call_record_provider.dart';
 import 'logic/providers/user/user_provider.dart';
+import 'logic/providers/summary/summary_provider.dart';
 
 /// provider, bloc 등 상태 관리 추가
 final List<SingleChildWidget> providers = [
@@ -14,6 +15,7 @@ final List<SingleChildWidget> providers = [
   ChangeNotifierProvider(create: (_) => CallRecordProvider()),
   ChangeNotifierProvider(create: (_) => DioProvider()),
   ChangeNotifierProvider(create: (_) => UserProvider()),
+  ChangeNotifierProvider(create: (_) => SummaryProvider()),
 
   /// CharacterImgProvider는 DioProvider를 사용해야 해서 의존성 주입
   ChangeNotifierProxyProvider<DioProvider, CharacterImgProvider>(

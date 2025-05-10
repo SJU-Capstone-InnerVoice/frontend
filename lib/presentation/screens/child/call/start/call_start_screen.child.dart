@@ -103,6 +103,7 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
     print("📴 CallStartScreen dispose 실행됨");
     _lastSpoken = null;
     _callSession.disposeCall();
+    _callSession.clearMessages();
     _callRequest.stopPolling();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -131,12 +132,12 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
       /// real TTS Server
       // final formData = FormData.fromMap({
       //   'user_id': 'colab_user',
-      //   'weight_name': 'ys',
+      //   'weight_name': 'new_dora',
       //   'text': text,
       // });
       //
       // final response = await dio.post(
-      //   "https://82ae-211-180-114-56.ngrok-free.app/synthesize",
+      //   "https://7b3c-211-180-114-56.ngrok-free.app/synthesize",
       //   data: formData,
       //   options: Options(
       //     responseType: ResponseType.bytes,
@@ -229,9 +230,10 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
                     final messages = session.messages;
                     if (messages.isNotEmpty) {
                       final latest = messages.last;
+
                       _lastSpoken = latest;
                       Future.microtask(() {
-                        _speak(context, latest, characterId);
+                        _speak(context, _lastSpoken!, characterId);
                       });
                     }
                     return const SizedBox.shrink();
