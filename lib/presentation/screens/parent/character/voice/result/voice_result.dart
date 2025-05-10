@@ -24,6 +24,7 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> with SingleTicker
   late final AudioPlayer _player;
   Duration? _duration;
   bool _isPrepared = false;
+
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
   @override
@@ -52,7 +53,7 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> with SingleTicker
   Future<void> _prepare() async {
     final filePaths = GoRouterState.of(context).extra as List<String>;
     final files = filePaths.map((path) => File(path)).toList();
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 1));
 
     final merged = await _mergeAudioFilesAndClean(files);
     await _player.setFilePath(merged.path);
@@ -68,6 +69,7 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> with SingleTicker
     setState(() => _state = VoiceResultState.requestingApi);
     await _sendApiRequest();
     setState(() => _state = VoiceResultState.done);
+
   }
 
   Future<void> _sendApiRequest() async {
@@ -120,13 +122,7 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('음성 합성 결과'),
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back),
-        ),
-      ),
+
       body: SafeArea(
         child: Column(
           children: [
@@ -147,9 +143,42 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> with SingleTicker
                   ),
                 ),
               ),
+            const SizedBox(height: 60),
+
           ],
         ),
       ),
+      bottomSheet: _state == VoiceResultState.done
+          ? Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.home, size: 32),
+              tooltip: '홈으로',
+              onPressed: () {
+                context.go('/parent/character/add');
+              },
+            ),
+          ],
+        ),
+      )
+          : null,
     );
   }
   Widget _buildContentByState() {

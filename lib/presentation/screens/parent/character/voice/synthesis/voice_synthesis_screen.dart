@@ -169,7 +169,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
         .fold(Duration.zero, (prev, d) => prev + d!);
 
     final totalSeconds = totalDuration.inSeconds;
-    final goalSeconds = 0;
+    final goalSeconds = 1;
     final progress = totalSeconds / goalSeconds;
     final isReadyToSynthesize = totalSeconds >= goalSeconds;
 
