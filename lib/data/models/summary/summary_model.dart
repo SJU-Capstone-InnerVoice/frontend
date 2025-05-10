@@ -1,18 +1,18 @@
-class Summary {
+class CounselingSummary {
   final String title;
   final String content;
   final int duration;
   final DateTime startAt;
 
-  Summary({
+  CounselingSummary({
     required this.title,
     required this.content,
     required this.duration,
     required this.startAt,
   });
 
-  factory Summary.fromJson(Map<String, dynamic> json) {
-    return Summary(
+  factory CounselingSummary.fromJson(Map<String, dynamic> json) {
+    return CounselingSummary(
       title: json['title'],
       content: json['content'],
       duration: json['duration'],

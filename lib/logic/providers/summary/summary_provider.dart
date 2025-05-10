@@ -7,11 +7,11 @@ import '../../../data/models/summary/summary_model.dart';
 class SummaryProvider extends ChangeNotifier {
   final SummaryService _service = SummaryService();
 
-  final List<Summary> _summaries = [];
+  final List<CounselingSummary> _summaries = [];
   bool _isLoading = false;
   String? _error;
 
-  List<Summary> get summaries => List.unmodifiable(_summaries);
+  List<CounselingSummary> get summaries => List.unmodifiable(_summaries);
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -27,7 +27,7 @@ class SummaryProvider extends ChangeNotifier {
     final result = await _service.uploadAudioAndGetSummary(filePath);
 
     if (result != null) {
-      final summary = Summary(
+      final summary = CounselingSummary(
         title: result['title'] ?? '',
         content: result['content'] ?? '',
         duration: duration,
@@ -63,7 +63,7 @@ class SummaryProvider extends ChangeNotifier {
       print('  • 제목: ${s.title}');
       print('  • 내용: ${s.content}');
       print('  • 길이: ${s.duration}ms');
-      print('  • 시작 시각: ${s.startAt.toIso8601String()}');
+      print('  • 시작 시각: ${s.startAt}');
     }
   }
 }
