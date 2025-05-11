@@ -75,6 +75,7 @@ class SummaryProvider extends ChangeNotifier {
     }
     _isLoading = false;
     _error = null;
+    printSummaries();
     notifyListeners();
   }
 

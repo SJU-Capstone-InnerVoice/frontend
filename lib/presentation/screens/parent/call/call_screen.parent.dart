@@ -168,130 +168,134 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                           final isSelected = selectedCharacter == character.id;
                           return GestureDetector(
                             onTap: () => selectCharacter(character.id),
-                            child: Container(
-                              margin: EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withOpacity(0.1)
-                                    : null,
-                                border: Border.all(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 5.0),
+                              child: Container(
+                                margin: EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
                                   color: isSelected
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Colors.transparent,
-                                  width: 2,
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.1)
+                                      : null,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Colors.transparent,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      flex: 5,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(16),
-                                        child: Stack(
-                                          children: [
-                                            // 이미지
-                                            SizedBox(
-                                              width: 100,
-                                              height: 100,
-                                              child: Image.network(
-                                                character.imageUrl,
-                                                fit: BoxFit.cover,
-                                                frameBuilder: (context, child,
-                                                    frame, wasSyncLoaded) {
-                                                  if (frame != null &&
-                                                      !_renderedCharacterIds
-                                                          .contains(
-                                                              character.id)) {
-                                                    WidgetsBinding.instance
-                                                        .addPostFrameCallback(
-                                                            (_) {
-                                                      if (mounted) {
-                                                        setState(() {
-                                                          _renderedCharacterIds
-                                                              .add(
-                                                                  character.id);
-                                                          if (_renderedCharacterIds
-                                                                  .length ==
-                                                              characters
-                                                                  .length) {
-                                                            _allImagesRendered =
-                                                                true;
-                                                          }
-                                                        });
-                                                      }
-                                                    });
-                                                  }
-                                                  return child;
-                                                },
-                                              ),
-                                            ),
-
-                                            // 시머 오버레이
-                                            if (!_allImagesRendered)
-                                              Positioned.fill(
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                  ),
-                                                  child: Shimmer.fromColors(
-                                                    baseColor:
-                                                        Colors.grey[300]!,
-                                                    highlightColor:
-                                                        Colors.grey[100]!,
-                                                    child: Container(
-                                                        color: Colors.white),
-                                                  ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        flex: 5,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: Stack(
+                                            children: [
+                                              // 이미지
+                                              SizedBox(
+                                                width: 100,
+                                                height: 100,
+                                                child: Image.network(
+                                                  character.imageUrl,
+                                                  fit: BoxFit.cover,
+                                                  frameBuilder: (context, child,
+                                                      frame, wasSyncLoaded) {
+                                                    if (frame != null &&
+                                                        !_renderedCharacterIds
+                                                            .contains(
+                                                                character.id)) {
+                                                      WidgetsBinding.instance
+                                                          .addPostFrameCallback(
+                                                              (_) {
+                                                        if (mounted) {
+                                                          setState(() {
+                                                            _renderedCharacterIds
+                                                                .add(
+                                                                    character.id);
+                                                            if (_renderedCharacterIds
+                                                                    .length ==
+                                                                characters
+                                                                    .length) {
+                                                              _allImagesRendered =
+                                                                  true;
+                                                            }
+                                                          });
+                                                        }
+                                                      });
+                                                    }
+                                                    return child;
+                                                  },
                                                 ),
                                               ),
-                                          ],
+
+                                              // 시머 오버레이
+                                              if (!_allImagesRendered)
+                                                Positioned.fill(
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                    ),
+                                                    child: Shimmer.fromColors(
+                                                      baseColor:
+                                                          Colors.grey[300]!,
+                                                      highlightColor:
+                                                          Colors.grey[100]!,
+                                                      child: Container(
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    Flexible(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          character.name,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                          maxLines: 1,
+                                      Flexible(
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            character.name,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium,
+                                            maxLines: 1,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           );
                         } else {
-                          return GestureDetector(
-                            onTap: () {
-                              context.push('/parent/character/add');
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.orange),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              padding: const EdgeInsets.all(12),
-                              child: const Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.add,
-                                      color: Colors.orange, size: 32),
-                                  SizedBox(height: 8),
-                                  Text('직접 추가',
-                                      style: TextStyle(color: Colors.orange)),
-                                ],
+                          return Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                context.push('/parent/character/add');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: SizedBox(
+                                    width: 100,
+                                    height: 100,
+                                    child: Container(
+                                      color: Colors.orange.withAlpha(50),
+                                      child: const Icon(Icons.add,
+                                          color: Colors.orange, size: 32),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           );

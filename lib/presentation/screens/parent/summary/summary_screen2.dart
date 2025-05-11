@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
@@ -118,6 +119,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SummaryProvider>();
+    final userId = context.read<UserProvider>().user?.userId ?? "-1";
     summaries = provider.summaries;
 
     // 선택된 날짜 필터 적용
@@ -355,6 +357,14 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                 );
                               },
                             );
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.refresh),
+                          title: const Text('새로 고침'),
+                          onTap: () {
+                            context.read<SummaryProvider>().fetchSummaries(int.parse(userId));
+                            Navigator.pop(context);
                           },
                         ),
                         ListTile(
