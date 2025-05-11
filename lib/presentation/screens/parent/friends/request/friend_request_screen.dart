@@ -26,23 +26,25 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
   @override
   void initState() {
     super.initState();
-    _dio = context.read<DioProvider>().dio;
+    _dio = context
+        .read<DioProvider>()
+        .dio;
   }
 
-  Future<void> _searchFriend(
-    Future<Map<String, dynamic>?> Function(String name) searchFriendCallback,
-  ) async {
+  Future<void> _searchFriend(Future<Map<String,
+      dynamic>?> Function(String name) searchFriendCallback,) async {
     final String friendName = _controller.text.trim();
     if (friendName.isEmpty) return;
 
     bool isExist =
-        context.read<UserProvider>().isFriendAlreadyAddedByName(friendName);
+    context.read<UserProvider>().isFriendAlreadyAddedByName(friendName);
     if (isExist) {
       String message = "이미 등록된 아이입니다.";
-      showCustomFlushbar(
+      showIVFlushbar(
         context,
         message,
         position: FlushbarPosition.BOTTOM,
+        icon: const Icon(Icons.warning_amber_rounded, color: Colors.white),
       );
       return;
     }
@@ -114,12 +116,14 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                 ElevatedButton(
                   onPressed: _isSearching
                       ? null
-                      : () => _searchFriend(
-                            (name) => userProvider.searchFriend(
+                      : () =>
+                      _searchFriend(
+                            (name) =>
+                            userProvider.searchFriend(
                               dio: _dio,
                               friendName: name,
                             ),
-                          ),
+                      ),
                   child: const Text('검색'),
                 ),
               ],
@@ -127,39 +131,42 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
             const SizedBox(height: 16),
             if (_isSearching)
               const CircularProgressIndicator()
-            else if (_error != null)
-              Text(_error!, style: const TextStyle(color: Colors.red))
-            else if (_searchResult != null)
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    'https://picsum.photos/seed/${_searchResult!['id']}/100/100',
+            else
+              if (_error != null)
+                Text(_error!, style: const TextStyle(color: Colors.red))
+              else
+                if (_searchResult != null)
+                  ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        'https://picsum.photos/seed/${_searchResult!['id']}/100/100',
+                      ),
+                    ),
+                    title: Text(_searchResult!['name']),
+                    trailing: ElevatedButton(
+                      onPressed: () async {
+                        final name = _searchResult!['name'];
+                        final id = _searchResult!['id'];
+
+                        await userProvider.requestFriend(
+                          dio: _dio,
+                          friendId: id,
+                          friendName: name,
+                        );
+
+                        setState(() {
+                          _searchResult = null;
+                          _controller.clear();
+                        });
+                        showIVFlushbar(context, '$name님에게 친구 요청을 보냈습니다.',
+                          position: FlushbarPosition.BOTTOM,
+                          icon: const Icon(
+                              Icons.person_add_alt_1, color: Colors.white),
+                        );
+                      },
+                      child: const Text('추가'),
+                    ),
                   ),
-                ),
-                title: Text(_searchResult!['name']),
-                trailing: ElevatedButton(
-                  onPressed: () async {
-                    final name = _searchResult!['name'];
-                    final id = _searchResult!['id'];
-
-                    await userProvider.requestFriend(
-                      dio: _dio,
-                      friendId: id,
-                      friendName: name,
-                    );
-
-                    setState(() {
-                      _searchResult = null;
-                      _controller.clear();
-                    });
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('$name님에게 친구 요청을 보냈습니다.')),
-                    );
-                  },
-                  child: const Text('추가'),
-                ),
-              ),
           ],
         ),
       ),

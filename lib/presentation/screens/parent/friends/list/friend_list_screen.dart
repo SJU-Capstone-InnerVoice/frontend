@@ -1,7 +1,10 @@
+import 'package:another_flushbar/flushbar_route.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inner_voice/logic/providers/network/dio_provider.dart';
+import 'package:inner_voice/presentation/widgets/show_flushbar.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../logic/providers/user/user_provider.dart';
 
@@ -76,12 +79,12 @@ class _FriendListScreenState extends State<FriendListScreen> {
                               .read<UserProvider>()
                               .setActivateChild(child.friendId.toString());
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text('${child.friendName}을(를) 활성화했습니다.')),
-                          );
-                        },
+                          showIVFlushbar(
+                            context,
+                            "${child.friendName}을(를) 활성화했습니다.",
+                            position: FlushbarPosition.BOTTOM,
+                            icon: const Icon(Icons.check_circle, color: Colors.white),
+                          );                        },
                       );
                     },
                   ),

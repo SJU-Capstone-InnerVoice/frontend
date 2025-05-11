@@ -1,9 +1,10 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 
-void showCustomFlushbar(
+void showIVFlushbar(
     BuildContext context,
     String message, {
+      required Icon icon,
       FlushbarPosition position = FlushbarPosition.TOP,
     }) {
   Flushbar(
@@ -15,6 +16,6 @@ void showCustomFlushbar(
     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
     borderRadius: BorderRadius.circular(12),
     backgroundColor: Colors.black.withAlpha(200),
-    icon: const Icon(Icons.delete, color: Colors.white),
+    icon: icon
   ).show(context);
 }
