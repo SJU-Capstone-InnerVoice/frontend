@@ -27,7 +27,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
   Set<String> _renderedCharacterIds = {};
   bool _allImagesRendered = false;
   late final GoRouterDelegate _routerDelegate;
-
+  bool _didLoadImages = false;
   String? selectedCharacter;
 
   @override
@@ -188,10 +188,11 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Flexible(
-                                      flex:5,
+                                      flex: 5,
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(16),
                                         child: Stack(
@@ -215,10 +216,12 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                                                       if (mounted) {
                                                         setState(() {
                                                           _renderedCharacterIds
-                                                              .add(character.id);
+                                                              .add(
+                                                                  character.id);
                                                           if (_renderedCharacterIds
                                                                   .length ==
-                                                              characters.length) {
+                                                              characters
+                                                                  .length) {
                                                             _allImagesRendered =
                                                                 true;
                                                           }
@@ -230,7 +233,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                                                 },
                                               ),
                                             ),
-                                      
+
                                             // 시머 오버레이
                                             if (!_allImagesRendered)
                                               Positioned.fill(
@@ -239,7 +242,8 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                                                     color: Colors.white,
                                                   ),
                                                   child: Shimmer.fromColors(
-                                                    baseColor: Colors.grey[300]!,
+                                                    baseColor:
+                                                        Colors.grey[300]!,
                                                     highlightColor:
                                                         Colors.grey[100]!,
                                                     child: Container(

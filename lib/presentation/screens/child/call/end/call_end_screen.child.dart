@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:inner_voice/data/models/summary/summary_model.dart';
 import 'package:inner_voice/logic/providers/communication/call_request_provider.dart';
+import 'package:inner_voice/logic/providers/communication/call_session_provider.dart';
 import 'package:inner_voice/logic/providers/summary/summary_provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
@@ -58,16 +60,19 @@ class _CallEndScreenState extends State<CallEndScreen> {
         .mergeRecordingsToSingleFile(outputFileName);
     final duration = await _player.setFilePath(mergedPath!);
     final record = context.read<CallRecordProvider>().record;
+    final parentId = context.read<CallRequestProvider>().parentId;
 
     if (record != null) {
       final startAt = DateTime.parse(record.metadata.startedAt);
       final durationMs = record.metadata.durationMs;
 
-      await context.read<SummaryProvider>().fetchAndAddSummary(
+      await context.read<SummaryProvider>().createSummary(
         filePath: mergedPath,
         duration: durationMs,
         startAt: startAt,
       );
+      final CounselingSummary summary = context.read<SummaryProvider>().currentSummary!;
+      context.read<SummaryProvider>().uploadSummaryToServer(summary,parentId!);
       context.read<SummaryProvider>().printSummaries();
     }
 

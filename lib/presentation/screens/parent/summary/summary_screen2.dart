@@ -36,6 +36,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
       }).toList();
     });
   }
+
   void _exitSearchMode() {
     setState(() {
       _isSearchMode = false;
@@ -98,8 +99,6 @@ class _SummaryScreenState extends State<SummaryScreen> {
     );
   }
 
-
-
   void _filterSummariesBySelectedDay() {
     if (_selectedDay == null) return;
 
@@ -113,7 +112,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
   bool _hasEvent(DateTime day) {
     return eventDays.any(
-            (d) => d.year == day.year && d.month == day.month && d.day == day.day);
+        (d) => d.year == day.year && d.month == day.month && d.day == day.day);
   }
 
   @override
@@ -133,20 +132,21 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
     eventDays = summaries.map((s) => s.startAt).toList();
 
-
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             if (_isSearchMode)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     const Text(
                       '🔍 검색 결과 보기',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     Align(
                       alignment: Alignment.centerRight,
@@ -206,7 +206,8 @@ class _SummaryScreenState extends State<SummaryScreen> {
                         itemBuilder: (context, index) {
                           final summary = filteredSummaries[index];
                           final start = summary.startAt;
-                          final duration = Duration(milliseconds: summary.duration);
+                          final duration =
+                              Duration(milliseconds: summary.duration);
                           final end = start.add(duration);
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -237,9 +238,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                           alignment: Alignment.centerRight,
                                           child: Text(
                                             '${start.year}년 ${start.month}월 ${start.day}일\n'
-                                                '${start.hour}:${start.minute.toString().padLeft(2, '0')} ~ '
-                                                '${end.hour}:${end.minute.toString().padLeft(2, '0')} '
-                                                '(${duration.inMinutes}분 ${duration.inSeconds % 60}초)',
+                                            '${start.hour}:${start.minute.toString().padLeft(2, '0')} ~ '
+                                            '${end.hour}:${end.minute.toString().padLeft(2, '0')} '
+                                            '(${duration.inMinutes}분 ${duration.inSeconds % 60}초)',
                                             textAlign: TextAlign.end,
                                             style: const TextStyle(
                                               color: Colors.grey,
@@ -277,116 +278,125 @@ class _SummaryScreenState extends State<SummaryScreen> {
           ],
         ),
       ),
-      floatingActionButton: _isSearchMode ? null :FloatingActionButton(
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.menu),
-        onPressed: () {
-          // 메뉴 열기, 예: showModalBottomSheet
-          showModalBottomSheet(
-            context: context,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            builder: (context) => Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.search),
-                    title: Text('검색'),
-                    onTap: () {
-                      Navigator.pop(context); // 기존 바텀시트 닫기
+      floatingActionButton: _isSearchMode
+          ? null
+          : FloatingActionButton(
+              backgroundColor: Colors.orange,
+              child: const Icon(Icons.menu),
+              onPressed: () {
+                // 메뉴 열기, 예: showModalBottomSheet
+                showModalBottomSheet(
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  builder: (context) => Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: Icon(Icons.search),
+                          title: Text('검색'),
+                          onTap: () {
+                            Navigator.pop(context); // 기존 바텀시트 닫기
 
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20)),
+                              ),
+                              builder: (ctx) {
+                                String query = '';
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom:
+                                        MediaQuery.of(ctx).viewInsets.bottom,
+                                    left: 24,
+                                    right: 24,
+                                    top: 24,
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        '검색어 입력',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      TextField(
+                                        onChanged: (value) {
+                                          query = value;
+                                        },
+                                        decoration: const InputDecoration(
+                                          hintText: '검색어 입력',
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            _filterSummariesBySearch(query);
+                                            Navigator.pop(ctx);
+                                          },
+                                          child: const Text('검색'),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
-                        builder: (ctx) {
-                          String query = '';
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(ctx).viewInsets.bottom,
-                              left: 24,
-                              right: 24,
-                              top: 24,
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  '검색어 입력',
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 16),
-                                TextField(
-                                  onChanged: (value) {
-                                    query = value;
-                                  },
-                                  decoration: const InputDecoration(
-                                    hintText: '검색어 입력',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      _filterSummariesBySearch(query);
-                                      Navigator.pop(ctx);
-                                    },
-                                    child: const Text('검색'),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    },
+                        ListTile(
+                          leading: const Icon(Icons.calendar_view_month),
+                          // 캘린더 년도별 보기
+                          title: const Text('날짜 지정 보기'),
+                          onTap: () {
+                            _showCupertinoDatePicker(context);
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.today),
+                          title: Text('오늘 보기'),
+                          onTap: () {
+                            setState(() {
+                              final now = DateTime.now();
+                              _focusedDay = now;
+                              _selectedDay = now;
+                              _filterSummariesBySelectedDay();
+                            });
+                            Navigator.pop(context);
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(_isCalendarVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility),
+                          title:
+                              Text(_isCalendarVisible ? '캘린더 가리기' : '캘린더 보기'),
+                          onTap: () {
+                            setState(() {
+                              _isCalendarVisible = !_isCalendarVisible;
+                            });
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-
-                  ListTile(
-                    leading: const Icon(Icons.calendar_view_month),
-                    // 캘린더 년도별 보기
-                    title: const Text('날짜 지정 보기'),
-                    onTap: () {
-                      _showCupertinoDatePicker(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.today),
-                    title: Text('오늘 보기'),
-                    onTap: () {
-                      setState(() {
-                        final now = DateTime.now();
-                        _focusedDay = now;
-                        _selectedDay = now;
-                        _filterSummariesBySelectedDay();
-                      });
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(_isCalendarVisible ? Icons.visibility_off : Icons.visibility),
-                    title: Text(_isCalendarVisible ? '캘린더 가리기' : '캘린더 보기'),
-                    onTap: () {
-                      setState(() {
-                        _isCalendarVisible = !_isCalendarVisible;
-                      });
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }
