@@ -59,6 +59,9 @@ class UserProvider with ChangeNotifier {
       print('❌ childList 설정 실패: $e');
     }
   }
+  bool isFriendAlreadyAddedByName(String name) {
+    return _user?.childList.any((child) => child.friendName == name) ?? false;
+  }
 
   Future<void> requestFriend({
     required Dio dio,

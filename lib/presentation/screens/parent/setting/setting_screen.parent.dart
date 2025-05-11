@@ -17,28 +17,9 @@ class SettingScreen extends StatelessWidget {
       body: ListView(
         children: [
           ListTile(
-            title: const Text('프로필 설정'),
-            onTap: () {
-              // TODO: 프로필 설정 이동
-            },
-          ),
-          ListTile(
             title: const Text('자녀 관리'),
             onTap: () {
               context.push('/parent/settings/friend/list');
-            },
-          ),
-
-          ListTile(
-            title: const Text('보안 설정'),
-            onTap: () {
-              // TODO: 보안 설정 이동
-            },
-          ),
-          ListTile(
-            title: const Text('앱 정보'),
-            onTap: () {
-              // TODO: 앱 정보 이동
             },
           ),
           ListTile(
