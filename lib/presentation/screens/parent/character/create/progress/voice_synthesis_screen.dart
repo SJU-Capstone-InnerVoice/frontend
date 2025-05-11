@@ -311,7 +311,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                   onPressed: isReadyToSynthesize
                       ? () {
                           context.push(
-                            '/parent/character/voice/result',
+                            '/parent/character/create/result',
                             extra: _audioFiles.map((f) => f.path).toList(),
                           );
                         }

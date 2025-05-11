@@ -6,7 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import '../synthesis/widgets/audio_item_widget.dart';
+import '../progress/widgets/audio_item_widget.dart';
 enum VoiceResultState { loading, waitingApi, requestingApi, done }
 VoiceResultState _state = VoiceResultState.loading;
 

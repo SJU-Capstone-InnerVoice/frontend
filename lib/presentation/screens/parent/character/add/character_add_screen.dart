@@ -103,7 +103,7 @@ class _AddCharacterScreenState extends State<AddCharacterScreen> {
 
               ElevatedButton(
                 onPressed: () {
-                  context.push('/parent/character/voice/synthesis');
+                  context.push('/parent/character/create/progress');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],

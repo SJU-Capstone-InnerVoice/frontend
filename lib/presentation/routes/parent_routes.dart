@@ -5,12 +5,12 @@ import '../screens/parent/call/call_screen.parent.dart';
 import '../screens/parent/call/waiting/call_waiting_screen.parent.dart';
 import '../screens/parent/call/start/call_start_screen.parent.dart';
 import '../screens/parent/character/add/character_add_screen.dart';
-import '../screens/parent/character/voice/synthesis/voice_synthesis_screen.dart';
-import '../screens/parent/character/voice/result/voice_result.dart';
-import '../screens/parent/summary/summary_screen2.dart';
+import '../screens/parent/character/create/progress/voice_synthesis_screen.dart';
+import '../screens/parent/character/create/result/voice_result.dart';
+import '../screens/parent/summary/summary_screen.dart';
 import '../screens/parent/setting/setting_screen.parent.dart';
-import '../screens/parent/setting/friends/list/friend_list_screen.dart';
-import '../screens/parent/setting/friends/request/friend_request_screen.dart';
+import '../screens/parent/friends/list/friend_list_screen.dart';
+import '../screens/parent/friends/request/friend_request_screen.dart';
 
 final parentRoutes = ShellRoute(
   builder: (context, state, child) => ParentScreen(child: child),
@@ -39,11 +39,11 @@ final parentRoutes = ShellRoute(
           builder: (context, state) => const AddCharacterScreen(),
         ),
         GoRoute(
-          path: 'voice',
+          path: 'create',
           builder: (context, state) => const SizedBox.shrink(), // dummy
           routes: [
             GoRoute(
-              path: 'synthesis',
+              path: 'progress',
               builder: (context, state) => const VoiceSynthesisScreen(),
             ),
             GoRoute(
@@ -61,20 +61,18 @@ final parentRoutes = ShellRoute(
     GoRoute(
       path: '/parent/settings',
       builder: (context, state) => const SettingScreen(),
+    ),
+    GoRoute(
+      path: '/parent/friend',
+      builder: (context, state) => const SizedBox.shrink(), // dummy
       routes: [
         GoRoute(
-          path: 'friend',
-          builder: (context, state) => const SizedBox.shrink(), // dummy
-          routes: [
-            GoRoute(
-              path: 'list',
-              builder: (context, state) => const FriendListScreen(),
-            ),
-            GoRoute(
-              path: 'request',
-              builder: (context, state) => const FriendRequestScreen(),
-            ),
-          ],
+          path: 'list',
+          builder: (context, state) => const FriendListScreen(),
+        ),
+        GoRoute(
+          path: 'request',
+          builder: (context, state) => const FriendRequestScreen(),
         ),
       ],
     ),

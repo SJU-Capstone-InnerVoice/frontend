@@ -86,7 +86,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
     final userProvider = context.read<UserProvider>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('친구 요청'),
+        title: const Text('아이 등록'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -104,7 +104,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                   child: TextField(
                     controller: _controller,
                     decoration: const InputDecoration(
-                      labelText: '친구 이름',
+                      labelText: '자녀 이름',
                       border: OutlineInputBorder(),
                     ),
                   ),

@@ -4,7 +4,6 @@ import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-
 import 'dart:ui';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
@@ -308,7 +307,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
               const SizedBox(height: 16),
               GestureDetector(
                 onTap: () {
-                  context.push('/parent/settings/friend/list');
+                  context.push('/parent/friend/list');
                 },
                 child: Container(
                   padding:

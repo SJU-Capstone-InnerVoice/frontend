@@ -32,7 +32,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
             context.pop();
           },
         ),
-        title: const Text('친구 목록'),
+        title: const Text('아이 목록'),
       ),
       body: Column(
         children: [
@@ -42,9 +42,9 @@ class _FriendListScreenState extends State<FriendListScreen> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.person_add),
-                label: const Text('친구 요청하기'),
+                label: const Text('자녀 등록하기'),
                 onPressed: () {
-                  context.push('/parent/settings/friend/request');
+                  context.push('/parent/friend/request');
                 },
               ),
             ),
