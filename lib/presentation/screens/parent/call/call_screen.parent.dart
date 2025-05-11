@@ -131,243 +131,255 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          child: Column(
-            children: [
-              Expanded(
-                child: Container(
-                  clipBehavior: Clip.none,
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(8),
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(color: Colors.grey[100]),
+                child: ScrollConfiguration(
+                  behavior: const ScrollBehavior().copyWith(
+                    scrollbars: false,
+                    dragDevices: {
+                      PointerDeviceKind.touch,
+                      PointerDeviceKind.mouse,
+                    },
                   ),
-                  child: ScrollConfiguration(
-                    behavior: const ScrollBehavior().copyWith(
-                      scrollbars: false,
-                      dragDevices: {
-                        PointerDeviceKind.touch,
-                        PointerDeviceKind.mouse,
-                      },
+                  child: GridView.builder(
+                    controller: _gridScroll,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                      childAspectRatio: 1.0,
                     ),
-                    child: GridView.builder(
-                      controller: _gridScroll,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                        childAspectRatio: 1.0,
-                      ),
-                      itemCount: characters.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index < characters.length) {
-                          final character = characters[index];
-                          final isSelected = selectedCharacter == character.id;
-                          return GestureDetector(
-                            onTap: () => selectCharacter(character.id),
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
-                              child: Container(
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                decoration: BoxDecoration(
+                    itemCount: characters.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index < characters.length) {
+                        final character = characters[index];
+                        final isSelected = selectedCharacter == character.id;
+                        return GestureDetector(
+                          onTap: () => selectCharacter(character.id),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 7.5),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(
                                   color: isSelected
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withOpacity(0.1)
-                                      : null,
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Colors.transparent,
-                                    width: 2,
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
+                                      ? Colors.orange
+                                      : Colors.transparent,
+                                  width: 1,
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Flexible(
-                                        flex: 5,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(16),
-                                          child: Stack(
-                                            children: [
-                                              // 이미지
-                                              SizedBox(
-                                                width: 100,
-                                                height: 100,
-                                                child: Image.network(
-                                                  character.imageUrl,
-                                                  fit: BoxFit.cover,
-                                                  frameBuilder: (context, child,
-                                                      frame, wasSyncLoaded) {
-                                                    if (frame != null &&
-                                                        !_renderedCharacterIds
-                                                            .contains(
-                                                                character.id)) {
-                                                      WidgetsBinding.instance
-                                                          .addPostFrameCallback(
-                                                              (_) {
-                                                        if (mounted) {
-                                                          setState(() {
-                                                            _renderedCharacterIds
-                                                                .add(
-                                                                    character.id);
-                                                            if (_renderedCharacterIds
-                                                                    .length ==
-                                                                characters
-                                                                    .length) {
-                                                              _allImagesRendered =
-                                                                  true;
-                                                            }
-                                                          });
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    flex: 5,
+                                    child: ClipRRect(
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(5),
+                                        topRight: Radius.circular(5),
+                                        bottomLeft: Radius.circular(0),
+                                        bottomRight: Radius.circular(0),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          SizedBox(
+                                            width: double.infinity,
+                                            height: 100,
+                                            child: Image.network(
+                                              character.imageUrl,
+                                              fit: BoxFit.cover,
+                                              frameBuilder: (context, child,
+                                                  frame, wasSyncLoaded) {
+                                                if (frame != null &&
+                                                    !_renderedCharacterIds
+                                                        .contains(
+                                                            character.id)) {
+                                                  WidgetsBinding.instance
+                                                      .addPostFrameCallback(
+                                                          (_) {
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        _renderedCharacterIds
+                                                            .add(character.id);
+                                                        if (_renderedCharacterIds
+                                                                .length ==
+                                                            characters.length) {
+                                                          _allImagesRendered =
+                                                              true;
                                                         }
                                                       });
                                                     }
-                                                    return child;
-                                                  },
+                                                  });
+                                                }
+                                                return child;
+                                              },
+                                            ),
+                                          ),
+
+                                          // 시머 오버레이
+                                          if (!_allImagesRendered)
+                                            Positioned.fill(
+                                              child: Container(
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.white,
+                                                ),
+                                                child: Shimmer.fromColors(
+                                                  baseColor: Colors.grey[300]!,
+                                                  highlightColor:
+                                                      Colors.grey[100]!,
+                                                  child: Container(
+                                                      color: Colors.white),
                                                 ),
                                               ),
-
-                                              // 시머 오버레이
-                                              if (!_allImagesRendered)
-                                                Positioned.fill(
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                    ),
-                                                    child: Shimmer.fromColors(
-                                                      baseColor:
-                                                          Colors.grey[300]!,
-                                                      highlightColor:
-                                                          Colors.grey[100]!,
-                                                      child: Container(
-                                                          color: Colors.white),
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
+                                            ),
+                                        ],
                                       ),
-                                      Flexible(
+                                    ),
+                                  ),
+                                  Flexible(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 5.0,bottom: 5.0),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
                                         child: FittedBox(
                                           fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
                                           child: Text(
                                             character.name,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .bodyMedium,
-                                            maxLines: 1,
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                                ),
+                                            maxLines: 2,
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        } else {
-                          return Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                context.push('/parent/character/create/progress');
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: SizedBox(
-                                    width: 100,
-                                    height: 100,
-                                    child: Container(
-                                      color: Colors.white,
-                                      child: const Icon(Icons.add,
-                                          color: Colors.orange, size: 32),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
                             ),
-                          );
-                        }
-                      },
-                    ),
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () {
-                  context.push('/parent/friend/list');
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isChildSelected
-                          ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-                          : const Color(0xFFE5E6E8), // 연회색
-                      width: 1,
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () =>
+                        context.push('/parent/character/create/progress'),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withAlpha(80),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Center(
+                          child:
+                              Icon(Icons.add, color: Colors.orange, size: 32),
+                        ),
+                      ),
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.child_care,
-                        size: 24,
-                        color: isChildSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : const Color(0xFFB0B3B8), // 연회색
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        activeChildName,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: () {
+                      context.push('/parent/friend/list');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
                           color: isChildSelected
-                              ? Theme.of(context).colorScheme.primary
-                              : const Color(0xFF4B4E54), // 중간 회색
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.3)
+                              : const Color(0xFFE5E6E8),
+                          width: 1,
                         ),
                       ),
-                      const Spacer(),
-                      const Icon(
-                        Icons.chevron_right,
-                        size: 20,
-                        color: Color(0xFFB0B3B8),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.child_care,
+                            size: 24,
+                            color: isChildSelected
+                                ? Theme.of(context).colorScheme.primary
+                                : const Color(0xFFB0B3B8),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            activeChildName,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: isChildSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : const Color(0xFF4B4E54),
+                            ),
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.chevron_right,
+                            size: 20,
+                            color: Color(0xFFB0B3B8),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed:
+                        selectedCharacter == null || activeChildId == null
+                            ? null
+                            : () => createCallRequest(
+                                  int.parse(selectedCharacter!),
+                                  int.parse(activeChildId!),
+                                ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          selectedCharacter == null ? Colors.grey : null,
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
+                    child: const Text('대화방 생성'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: selectedCharacter == null || activeChildId == null
-                    ? null
-                    : () => createCallRequest(
-                          int.parse(selectedCharacter!),
-                          int.parse(activeChildId!),
-                        ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      selectedCharacter == null ? Colors.grey : null,
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: const Text('대화방 생성'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
