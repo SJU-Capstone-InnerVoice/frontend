@@ -36,6 +36,9 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
   /// 🖼 이미지 상태
   File? _image;
 
+  /// 변수
+  bool _isUploading = false;
+
   @override
   Widget build(BuildContext context) {
     final user = context.read<UserProvider>().user!;
@@ -201,24 +204,43 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: (isReadyToSynthesize &&
-                            hasImage &&
-                            hasVoice &&
-                            hasName)
+                    onPressed: (!_isUploading &&
+                            isReadyToSynthesize &&
+                                hasImage &&
+                                hasVoice &&
+                                hasName)
                         ? () async {
+                            setState(() {
+                              _isUploading = true;
+                            });
+
                             print("이미지 업로드");
-                            await context
-                                .read<CharacterImgProvider>()
-                                .uploadImage(
-                                  userId: user.userId,
-                                  name: _nameController.text.trim(),
-                                  type: "USER",
-                                  file: _image!,
+                            try {
+                              // await context
+                              //     .read<CharacterImgProvider>()
+                              //     .uploadImage(
+                              //       userId: user.userId,
+                              //       name: _nameController.text.trim(),
+                              //       type: "USER",
+                              //       file: _image!,
+                              //     );
+                              // await context
+                              //     .read<CharacterImgProvider>()
+                              //     .loadImagesFromServer(user.userId);
+                              if (context.mounted) {
+                                context.push(
+                                  '/parent/character/create/result',
+                                  extra:
+                                      _audioFiles.map((f) => f.path).toList(),
                                 );
-                            context.push(
-                              '/parent/character/create/result',
-                              extra: _audioFiles.map((f) => f.path).toList(),
-                            );
+                              }
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isUploading = false;
+                                });
+                              }
+                            }
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
@@ -228,7 +250,14 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                       foregroundColor:
                           isReadyToSynthesize ? Colors.white : Colors.grey[600],
                     ),
-                    child: const Text('캐릭터 생성'),
+                    child: _isUploading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Text('캐릭터 생성'),
                   ),
                 ),
               ],
