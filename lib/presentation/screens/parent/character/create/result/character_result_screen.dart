@@ -172,7 +172,7 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> with SingleTicker
               icon: const Icon(Icons.home, size: 32),
               tooltip: '홈으로',
               onPressed: () {
-                context.go('/parent/character/add');
+                context.go('/parent/call/');
               },
             ),
           ],

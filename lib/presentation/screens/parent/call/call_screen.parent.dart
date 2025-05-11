@@ -279,7 +279,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                             padding: const EdgeInsets.all(5.0),
                             child: GestureDetector(
                               onTap: () {
-                                context.push('/parent/character/add');
+                                context.push('/parent/character/create/progress');
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),

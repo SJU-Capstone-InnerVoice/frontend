@@ -17,13 +17,21 @@ class IVTheme {
       error: IVColors.error,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: IVColors.primary,
+      backgroundColor: IVColors.background,
       foregroundColor: IVColors.textLight,
       elevation: 0,
       titleTextStyle: TextStyle(
-        color: IVColors.textLight,
+        color: IVColors.textPrimary,
         fontSize: 20,
         fontWeight: FontWeight.bold,
+      ),
+      iconTheme: IconThemeData(
+        color: IVColors.textPrimary,
+        size: 24,
+      ),
+      actionsIconTheme: IconThemeData(
+        color: IVColors.textPrimary,
+        size: 24,
       ),
     ),
     textTheme: GoogleFonts.ibmPlexSansKrTextTheme().copyWith(
@@ -68,36 +76,29 @@ class IVTheme {
       filled: true,
       fillColor: IVColors.secondary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide.none,
+      ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: IVColors.border),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: IVColors.primary),
+        borderSide: BorderSide.none,
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: IVColors.error),
+        borderSide: BorderSide.none,
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: IVColors.error),
+        borderSide: BorderSide.none,
       ),
-    ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      selectedItemColor: IVColors.primary,
-      unselectedItemColor: IVColors.textSecondary,
-      backgroundColor: IVColors.background,
-      type: BottomNavigationBarType.fixed,
-    ),
-    cardTheme: CardTheme(
-      color: IVColors.background,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+      hintStyle: TextStyle(
+        color: IVColors.textSecondary,
       ),
-      elevation: 4,
-      shadowColor: Colors.black12,
     ),
     dividerTheme: const DividerThemeData(
       color: IVColors.divider,

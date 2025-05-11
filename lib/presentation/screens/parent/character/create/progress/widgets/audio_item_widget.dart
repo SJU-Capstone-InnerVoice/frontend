@@ -40,11 +40,19 @@ class AudioItemWidget extends StatelessWidget {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
-              margin: const EdgeInsets.only(bottom: 12),
+              margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.grey.shade200,
+                color: Colors.white,
+                border: Border.all(color: Colors.grey.shade100,width: 0.5),
                 borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -62,13 +70,11 @@ class AudioItemWidget extends StatelessWidget {
                   Slider(
                     min: 0,
                     max: total.inMilliseconds.toDouble(),
-                    value: current.inMilliseconds
-                        .clamp(0, total.inMilliseconds)
-                        .toDouble(),
+                    value: current.inMilliseconds.clamp(0, total.inMilliseconds).toDouble(),
                     onChanged: (value) {
-                      player
-                          .seek(Duration(microseconds: (value * 1000).toInt()));
+                      player.seek(Duration(microseconds: (value * 1000).toInt()));
                     },
+                    inactiveColor: Colors.grey.shade300,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
