@@ -29,6 +29,7 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
   late final AudioPlayer _player;
   Duration? _duration;
   bool _isPrepared = false;
+  late String _charachterName;
 
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
@@ -67,8 +68,11 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
   }
 
   Future<void> _prepare() async {
+    _fadeController.reset();
+    _fadeController.forward();
+
     /// 음성 합성 화면
-    await Future.delayed(const Duration(seconds: 1000000000));
+    await Future.delayed(const Duration(seconds: 2));
 
     final filePaths = GoRouterState.of(context).extra as List<String>;
     final files = filePaths.map((path) => File(path)).toList();
@@ -76,6 +80,7 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
     final userId = context.read<UserProvider>().user?.userId ?? "-1";
     final characterName =
         context.read<CharacterImgProvider>().getCharacters(userId).last.name;
+    _charachterName = characterName;
     final merged = await _mergeAudioFilesAndClean(
       fileNameWithoutExt: characterName,
       files: files,
@@ -89,20 +94,26 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
     });
 
     /// AI 분석(음성 합성) 중 화면
+    _fadeController.reset();
     _fadeController.forward();
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 4));
     setState(() => _state = VoiceResultState.requestingApi);
+
+    _fadeController.reset();
+    _fadeController.forward();
 
     /// 음성 요약 결과 가져오는 화면
     await _sendApiRequest();
     setState(() => _state = VoiceResultState.done);
+    _fadeController.reset();
+    _fadeController.forward();
 
     /// 마지막 화면
   }
 
   Future<void> _sendApiRequest() async {
     print('🌐 API 요청 시작...');
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 4));
     print('✅ API 요청 완료!');
   }
 
@@ -270,11 +281,31 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
           key: const ValueKey('waiting'),
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Lottie.asset('assets/animations/loading_elephant.json'),
-            const SizedBox(height: 16),
+            Container(
+              width: 200,
+              height: 200,
+              padding: const EdgeInsets.all(20),
+              child: Lottie.asset(
+                'assets/animations/loading_elephant.json',
+                repeat: true,
+              ),
+            ),
+            const SizedBox(height: 50),
+            const Text(
+              'AI가 준비 중이에요!',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
             const Text(
               '잠시만 기다려 주세요...',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
             ),
           ],
         );
@@ -285,11 +316,30 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
           key: const ValueKey('requesting'),
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Lottie.asset('assets/animations/work_bear.json'),
-            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              child: Lottie.asset(
+                'assets/animations/work_bear.json',
+                repeat: true,
+              ),
+            ),
+            const SizedBox(height: 32),
             const Text(
-              'AI가 분석 중입니다...',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              'AI가 분석 중입니다!',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '유사한 목소리를 배우고 있어요...',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
             ),
           ],
         );
@@ -300,14 +350,26 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
           key: const ValueKey('done'),
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Lottie.asset('assets/animations/pigeon.json'),
-            const SizedBox(height: 16),
+            Container(
+              width: 200,
+              height: 200,
+              child: Lottie.asset('assets/animations/pigeon.json'),
+            ),
+            const SizedBox(height: 50),
             const Text(
               '완료되었습니다!',
               style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${_charachterName}로 아이와 대화해볼까요?!',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
             ),
           ],
         );
