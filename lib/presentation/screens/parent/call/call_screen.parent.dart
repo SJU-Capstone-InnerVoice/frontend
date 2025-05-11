@@ -290,7 +290,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                                     width: 100,
                                     height: 100,
                                     child: Container(
-                                      color: Colors.orange.withAlpha(50),
+                                      color: Colors.white,
                                       child: const Icon(Icons.add,
                                           color: Colors.orange, size: 32),
                                     ),
