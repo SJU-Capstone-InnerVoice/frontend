@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/constants/api/summary_api.dart';
-import '../../../../logic/providers/summary/summary_provider.dart';
 import 'widgets/summary_calendar.dart';
 import 'package:flutter/cupertino.dart';
 

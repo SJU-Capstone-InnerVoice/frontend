@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:path/path.dart' as p;
 import 'package:http_parser/http_parser.dart';
 import '../../core/constants/api/summary_api.dart';
-
+import '../../data/models/summary/summary_model.dart';
 class SummaryService {
   final Dio _dio = Dio();
 
@@ -42,5 +42,9 @@ class SummaryService {
       print('🚨 전송 실패: $e');
       return null;
     }
+  }
+
+  Future<void> uploadSummary(CounselingSummary summart) async {
+
   }
 }
