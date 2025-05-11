@@ -30,8 +30,15 @@ class UserProvider with ChangeNotifier {
     setUser(user);
   }
 
-  void setActivateChild(String childId) {
+  void setActivateChild(String? childId) {
     if (_user == null || _user!.childList == null) return;
+
+    if (childId == null) {
+      _activeChildId = null;
+      notifyListeners();
+      debugPrint('🟤 자식 비활성화됨');
+      return;
+    }
 
     debugPrint('📋 childList friendIds: ${_user!.childList!.map((e) => e.friendId)}');
     debugPrint('📍 요청한 활성화 ID: $childId');

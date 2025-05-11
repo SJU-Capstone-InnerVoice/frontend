@@ -310,42 +310,42 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                   context.push('/parent/friend/list');
                 },
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: isChildSelected
-                        ? Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(0.05)
-                        : Colors.grey.shade100,
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isChildSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey,
+                          ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+                          : const Color(0xFFE5E6E8), // 연회색
+                      width: 1,
                     ),
-                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Icon(
                         Icons.child_care,
-                        size: 28,
+                        size: 24,
                         color: isChildSelected
                             ? Theme.of(context).colorScheme.primary
-                            : Colors.grey,
+                            : const Color(0xFFB0B3B8), // 연회색
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Text(
                         activeChildName,
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
                           color: isChildSelected
                               ? Theme.of(context).colorScheme.primary
-                              : Colors.grey,
+                              : const Color(0xFF4B4E54), // 중간 회색
                         ),
+                      ),
+                      const Spacer(),
+                      const Icon(
+                        Icons.chevron_right,
+                        size: 20,
+                        color: Color(0xFFB0B3B8),
                       ),
                     ],
                   ),
