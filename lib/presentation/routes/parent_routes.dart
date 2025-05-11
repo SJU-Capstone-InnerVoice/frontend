@@ -4,7 +4,6 @@ import '../screens/parent/parent_screen.dart';
 import '../screens/parent/call/call_screen.parent.dart';
 import '../screens/parent/call/waiting/call_waiting_screen.parent.dart';
 import '../screens/parent/call/start/call_start_screen.parent.dart';
-import '../screens/parent/character/info/character_info_screen.dart';
 import '../screens/parent/character/add/character_add_screen.dart';
 import '../screens/parent/character/voice/synthesis/voice_synthesis_screen.dart';
 import '../screens/parent/character/voice/result/voice_result.dart';
@@ -35,10 +34,6 @@ final parentRoutes = ShellRoute(
       path: '/parent/character',
       builder: (context, state) => const SizedBox.shrink(), // dummy
       routes: [
-        GoRoute(
-          path: 'info',
-          builder: (context, state) => const CharacterInfoScreen(),
-        ),
         GoRoute(
           path: 'add',
           builder: (context, state) => const AddCharacterScreen(),
