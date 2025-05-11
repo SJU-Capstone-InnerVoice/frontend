@@ -3,19 +3,22 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'presentation/routes/iv_router.dart';
 import 'package:provider/provider.dart';
 import 'injection.dart';
-import 'package:audio_session/audio_session.dart';
 import 'core/theme/iv_theme.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-Future<void> setupAudioSession() async {
-  final session = await AudioSession.instance;
-  await session.configure(AudioSessionConfiguration.speech());
+
+Future<void> requestMicPermission() async {
+  var status = await Permission.microphone.status;
+  if (!status.isGranted) {
+    await Permission.microphone.request();
+  }
 }
 void main() async {
 
   await dotenv.load(fileName: ".env"); // server endpoint address
   await initializeDateFormatting('ko_KR', null);
-  await setupAudioSession();
+  await requestMicPermission();
   runApp(
     MultiProvider(
       providers: providers,

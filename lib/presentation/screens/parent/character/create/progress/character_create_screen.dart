@@ -144,6 +144,17 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                     hintText: '6자 이내로 입력해주세요.',
                     border: OutlineInputBorder(),
                   ),
+                  onTap: () {
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      if (_scrollController.hasClients) {
+                        _scrollController.animateTo(
+                          _scrollController.position.maxScrollExtent,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
+                        );
+                      }
+                    });
+                  },
                   onChanged: (value) {
                     setState(() {});
                   },
@@ -396,7 +407,6 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
       player.dispose();
     }
     _nameController.dispose();
-
     super.dispose();
   }
 }
