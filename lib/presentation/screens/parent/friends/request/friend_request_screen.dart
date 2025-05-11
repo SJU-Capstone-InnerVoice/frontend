@@ -137,11 +137,6 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
               else
                 if (_searchResult != null)
                   ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        'https://picsum.photos/seed/${_searchResult!['id']}/100/100',
-                      ),
-                    ),
                     title: Text(_searchResult!['name']),
                     trailing: ElevatedButton(
                       onPressed: () async {

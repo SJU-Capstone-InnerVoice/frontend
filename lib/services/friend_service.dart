@@ -5,7 +5,7 @@ import '../data/models/friend/friend_model.dart';
 import '../data/models/friend/friend_request_model.dart';
 
 class FriendService {
-  Future<List<Friend>> queryChildList({
+  Future<List<Friend>> queryFriendsList({
     required Dio dio,
     required String userId,
   }) async {

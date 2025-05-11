@@ -59,7 +59,7 @@ class UserProvider with ChangeNotifier {
 
     try {
       final List<Friend> childList =
-          await _friendService.queryChildList(dio: dio, userId: _user!.userId);
+          await _friendService.queryFriendsList(dio: dio, userId: _user!.userId);
       _user = _user!.copyWith(childList: childList);
       notifyListeners();
     } catch (e) {

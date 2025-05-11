@@ -32,30 +32,14 @@ class _SettingScreenState extends State<SettingScreen> {
       ),
       body: ListView(
         children: [
+
           ListTile(
-            title: const Text('프로필 설정'),
+            title: const Text('부모 등록 확인'),
             onTap: () {
-              // TODO: 프로필 설정 이동
+              context.push('/child/friends/check');
             },
           ),
-          ListTile(
-            title: const Text('친구 요청 확인'),
-            onTap: () {
-              context.go('/child/settings/friends/check');
-            },
-          ),
-          ListTile(
-            title: const Text('보안 설정'),
-            onTap: () {
-              // TODO: 보안 설정 이동
-            },
-          ),
-          ListTile(
-            title: const Text('앱 정보'),
-            onTap: () {
-              // TODO: 앱 정보 이동
-            },
-          ),
+
           ListTile(
             title: const Text('로그아웃'),
             onTap: () async {

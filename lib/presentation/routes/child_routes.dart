@@ -6,7 +6,7 @@ import '../screens/child/call/start/call_start_screen.child.dart';
 import '../screens/child/call/waiting/call_waiting_screen.child.dart';
 import '../screens/child/call/end/call_end_screen.child.dart';
 import '../screens/child/setting/setting_screen.child.dart';
-import '../screens/child/setting/friends/check/friend_request_check_screen.dart';
+import '../screens/child/friends/check/friend_request_check_screen.dart';
 
 final childRoutes = ShellRoute(
   builder: (context, state, child) => ChildScreen(child: child),
@@ -33,20 +33,14 @@ final childRoutes = ShellRoute(
     GoRoute(
       path: '/child/settings',
       builder: (context, state) => const SettingScreen(),
+    ),
+    GoRoute(
+      path: '/child/friends',
+      builder: (context, state) => const SizedBox.shrink(), // dummy
       routes: [
         GoRoute(
-          path: 'friends',
-          builder: (context, state) => const SizedBox.shrink(), // dummy
-          routes: [
-            GoRoute(
-              path: 'list',
-              builder: (context, state) => const SizedBox.shrink(), // dummy
-            ),
-            GoRoute(
-              path: 'check',
-              builder: (context, state) => const FriendRequestCheckScreen(),
-            ),
-          ],
+          path: 'check',
+          builder: (context, state) => const FriendRequestCheckScreen(),
         ),
       ],
     ),
