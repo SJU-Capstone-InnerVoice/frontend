@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import '../../../../../../core/constants/api/friends_api.dart';
 import '../../../../../../logic/providers/network/dio_provider.dart';
 import 'package:another_flushbar/flushbar.dart';
+
 class FriendRequestScreen extends StatefulWidget {
   const FriendRequestScreen({super.key});
 
@@ -104,7 +105,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                   child: TextField(
                     controller: _controller,
                     decoration: const InputDecoration(
-                      labelText: '자녀 이름',
+                      hintText: '자녀 이름을 입력해주세요.',
                       border: OutlineInputBorder(),
                     ),
                   ),

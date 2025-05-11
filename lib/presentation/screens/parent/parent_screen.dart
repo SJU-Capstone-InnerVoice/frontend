@@ -46,8 +46,6 @@ class _ParentScreenState extends State<ParentScreen> {
     final hiddenRoutes = [
       '/parent/call/waiting',
       '/parent/call/start',
-      // '/parent/character/info',
-      '/parent/character/add',
       '/parent/character/create/progress',
       '/parent/character/create/result',
     ];

@@ -14,12 +14,14 @@ class FriendListScreen extends StatefulWidget {
 
 class _FriendListScreenState extends State<FriendListScreen> {
   late final Dio _dio;
+
   @override
   void initState() {
     super.initState();
     _dio = context.read<DioProvider>().dio;
     context.read<UserProvider>().setChildList(_dio);
   }
+
   @override
   Widget build(BuildContext context) {
     final childList = context.watch<UserProvider>().user?.childList ?? [];
@@ -40,12 +42,11 @@ class _FriendListScreenState extends State<FriendListScreen> {
             padding: const EdgeInsets.all(16),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.person_add),
-                label: const Text('자녀 등록하기'),
+              child: ElevatedButton(
                 onPressed: () {
                   context.push('/parent/friend/request');
                 },
+                child: Text('자녀 등록하기'),
               ),
             ),
           ),
@@ -54,31 +55,36 @@ class _FriendListScreenState extends State<FriendListScreen> {
             child: childList.isEmpty
                 ? const Center(child: Text('등록된 친구가 없습니다.'))
                 : ListView.builder(
-              itemCount: childList.length,
-              itemBuilder: (context, index) {
-                final child = childList[index];
-                final userProvider = context.watch<UserProvider>();
-                final activeChildId = userProvider.activeChildId;
-                final isActive = child.friendId.toString() == activeChildId;
-                return ListTile(
-                  tileColor: isActive ? Colors.orange : null,
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      'https://picsum.photos/seed/${child.friendId}/100/100',
-                    ),
-                  ),
-                  title: Text(child.friendName),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    context.read<UserProvider>().setActivateChild(child.friendId.toString());
+                    itemCount: childList.length,
+                    itemBuilder: (context, index) {
+                      final child = childList[index];
+                      final userProvider = context.watch<UserProvider>();
+                      final activeChildId = userProvider.activeChildId;
+                      final isActive =
+                          child.friendId.toString() == activeChildId;
+                      return ListTile(
+                        tileColor: isActive ? Colors.orange : null,
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(
+                            'https://picsum.photos/seed/${child.friendId}/100/100',
+                          ),
+                        ),
+                        title: Text(child.friendName),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          context
+                              .read<UserProvider>()
+                              .setActivateChild(child.friendId.toString());
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${child.friendName}을(를) 활성화했습니다.')),
-                    );
-                  },
-                );
-              },
-            ),
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('${child.friendName}을(를) 활성화했습니다.')),
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),

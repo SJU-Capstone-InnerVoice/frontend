@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:flutter/widgets.dart';
 import 'iv_colors.dart';
 
 class IVTheme {
@@ -64,11 +64,24 @@ class IVTheme {
       textTheme: ButtonTextTheme.primary,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: IVColors.primary,
-        foregroundColor: IVColors.textLight,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return Colors.grey[300]!;
+          }
+          return Colors.orange;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return Colors.grey[600]!;
+          }
+          return Colors.white;
+        }),
+        elevation: WidgetStateProperty.all(0),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       ),
     ),

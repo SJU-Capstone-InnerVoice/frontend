@@ -26,6 +26,7 @@ class VoiceSynthesisScreen extends StatefulWidget {
 class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
   /// 🎯 Controller
   final TextEditingController _nameController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   /// 🎧 Audio 관련 상태
   final List<File> _audioFiles = [];
@@ -121,6 +122,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 75),
             child: Column(
@@ -257,6 +259,15 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
             _players.add(player);
             _durations.add(duration);
           });
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (_scrollController.hasClients) {
+              _scrollController.animateTo(
+                _scrollController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            }
+          });
         }
       }
     }
@@ -284,6 +295,15 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
             final player = AudioPlayer();
             await player.setFilePath(file.path);
             addRecordedAudio(file, player, duration);
+            Future.delayed(const Duration(milliseconds: 100), () {
+              if (_scrollController.hasClients) {
+                _scrollController.animateTo(
+                  _scrollController.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              }
+            });
           },
         );
       },

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:inner_voice/logic/providers/character/character_img_provider.dart';
+import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import '../progress/widgets/audio_item_widget.dart';
+import 'package:provider/provider.dart';
 enum VoiceResultState { loading, waitingApi, requestingApi, done }
 VoiceResultState _state = VoiceResultState.loading;
 
@@ -54,8 +57,14 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> with SingleTicker
     final filePaths = GoRouterState.of(context).extra as List<String>;
     final files = filePaths.map((path) => File(path)).toList();
     await Future.delayed(const Duration(seconds: 1));
+    final userId = context.read<UserProvider>().user?.userId ?? "-1";
 
-    final merged = await _mergeAudioFilesAndClean(files);
+    final characterName = context.read<CharacterImgProvider>().getCharacters(userId).last.name;
+
+    final merged = await _mergeAudioFilesAndClean(
+      fileNameWithoutExt: characterName,
+      files: files,
+    );
     await _player.setFilePath(merged.path);
     final dur = await _player.durationStream.firstWhere((d) => d != null);
 
@@ -78,9 +87,12 @@ class _VoiceResultScreenState extends State<VoiceResultScreen> with SingleTicker
     print('✅ API 요청 완료!');
   }
 
-  Future<File> _mergeAudioFilesAndClean(List<File> files) async {
+  Future<File> _mergeAudioFilesAndClean({
+    required String fileNameWithoutExt,
+    required List<File> files,
+  }) async {
     final tempDir = await getTemporaryDirectory();
-    final output = File('${tempDir.path}/merged_audio.m4a');
+    final output = File('${tempDir.path}/$fileNameWithoutExt.m4a');
 
     final inputs = files.map((f) => "-i ${f.path}").join(' ');
     final command =
