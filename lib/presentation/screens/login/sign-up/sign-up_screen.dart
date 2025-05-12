@@ -16,7 +16,7 @@ class _SignupScreenState extends State<SignUpScreen> {
   final TextEditingController confirmPasswordController = TextEditingController();
 
   final Dio _dio = Dio();
-  bool isAgreed = true;
+  bool isAgreed = false;
   String? selectedRole; // CHILD 또는 PARENT
 
   void _onSignup() async {
@@ -112,16 +112,22 @@ class _SignupScreenState extends State<SignUpScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            Image.network(
-              'https://picsum.photos/200/300',
-              width: 120,
-              height: 120,
-              fit: BoxFit.cover,
+            ClipOval(
+              child: Image.asset(
+                'assets/icons/logo.png',
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+              ),
             ),
-            const SizedBox(height: 20),
-            const Text(
-              '마음의 소리',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange),
+            Transform.translate(
+              offset: const Offset(0, -12), // 위로 12픽셀 올림
+              child: Image.asset(
+                'assets/icons/pont2.png',
+                width: 150,
+                height: 50,
+                fit: BoxFit.contain,
+              ),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -130,9 +136,11 @@ class _SignupScreenState extends State<SignUpScreen> {
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 32),
-            _buildInputField(emailController, '이메일(아이디) 입력'),
+            _buildInputField(emailController, '아이디 입력'),
             const SizedBox(height: 16),
             _buildInputField(passwordController, '비밀번호 입력', obscureText: true),
+            const SizedBox(height: 4),
+            const Padding(padding: EdgeInsets.only(left: 4.0), child: Align(alignment: Alignment.centerLeft, child: Text('숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요.', style: TextStyle(fontSize: 12, color: Colors.red,),),),),
             const SizedBox(height: 16),
             _buildInputField(confirmPasswordController, '비밀번호 확인', obscureText: true),
             const SizedBox(height: 16),
@@ -159,7 +167,18 @@ class _SignupScreenState extends State<SignUpScreen> {
             const SizedBox(height: 24),
             Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.orange),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isAgreed = !isAgreed;
+                    });
+                  },
+                  child: Icon(
+                    isAgreed ? Icons.check_circle : Icons.radio_button_unchecked,
+                    color: Colors.orange,
+                    size: 24,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text.rich(
@@ -177,6 +196,7 @@ class _SignupScreenState extends State<SignUpScreen> {
                 ),
               ],
             ),
+
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: isAgreed ? _onSignup : null,

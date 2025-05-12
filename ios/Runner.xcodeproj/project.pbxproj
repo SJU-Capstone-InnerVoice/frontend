@@ -470,7 +470,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 13;
-				DEVELOPMENT_TEAM = X8P2QKDF7W;
+				DEVELOPMENT_TEAM = 9LXJ2K7P5R;
 				ENABLE_BITCODE = NO;
 				FLUTTER_BUILD_NUMBER = 13;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -479,7 +479,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = sju.capstone.innervoice.ys;
+				PRODUCT_BUNDLE_IDENTIFIER = sju.capstone.innervoice.bm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -655,7 +655,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 13;
-				DEVELOPMENT_TEAM = X8P2QKDF7W;
+				DEVELOPMENT_TEAM = 9LXJ2K7P5R;
 				ENABLE_BITCODE = NO;
 				FLUTTER_BUILD_NUMBER = 13;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -664,7 +664,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = sju.capstone.innervoice.ys;
+				PRODUCT_BUNDLE_IDENTIFIER = sju.capstone.innervoice.bm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -680,7 +680,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 13;
-				DEVELOPMENT_TEAM = X8P2QKDF7W;
+				DEVELOPMENT_TEAM = 9LXJ2K7P5R;
 				ENABLE_BITCODE = NO;
 				FLUTTER_BUILD_NUMBER = 13;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -689,7 +689,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = sju.capstone.innervoice.ys;
+				PRODUCT_BUNDLE_IDENTIFIER = sju.capstone.innervoice.bm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

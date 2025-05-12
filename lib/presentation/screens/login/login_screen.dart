@@ -101,15 +101,22 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                shape: BoxShape.circle,
+              width: 180,
+              height: 180,
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/icons/logo.png',
+                  fit: BoxFit.cover,
+                ),
               ),
-              child: const Center(
-                child: Text("Logo",
-                    style: TextStyle(fontSize: 18, color: Colors.black54)),
+            ),
+            Transform.translate(
+              offset: const Offset(0, -12), // 위로 12픽셀 올림
+              child: Image.asset(
+                'assets/icons/pont2.png',
+                width: 150,
+                height: 50,
+                fit: BoxFit.contain,
               ),
             ),
             const SizedBox(height: 40),
@@ -132,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: ElevatedButton(
                 onPressed: isLoading ? null : _handleLogin,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
+                  backgroundColor: Colors.orange,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
