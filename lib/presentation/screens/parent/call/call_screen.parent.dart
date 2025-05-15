@@ -4,6 +4,8 @@ import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 import 'dart:ui';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
@@ -18,24 +20,17 @@ class CallScreen extends StatefulWidget {
   State<CallScreen> createState() => _CallScreenState();
 }
 
-class _CallScreenState extends State<CallScreen> with RouteAware {
+class _CallScreenState extends State<CallScreen> {
   final ScrollController _gridScroll = ScrollController();
   late final CallRequestProvider _callRequest;
   late final WebRTCService _rtc;
   late final User _user;
-  Set<String> _renderedCharacterIds = {};
-  bool _allImagesRendered = false;
-  late final GoRouterDelegate _routerDelegate;
-  bool _didLoadImages = false;
+
   String? selectedCharacter;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _routerDelegate = GoRouter.of(context).routerDelegate;
-      _routerDelegate.addListener(_onRouteChange);
-    });
 
     /// provider 초기화
     _user = context.read<UserProvider>().user!;
@@ -46,24 +41,10 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _resetRenderedImages();
   }
-
-  void _onRouteChange() {
-    final location = GoRouter.of(context).state.path;
-    if (location == '/parent/call') {
-      _resetRenderedImages();
-    }
-  }
-
-  void _resetRenderedImages() => setState(() {
-        _renderedCharacterIds.clear();
-        _allImagesRendered = false;
-      });
 
   @override
   void dispose() {
-    _routerDelegate.removeListener(_onRouteChange);
     _gridScroll.dispose();
     super.dispose();
   }
@@ -122,8 +103,8 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
 
     final activeChildName = activeChild?.friendName ?? '선택하러가기';
 
-    if (characters.isEmpty) {
-      Future.microtask(() {
+    if (characters.isEmpty && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         context.read<CharacterImgProvider>().loadImagesFromServer(userId);
       });
@@ -194,60 +175,30 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                                           SizedBox(
                                             width: double.infinity,
                                             height: 100,
-                                            child: Image.network(
-                                              character.imageUrl,
+                                            child: CachedNetworkImage(
+                                              imageUrl: character.imageUrl,
                                               fit: BoxFit.cover,
-                                              frameBuilder: (context, child,
-                                                  frame, wasSyncLoaded) {
-                                                if (frame != null &&
-                                                    !_renderedCharacterIds
-                                                        .contains(
-                                                            character.id)) {
-                                                  WidgetsBinding.instance
-                                                      .addPostFrameCallback(
-                                                          (_) {
-                                                    if (mounted) {
-                                                      setState(() {
-                                                        _renderedCharacterIds
-                                                            .add(character.id);
-                                                        if (_renderedCharacterIds
-                                                                .length ==
-                                                            characters.length) {
-                                                          _allImagesRendered =
-                                                              true;
-                                                        }
-                                                      });
-                                                    }
-                                                  });
-                                                }
-                                                return child;
-                                              },
+                                              placeholder: (context, url) =>
+                                                  Shimmer.fromColors(
+                                                baseColor: Colors.grey[300]!,
+                                                highlightColor:
+                                                    Colors.grey[100]!,
+                                                child: Container(
+                                                    color: Colors.white),
+                                              ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      const Icon(Icons.error),
                                             ),
                                           ),
-
-                                          // 시머 오버레이
-                                          if (!_allImagesRendered)
-                                            Positioned.fill(
-                                              child: Container(
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.white,
-                                                ),
-                                                child: Shimmer.fromColors(
-                                                  baseColor: Colors.grey[300]!,
-                                                  highlightColor:
-                                                      Colors.grey[100]!,
-                                                  child: Container(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            ),
                                         ],
                                       ),
                                     ),
                                   ),
                                   Flexible(
                                     child: Padding(
-                                      padding: const EdgeInsets.only(left: 5.0,bottom: 5.0),
+                                      padding: const EdgeInsets.only(
+                                          left: 5.0, bottom: 5.0),
                                       child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: FittedBox(
@@ -260,7 +211,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                                                 .bodyMedium
                                                 ?.copyWith(
                                                   fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
                                             maxLines: 2,
                                           ),

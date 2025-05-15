@@ -29,7 +29,7 @@ class SummaryService {
       final response = await _dio.post(
         serverUrl,
         data: formData,
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 20));
 
       if (response.statusCode == 200) {
         final data = response.data;

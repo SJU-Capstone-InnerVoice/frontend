@@ -15,7 +15,7 @@ Future<void> requestMicPermission() async {
   }
 }
 void main() async {
-
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env"); // server endpoint address
   await initializeDateFormatting('ko_KR', null);
   await requestMicPermission();

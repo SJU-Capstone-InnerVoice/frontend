@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:provider/provider.dart';
-import 'package:dio/dio.dart';
-import '../../../../core/constants/api/summary_api.dart';
 import '../../../../data/models/summary/summary_model.dart';
 import '../../../../logic/providers/summary/summary_provider.dart';
 import 'widgets/summary_calendar.dart';
@@ -35,6 +33,14 @@ class _SummaryScreenState extends State<SummaryScreen> {
       filteredSummaries = summaries.where((item) {
         return item.title.contains(query) || item.content.contains(query);
       }).toList();
+    });
+  }
+
+  @override
+  void initState() {
+    Future.microtask(() {
+      final userId = context.read<UserProvider>().user?.userId ?? "-1";
+      context.read<SummaryProvider>().fetchSummaries(int.parse(userId));
     });
   }
 
@@ -363,7 +369,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
                           leading: const Icon(Icons.refresh),
                           title: const Text('새로 고침'),
                           onTap: () {
-                            context.read<SummaryProvider>().fetchSummaries(int.parse(userId));
+                            context
+                                .read<SummaryProvider>()
+                                .fetchSummaries(int.parse(userId));
                             Navigator.pop(context);
                           },
                         ),
