@@ -29,7 +29,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
     super.initState();
     _callRequest = context.read<CallRequestProvider>();
     _callSession = context.read<CallSessionProvider>();
-
+    _callSession.clearMessages();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _user = context.read<UserProvider>().user!;
       _rtc = _callSession.rtcService;

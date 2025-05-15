@@ -103,14 +103,7 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
     print("📴 CallStartScreen dispose 실행됨");
     _lastSpoken = null;
     _callSession.disposeCall();
-    _callSession.clearMessages();
     _callRequest.stopPolling();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<CallSessionProvider>().clearMessages();
-      }
-    });
     _lottieController.dispose();
     _pulseController.dispose();
     super.dispose();

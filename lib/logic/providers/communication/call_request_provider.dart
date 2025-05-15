@@ -150,7 +150,6 @@ class CallRequestProvider with ChangeNotifier {
       _roomId = latest['roomId'];
       _isAccepted = latest['isAccepted'] ?? false;
 
-
       debugPrint('📡 통화 요청 정보 갱신 완료');
       notifyListeners();
       return latest;
@@ -162,6 +161,8 @@ class CallRequestProvider with ChangeNotifier {
 
   Future<void> accept() async {
     stopPolling();
+    _isAccepted = true;
+
     if (_id == null) {
       debugPrint('❌ 수락할 요청 ID가 없습니다.');
       return;
@@ -169,7 +170,6 @@ class CallRequestProvider with ChangeNotifier {
 
     try {
       await _callRequestService.acceptCallRequest(requestId: _id!);
-      _isAccepted = true;
       notifyListeners();
       debugPrint('📥 요청 수락 후 상태 반영 완료');
     } catch (e) {

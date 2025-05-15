@@ -64,11 +64,22 @@ class CallRecordingService {
     if (ttsSegments.isEmpty) {
       print("⚠️ TTS 세그먼트 없음. 원본 파일만 복사");
       final originalFile = File(micPath);
-      await originalFile.copy(outputPath);
-      AudioLogger.printWavInfo(outputPath);
-      if (await originalFile.exists()) {
+
+      if (!await originalFile.exists()) {
+        print('❌ 원본 파일이 존재하지 않습니다: $micPath');
+        return null;
+      }
+
+      try {
+        await originalFile.copy(outputPath);
+        print('✅ 복사 완료: $outputPath');
+        AudioLogger.printWavInfo(outputPath);
+
         await originalFile.delete();
         print('🗑️ 원본 파일 삭제됨: $micPath');
+      } catch (e) {
+        print('❌ 복사 중 예외 발생: $e');
+        return null;
       }
 
       return outputPath;
