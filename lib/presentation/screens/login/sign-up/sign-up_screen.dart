@@ -18,7 +18,21 @@ class _SignupScreenState extends State<SignUpScreen> {
   final Dio _dio = Dio();
   bool isAgreed = false;
   String? selectedRole; // CHILD 또는 PARENT
-
+  void _updateState() => setState(() {});
+  bool get _isFormValid {
+    return emailController.text.trim().isNotEmpty &&
+        passwordController.text.trim().isNotEmpty &&
+        confirmPasswordController.text.trim().isNotEmpty &&
+        selectedRole != null &&
+        isAgreed;
+  }
+  @override
+  void initState() {
+    super.initState();
+    emailController.addListener(_updateState);
+    passwordController.addListener(_updateState);
+    confirmPasswordController.addListener(_updateState);
+  }
   void _onSignup() async {
     final name = emailController.text.trim();
     final password = passwordController.text.trim();
@@ -70,6 +84,9 @@ class _SignupScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
+    emailController.removeListener(_updateState);
+    passwordController.removeListener(_updateState);
+    confirmPasswordController.removeListener(_updateState);
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -140,7 +157,7 @@ class _SignupScreenState extends State<SignUpScreen> {
             const SizedBox(height: 16),
             _buildInputField(passwordController, '비밀번호 입력', obscureText: true),
             const SizedBox(height: 4),
-            const Padding(padding: EdgeInsets.only(left: 4.0), child: Align(alignment: Alignment.centerLeft, child: Text('숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요.', style: TextStyle(fontSize: 12, color: Colors.red,),),),),
+            // const Padding(padding: EdgeInsets.only(left: 4.0), child: Align(alignment: Alignment.centerLeft, child: Text('숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요.', style: TextStyle(fontSize: 12, color: Colors.red,),),),),
             const SizedBox(height: 16),
             _buildInputField(confirmPasswordController, '비밀번호 확인', obscureText: true),
             const SizedBox(height: 16),
@@ -199,14 +216,14 @@ class _SignupScreenState extends State<SignUpScreen> {
 
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: isAgreed ? _onSignup : null,
+              onPressed: _isFormValid ? _onSignup : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('회원가입', style: TextStyle(fontSize: 16, color: Colors.white)),
-            ),
+            )
           ],
         ),
       ),
