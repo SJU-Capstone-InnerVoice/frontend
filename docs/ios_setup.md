@@ -65,3 +65,12 @@ flutter_launcher_icons:
 ios/Runner/Info.plist
 <key>ITSAppUsesNonExemptEncryption</key><false/>
 ```
+
+9. http 요청시 ATS로 인해 리소스가 잘 안불러와지는 것을 방지
+```html
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <true/>
+</dict>
+```

@@ -86,8 +86,8 @@ class _CallEndScreenState extends State<CallEndScreen> {
       print("⚠️ record가 null입니다.");
     }
 
-    await Future.delayed(const Duration(seconds: 3));
-    print("⏱️ 3초 대기 후 상태 업데이트 시도");
+    await Future.delayed(const Duration(seconds: 1));
+    print("⏱️ 1초 대기 후 상태 업데이트 시도");
 
     setState(() {
       _mergedFilePath = mergedPath;

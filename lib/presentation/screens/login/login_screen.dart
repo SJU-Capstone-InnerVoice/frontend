@@ -32,8 +32,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
     /// provider 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _dio = context.read<DioProvider>().dio;
-      _user = context.read<UserProvider>().user;
+      _dio = context
+          .read<DioProvider>()
+          .dio;
+      _user = context
+          .read<UserProvider>()
+          .user;
     });
   }
 
@@ -55,7 +59,9 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      final dio = context.read<DioProvider>().dio;
+      final dio = context
+          .read<DioProvider>()
+          .dio;
       final userProvider = context.read<UserProvider>();
 
       await userProvider.handleLogin(dio, name, password);
@@ -68,14 +74,14 @@ class _LoginScreenState extends State<LoginScreen> {
       userProvider.user?.role == UserRole.parent
           ? context.go('/parent/call')
           : context.go('/child/call');
-
     } catch (e) {
       showDialog(
         context: context,
-        builder: (context) => ErrorDialog(
-          title: "로그인 실패",
-          message: "아이디와 비밀번호를 다시 확인해주세요",
-        ),
+        builder: (context) =>
+            ErrorDialog(
+              title: "로그인 실패",
+              message: "아이디와 비밀번호를 다시 확인해주세요",
+            ),
       );
     } finally {
       setState(() {
@@ -94,80 +100,101 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("로그인")),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 180,
-              height: 180,
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/icons/logo.png',
-                  fit: BoxFit.cover,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 60),
+                        Container(
+                          width: 180,
+                          height: 180,
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/icons/logo.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Transform.translate(
+                          offset: const Offset(0, -12),
+                          child: Image.asset(
+                            'assets/icons/pont2.png',
+                            width: 150,
+                            height: 50,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        TextField(
+                          controller: _idController,
+                          decoration:
+                          const InputDecoration(labelText: '아이디'),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _pwController,
+                          decoration:
+                          const InputDecoration(labelText: '비밀번호'),
+                          obscureText: true,
+                        ),
+                        const SizedBox(height: 5),
+                        if (errorMessage != null)
+                          Text(errorMessage!,
+                              style: const TextStyle(color: Colors.red)),
+                        const SizedBox(height: 5),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : _handleLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: isLoading
+                                ? const CircularProgressIndicator(
+                                color: Colors.white)
+                                : const Text("로그인",
+                                style: TextStyle(fontSize: 16)),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              context.go('/login/sign-up');
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              side: const BorderSide(color: Colors.black),
+                            ),
+                            child: const Text("회원가입",
+                                style:
+                                TextStyle(fontSize: 16, color: Colors.black)),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-            Transform.translate(
-              offset: const Offset(0, -12), // 위로 12픽셀 올림
-              child: Image.asset(
-                'assets/icons/pont2.png',
-                width: 150,
-                height: 50,
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(height: 40),
-            TextField(
-              controller: _idController,
-              decoration: const InputDecoration(labelText: '아이디'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _pwController,
-              decoration: const InputDecoration(labelText: '비밀번호'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 5),
-            if (errorMessage != null)
-              Text(errorMessage!, style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: 5),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: isLoading ? null : _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("로그인", style: TextStyle(fontSize: 16)),
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () {
-                  context.go('/login/sign-up');
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  side: const BorderSide(color: Colors.black),
-                ),
-                child: const Text("회원가입",
-                    style: TextStyle(fontSize: 16, color: Colors.black)),
-              ),
-            ),
-
-          ],
+            );
+          },
         ),
       ),
     );

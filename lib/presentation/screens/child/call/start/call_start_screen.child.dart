@@ -50,8 +50,6 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
   late final CharacterImgProvider _characterImgProvider;
   late final Future<void> _initFuture;
 
-  late final _characters;
-  late final _imageUrl;
   String? _lastSpoken;
 
   late final AnimationController _lottieController;
@@ -69,11 +67,17 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
     ));
     await session.setActive(true);
   }
-
+  Future<void> _handleMessage(String message, String characterId, CallSessionProvider session) async {
+    if (_lastSpoken != message) {
+      _lastSpoken = message;
+      await _speak(context, _lastSpoken!, characterId);
+      session.clearMessages();
+    }
+  }
   @override
   void initState() {
     super.initState();
-
+    _callSession = context.read<CallSessionProvider>();
     _lottieController = AnimationController(vsync: this);
     _pulseController = AnimationController(
       vsync: this,
@@ -92,11 +96,6 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
     _initFuture = _initializeAll();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _callSession = context.watch<CallSessionProvider>();
-  }
 
   @override
   void dispose() {
@@ -116,30 +115,26 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
     final player = AudioPlayer(handleAudioSessionActivation: false);
 
     try {
+
+      final formData = FormData.fromMap({
+        'user_id': 'colab_user',
+        'weight_name': 'dora_11',
+        'text': text,
+        'language':'KR',
+        'speaker_id':'KR',
+      });
+
       final response = await dio.post(
         TtsAPI.requestTTS,
-        data: {'text': text, 'characterId': characterId},
-        options: Options(responseType: ResponseType.bytes),
+        data: formData,
+        options: Options(
+          responseType: ResponseType.bytes,
+          contentType: 'multipart/form-data',
+          sendTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+          // connectTimeout은 Dio instance에서 설정
+        ),
       );
-
-      /// real TTS Server
-      // final formData = FormData.fromMap({
-      //   'user_id': 'colab_user',
-      //   'weight_name': 'new_dora',
-      //   'text': text,
-      // });
-      //
-      // final response = await dio.post(
-      //   "https://7b3c-211-180-114-56.ngrok-free.app/synthesize",
-      //   data: formData,
-      //   options: Options(
-      //     responseType: ResponseType.bytes,
-      //     contentType: 'multipart/form-data',
-      //     sendTimeout: const Duration(seconds: 10),
-      //     receiveTimeout: const Duration(seconds: 10),
-      //     // connectTimeout은 Dio instance에서 설정
-      //   ),
-      // );
 
       final audioBytes = response.data;
       final filePath = await _saveTtsAudioFile(audioBytes);
@@ -206,9 +201,12 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
         final characterId = _callRequest.characterId.toString();
         final characters = _characterImgProvider.getCharacters(parentId);
         final characterImage = characters.firstWhere(
-          (c) => c.id == characterId,
-          orElse: () =>
-              CharacterImage(id: '', name: '', imageUrl: '', type: ''),
+              (c) {
+            print('🧩 characterId 타입: ${characterId.runtimeType}');
+            print('🧩 c.id 타입: ${c.id.runtimeType}');
+            return c.id == characterId;
+          },
+          orElse: () => CharacterImage(id: '', name: '', imageUrl: '', type: ''),
         );
 
         final imageUrl = characterImage.imageUrl;
@@ -224,9 +222,8 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
                     if (messages.isNotEmpty) {
                       final latest = messages.last;
 
-                      _lastSpoken = latest;
-                      Future.microtask(() {
-                        _speak(context, _lastSpoken!, characterId);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _handleMessage(latest, characterId, session);
                       });
                     }
                     return const SizedBox.shrink();
@@ -236,6 +233,7 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
                   children: [
                     const Spacer(),
                     Center(
+
                       child: Container(
                         width: 330,
                         height: 330,

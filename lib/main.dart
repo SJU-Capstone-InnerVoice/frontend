@@ -41,6 +41,7 @@ class NoInternetApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: IVTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
           child: Padding(
@@ -74,6 +75,7 @@ class InnerVoiceApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       theme: IVTheme.lightTheme,
       title: 'Inner Voice',
       routerConfig: IVRouter,

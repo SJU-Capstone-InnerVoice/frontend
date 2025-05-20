@@ -76,6 +76,7 @@ class CharacterImgProvider extends ChangeNotifier {
     } catch (e) {
       print('❌ 이미지 로딩 실패: $e');
     }
+    notifyListeners();
   }
   /// 아이의 call start 화면에 띄우기 위한 메소드
   Future<CharacterImage?> loadImageByCharacterId({

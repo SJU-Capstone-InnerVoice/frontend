@@ -43,6 +43,7 @@ class CallSessionProvider with ChangeNotifier {
 
   void clearMessages() {
     _messages.clear();
+    print(_messages);
     notifyListeners();
   }
 }

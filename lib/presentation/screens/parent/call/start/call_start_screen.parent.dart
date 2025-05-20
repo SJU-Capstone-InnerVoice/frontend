@@ -13,18 +13,13 @@ class CallStartScreen extends StatefulWidget {
 }
 
 class _CallStartScreenState extends State<CallStartScreen> {
-  final String todayDate = DateFormat('yyyy년 M월 d일 EEEE', 'ko_KR').format(DateTime.now());
+  final String todayDate =
+      DateFormat('yyyy년 M월 d일 EEEE', 'ko_KR').format(DateTime.now());
   final TextEditingController _controller = TextEditingController();
   late final CallSessionProvider _callSession;
+  final ScrollController _scrollController = ScrollController();
+  final List<Map<String, String>> _messages = [];
 
-  final List<Map<String, String>> _messages = [
-    {'time': '11:50', 'type': 'user', 'text': '오늘 하루 어땠어?'},
-    {
-      'time': '11:51',
-      'type': 'user',
-      'text': '네가 소중한 사람이라서 이렇게 이야기 하고 싶어. 같이 해결해보자.'
-    },
-  ];
 
   @override
   void initState() {
@@ -51,14 +46,25 @@ class _CallStartScreenState extends State<CallStartScreen> {
       });
 
       _controller.clear();
+
+      // 🔽 스크롤을 마지막 메시지로 이동
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
     }
   }
-
   @override
   void dispose() {
     print("CallStartScreen dispose 실행됨");
     _controller.dispose();
     _callSession.disposeCall();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -76,8 +82,6 @@ class _CallStartScreenState extends State<CallStartScreen> {
                 valueListenable: _callSession.remoteStreamNotifier,
                 builder: (context, stream, _) {
                   final rtc = _callSession.rtcService;
-                  print("📡 remoteStream: $stream");
-                  print("📡 remoteRenderer.srcObject: ${rtc.remoteRenderer.srcObject}");
 
                   if (!rtc.initialized) {
                     return const Center(child: Text('영상 초기화 중입니다...'));
@@ -92,7 +96,8 @@ class _CallStartScreenState extends State<CallStartScreen> {
                         color: Colors.black12,
                         child: RTCVideoView(
                           rtc.remoteRenderer,
-                          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                         ),
                       ),
                     ),
@@ -130,16 +135,17 @@ class _CallStartScreenState extends State<CallStartScreen> {
             // 💬 채팅 메시지 리스트 (스크롤 되는 부분)
             Expanded(
               child: ListView(
+                controller: _scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
                   const SizedBox(height: 8),
-                   Center(
+                  Center(
                     child: Text(
                       '$todayDate\n아이가 입장하였습니다',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 12,
-                      ),
+                            fontSize: 12,
+                          ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -192,7 +198,8 @@ class _CallStartScreenState extends State<CallStartScreen> {
                             borderRadius: BorderRadius.circular(30),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 16),
                         ),
                       ),
                     ),
@@ -203,7 +210,8 @@ class _CallStartScreenState extends State<CallStartScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
                         minimumSize: const Size(70, 48),
                       ),
                       onPressed: _onSendPressed,

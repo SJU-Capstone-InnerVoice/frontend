@@ -10,7 +10,7 @@ class SummaryService {
   final Dio _dio = Dio();
 
   Future<Map<String, String>?> uploadAudioAndGetSummary(String filePath) async {
-    final serverUrl = SummaryApi.requestsummary;
+    final serverUrl = "https://7872-211-180-114-56.ngrok-free.app/summarize";
 
     try {
       final fileName = p.basename(filePath);
@@ -29,7 +29,7 @@ class SummaryService {
       final response = await _dio.post(
         serverUrl,
         data: formData,
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 100));
 
       if (response.statusCode == 200) {
         final data = response.data;

@@ -216,17 +216,17 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
 
                             print("이미지 업로드");
                             try {
-                              // await context
-                              //     .read<CharacterImgProvider>()
-                              //     .uploadImage(
-                              //       userId: user.userId,
-                              //       name: _nameController.text.trim(),
-                              //       type: "USER",
-                              //       file: _image!,
-                              //     );
-                              // await context
-                              //     .read<CharacterImgProvider>()
-                              //     .loadImagesFromServer(user.userId);
+                              await context
+                                  .read<CharacterImgProvider>()
+                                  .uploadImage(
+                                    userId: user.userId,
+                                    name: _nameController.text.trim(),
+                                    type: "USER",
+                                    file: _image!,
+                                  );
+                              await context
+                                  .read<CharacterImgProvider>()
+                                  .loadImagesFromServer(user.userId);
                               if (context.mounted) {
                                 context.push(
                                   '/parent/character/create/result',

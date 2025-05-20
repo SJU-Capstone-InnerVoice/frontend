@@ -7,5 +7,4 @@ class SummaryApi {
 
   static String querySummary = '$baseUrl/dummy-data';
   static String requestsummary = '$baseUrl2/transcribe_and_respond';
-
 }

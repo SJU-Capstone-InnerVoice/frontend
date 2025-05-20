@@ -30,5 +30,5 @@ final List<SingleChildWidget> providers = [
       previous?.dio = dioProvider.dio;
       return previous!;
     },
-  ),];
-
+  ),
+];

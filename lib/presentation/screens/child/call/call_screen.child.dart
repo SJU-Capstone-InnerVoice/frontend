@@ -29,7 +29,9 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
     super.initState();
     _callRequest = context.read<CallRequestProvider>();
     _callSession = context.read<CallSessionProvider>();
-    _callSession.clearMessages();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CallSessionProvider>().clearMessages();
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _user = context.read<UserProvider>().user!;
       _rtc = _callSession.rtcService;
@@ -64,9 +66,6 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
       },
     );
 
-
-
-
     if (!mounted) return;
     setState(() {
       hasCallRequest = false;
@@ -81,8 +80,6 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
     hasCallRequest = false;
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -123,10 +120,9 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                     ),
                   ),
                   Consumer<CallRequestProvider>(
-                  builder: (context, callRequest, _) {
-                    final callExists =
-                        (callRequest.id != null && !callRequest.isAccepted);
-
+                    builder: (context, callRequest, _) {
+                      final callExists =
+                          (callRequest.id != null && !callRequest.isAccepted);
 
                       if (callExists)
                         return Stack(
