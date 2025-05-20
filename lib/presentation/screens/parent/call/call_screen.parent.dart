@@ -1,6 +1,8 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inner_voice/logic/providers/user/user_provider.dart';
+import 'package:inner_voice/presentation/widgets/show_flushbar.dart';
 import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -11,7 +13,6 @@ import '../../../../logic/providers/character/character_img_provider.dart';
 import '../../../../logic/providers/communication/call_request_provider.dart';
 import '../../../../data/models/user/user_model.dart';
 import '../../../../data/models/friend/friend_model.dart';
-
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -53,7 +54,6 @@ class _CallScreenState extends State<CallScreen> {
       selectedCharacter = name;
     });
   }
-
 
   Future<void> createCallRequest(int characterId, int childId) async {
     if (!mounted) return;
@@ -133,107 +133,171 @@ class _CallScreenState extends State<CallScreen> {
                       PointerDeviceKind.mouse,
                     },
                   ),
-                  child: GridView.builder(
-                    controller: _gridScroll,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
-                      childAspectRatio: 1.0,
-                    ),
-                    itemCount: characters.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index < characters.length) {
-                        final character = characters[index];
-                        final isSelected = selectedCharacter == character.id;
-                        return GestureDetector(
-                          onTap: () => selectCharacter(character.id),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 5.0),
-                            child: Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 7.5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? Colors.orange
-                                      : Colors.transparent,
-                                  width: 1,
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      final provider = context.read<CharacterImgProvider>();
+                      final characters = provider.getCharacters(userId);
+
+                      try {
+                        // 1. 캐시 삭제
+                        for (final character in characters) {
+                          await CachedNetworkImage.evictFromCache(
+                              character.imageUrl);
+                        }
+
+                        // 2. 다시 로드 가능하게 설정
+                        provider.resetLoadState();
+
+                        // 3. 서버에서 새로 불러오기
+                        await provider.loadImagesFromServer(userId);
+
+                        // 4. ✅ 하단에 알림 띄우기
+                        if (mounted) {
+                          showIVFlushbar(
+                            context,
+                            '캐릭터 목록을 새로 불러왔습니다.',
+                            position: FlushbarPosition.BOTTOM,
+                            icon:
+                                const Icon(Icons.refresh, color: Colors.white),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          debugPrint('❌ 캐릭터 이미지 새로고침 실패: $e');
+                          showIVFlushbar(
+                            context,
+                            '새로고침 실패 😢 다시 시도해주세요.',
+                            position: FlushbarPosition.BOTTOM,
+                            icon: const Icon(Icons.error, color: Colors.white),
+                          );
+                        }
+                      }
+                    },
+                    child: characters.isEmpty
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(32.0),
+                              child: Text(
+                                '아직 캐릭터가 없어요.\n아래 + 버튼을 눌러 만들어보세요!',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
-                                borderRadius: BorderRadius.circular(5),
                               ),
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    flex: 5,
-                                    child: ClipRRect(
-                                      borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(5),
-                                        topRight: Radius.circular(5),
-                                        bottomLeft: Radius.circular(0),
-                                        bottomRight: Radius.circular(0),
+                            ),
+                          )
+                        : GridView.builder(
+                            controller: _gridScroll,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                              childAspectRatio: 1.0,
+                            ),
+                            itemCount: characters.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index < characters.length) {
+                                final character = characters[index];
+                                final isSelected =
+                                    selectedCharacter == character.id;
+                                return GestureDetector(
+                                  onTap: () => selectCharacter(character.id),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 5.0),
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 7.5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? Colors.orange
+                                              : Colors.transparent,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(5),
                                       ),
-                                      child: Stack(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          SizedBox(
-                                            width: double.infinity,
-                                            height: 100,
-                                            child: CachedNetworkImage(
-                                              imageUrl: character.imageUrl,
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) =>
-                                                  Shimmer.fromColors(
-                                                baseColor: Colors.grey[300]!,
-                                                highlightColor:
-                                                    Colors.grey[100]!,
-                                                child: Container(
-                                                    color: Colors.white),
+                                          Flexible(
+                                            flex: 5,
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                topLeft: Radius.circular(5),
+                                                topRight: Radius.circular(5),
+                                                bottomLeft: Radius.circular(0),
+                                                bottomRight: Radius.circular(0),
                                               ),
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      const Icon(Icons.error),
+                                              child: Stack(
+                                                children: [
+                                                  SizedBox(
+                                                    width: double.infinity,
+                                                    height: 100,
+                                                    child: CachedNetworkImage(
+                                                      imageUrl:
+                                                          character.imageUrl,
+                                                      fit: BoxFit.cover,
+                                                      placeholder: (context,
+                                                              url) =>
+                                                          Shimmer.fromColors(
+                                                        baseColor:
+                                                            Colors.grey[300]!,
+                                                        highlightColor:
+                                                            Colors.grey[100]!,
+                                                        child: Container(
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                      errorWidget: (context,
+                                                              url, error) =>
+                                                          const Icon(
+                                                              Icons.error),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 5.0, bottom: 5.0),
+                                              child: Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: FittedBox(
+                                                  fit: BoxFit.scaleDown,
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    character.name,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyMedium
+                                                        ?.copyWith(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
                                   ),
-                                  Flexible(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 5.0, bottom: 5.0),
-                                      child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            character.name,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.copyWith(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                                );
+                              }
+                            },
                           ),
-                        );
-                      }
-                    },
                   ),
                 ),
               ),

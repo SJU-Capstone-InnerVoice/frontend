@@ -19,7 +19,9 @@ class CharacterImgProvider extends ChangeNotifier {
     _isDisposed = true;
     super.dispose();
   }
-
+  void resetLoadState() {
+    _hasLoaded = false;
+  }
   Future<void> uploadImage({
     required dynamic userId,
     required String name,

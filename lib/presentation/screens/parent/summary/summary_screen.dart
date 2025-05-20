@@ -1,5 +1,7 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:inner_voice/logic/providers/user/user_provider.dart';
+import 'package:inner_voice/presentation/widgets/show_flushbar.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/models/summary/summary_model.dart';
@@ -209,74 +211,120 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 child: Column(
                   children: [
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: filteredSummaries.length,
-                        itemBuilder: (context, index) {
-                          final summary = filteredSummaries[filteredSummaries.length - 1 - index];
-                          final start = summary.startAt;
-                          final duration =
-                              Duration(milliseconds: summary.duration);
-                          final end = start.add(duration);
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Text(
-                                      summary.title ?? '',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                      child: RefreshIndicator(
+                        onRefresh: () async {
+                          final provider = context.read<SummaryProvider>();
+                          try {
+                            await provider.fetchSummaries(int.parse(userId));
+                            if (mounted) {
+                              showIVFlushbar(
+                                context,
+                                '요약 목록을 새로 불러왔습니다.',
+                                position: FlushbarPosition.BOTTOM,
+                                icon: const Icon(Icons.refresh,
+                                    color: Colors.white),
+                              );
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              showIVFlushbar(
+                                context,
+                                '새로 고침 실패 😢',
+                                position: FlushbarPosition.BOTTOM,
+                                icon: const Icon(Icons.error,
+                                    color: Colors.white),
+                              );
+                            }
+                          }
+                        },
+                        child: filteredSummaries.isEmpty
+                            ? const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(32.0),
+                                  child: Text(
+                                    '이 날에는 요약이 없어요.\n다른 날짜를 눌러볼까요?',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 40.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Text(
-                                            '${start.year}년 ${start.month}월 ${start.day}일\n'
-                                            '${start.hour}:${start.minute.toString().padLeft(2, '0')} ~ '
-                                            '${end.hour}:${end.minute.toString().padLeft(2, '0')} '
-                                            '(${duration.inMinutes}분 ${duration.inSeconds % 60}초)',
-                                            textAlign: TextAlign.end,
-                                            style: const TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : ListView.builder(
+                                itemCount: filteredSummaries.length,
+                                itemBuilder: (context, index) {
+                                  final summary = filteredSummaries[
+                                      filteredSummaries.length - 1 - index];
+                                  final start = summary.startAt;
+                                  final duration =
+                                      Duration(milliseconds: summary.duration);
+                                  final end = start.add(duration);
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Text(
+                                              summary.title ?? '',
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 40, vertical: 20),
-                                    child: Text(
-                                      summary.content ?? '',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 40.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerRight,
+                                                  child: Text(
+                                                    '${start.year}년 ${start.month}월 ${start.day}일\n'
+                                                    '${start.hour}:${start.minute.toString().padLeft(2, '0')} ~ '
+                                                    '${end.hour}:${end.minute.toString().padLeft(2, '0')} '
+                                                    '(${duration.inMinutes}분 ${duration.inSeconds % 60}초)',
+                                                    textAlign: TextAlign.end,
+                                                    style: const TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 40, vertical: 20),
+                                            child: Text(
+                                              summary.content ?? '',
+                                              style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  );
+                                },
                               ),
-                            ),
-                          );
-                        },
                       ),
                     ),
                   ],
@@ -368,11 +416,33 @@ class _SummaryScreenState extends State<SummaryScreen> {
                         ListTile(
                           leading: const Icon(Icons.refresh),
                           title: const Text('새로 고침'),
-                          onTap: () {
-                            context
-                                .read<SummaryProvider>()
-                                .fetchSummaries(int.parse(userId));
-                            Navigator.pop(context);
+                          onTap: () async {
+                            final provider = context.read<SummaryProvider>();
+                            try {
+                              await provider.fetchSummaries(int.parse(userId));
+
+                              if (mounted) {
+                                Navigator.pop(context);
+                                showIVFlushbar(
+                                  context,
+                                  '요약 목록을 새로 불러왔습니다.',
+                                  position: FlushbarPosition.BOTTOM,
+                                  icon: const Icon(Icons.refresh,
+                                      color: Colors.white),
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                Navigator.pop(context);
+                                showIVFlushbar(
+                                  context,
+                                  '새로 고침 실패 😢',
+                                  position: FlushbarPosition.BOTTOM,
+                                  icon: const Icon(Icons.error,
+                                      color: Colors.white),
+                                );
+                              }
+                            }
                           },
                         ),
                         ListTile(

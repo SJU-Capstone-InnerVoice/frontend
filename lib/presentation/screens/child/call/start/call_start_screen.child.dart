@@ -36,14 +36,15 @@ class ByteStreamSource extends StreamAudioSource {
   }
 }
 
-class CallStartScreen extends StatefulWidget  {
+class CallStartScreen extends StatefulWidget {
   const CallStartScreen({super.key});
 
   @override
   State<CallStartScreen> createState() => _CallStartScreenState();
 }
 
-class _CallStartScreenState extends State<CallStartScreen> with TickerProviderStateMixin{
+class _CallStartScreenState extends State<CallStartScreen>
+    with TickerProviderStateMixin {
   late final CallSessionProvider _callSession;
   late final CallRecordProvider _recordProvider;
   late final CallRequestProvider _callRequest;
@@ -56,7 +57,6 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
   late final AnimationController _pulseController;
   late final Animation<double> _pulseAnimation;
 
-
   Future<void> _configureAudioSession() async {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration(
@@ -67,13 +67,16 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
     ));
     await session.setActive(true);
   }
-  Future<void> _handleMessage(String message, String characterId, CallSessionProvider session) async {
+
+  Future<void> _handleMessage(
+      String message, String characterId, CallSessionProvider session) async {
     if (_lastSpoken != message) {
       _lastSpoken = message;
       await _speak(context, _lastSpoken!, characterId);
       session.clearMessages();
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -96,7 +99,6 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
     _initFuture = _initializeAll();
   }
 
-
   @override
   void dispose() {
     print("📴 CallStartScreen dispose 실행됨");
@@ -113,9 +115,7 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
     final dio = context.read<DioProvider>().dio;
     final parentId = _callRequest.parentId.toString();
     final player = AudioPlayer(handleAudioSessionActivation: false);
-
     try {
-
       final formData = FormData.fromMap({
         'user_id': parentId,
         'weight_name': characterId,
@@ -157,7 +157,6 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
       await player.play();
       _lottieController.stop();
 
-
       _recordProvider.addTtsSegment(
         TtsSegmentModel(
           text: text,
@@ -174,6 +173,7 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
   Future<void> _initializeAll() async {
     final parentId = _callRequest.parentId.toString();
     await _characterImgProvider.loadImagesFromServer(parentId);
+
     await _recordProvider.startRecording();
     await _configureAudioSession();
     print('🎙️ 녹음 시작됨');
@@ -206,12 +206,14 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
         final characterId = _callRequest.characterId.toString();
         final characters = _characterImgProvider.getCharacters(parentId);
         final characterImage = characters.firstWhere(
-              (c) {
+          (c) {
+            print("📦 불러온 캐릭터 수: ${characters.length}");
             print('🧩 characterId 타입: ${characterId.runtimeType}');
             print('🧩 c.id 타입: ${c.id.runtimeType}');
             return c.id == characterId;
           },
-          orElse: () => CharacterImage(id: '', name: '', imageUrl: '', type: ''),
+          orElse: () =>
+              CharacterImage(id: '', name: '', imageUrl: '', type: ''),
         );
 
         final imageUrl = characterImage.imageUrl;
@@ -238,7 +240,6 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
                   children: [
                     const Spacer(),
                     Center(
-
                       child: Container(
                         width: 330,
                         height: 330,

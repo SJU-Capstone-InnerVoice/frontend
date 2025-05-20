@@ -124,143 +124,147 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 75),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SectionTitle("캐릭터 사진"),
-                // 사진 선택 박스
-                ImagePickerBox(
-                  hasImage: _image != null,
-                  imageFile: _image,
-                  onTap: _pickImage,
-                ),
-                const SizedBox(height: 24),
-                const SectionTitle("캐릭터 이름"),
-                // 이름 입력 필드
-                TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    hintText: '6자 이내로 입력해주세요.',
-                    border: OutlineInputBorder(),
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 75),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SectionTitle("캐릭터 사진"),
+                  // 사진 선택 박스
+                  ImagePickerBox(
+                    hasImage: _image != null,
+                    imageFile: _image,
+                    onTap: _pickImage,
                   ),
-                  onTap: () {
-                    Future.delayed(const Duration(milliseconds: 300), () {
-                      if (_scrollController.hasClients) {
-                        _scrollController.animateTo(
-                          _scrollController.position.maxScrollExtent,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOut,
-                        );
-                      }
-                    });
-                  },
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                ),
-                const SizedBox(height: 8),
-                const SectionTitle("음성 등록"),
+                  const SizedBox(height: 24),
+                  const SectionTitle("캐릭터 이름"),
+                  // 이름 입력 필드
+                  TextField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      hintText: '6자 이내로 입력해주세요.',
+                      border: OutlineInputBorder(),
+                    ),
+                    onTap: () {
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        if (_scrollController.hasClients) {
+                          _scrollController.animateTo(
+                            _scrollController.position.maxScrollExtent,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          );
+                        }
+                      });
+                    },
+                    onChanged: (value) {
+                      setState(() {});
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  const SectionTitle("음성 등록"),
 
-                const Text(
-                  '합쳐서 최소 ${goalSeconds}초 이상으로 음성을 녹음해주세요!',
-                  style: TextStyle(fontSize: 14),
-                  textAlign: TextAlign.start,
-                ),
-                const Text(
-                  '하단의 마이크, 업로드 버튼을 통해 음성을 등록할 수 있습니다!',
-                  style: TextStyle(fontSize: 14),
-                  textAlign: TextAlign.start,
-                ),
-                SizedBox(height: 20),
+                  const Text(
+                    '합쳐서 최소 ${goalSeconds}초 이상으로 음성을 녹음해주세요!',
+                    style: TextStyle(fontSize: 14),
+                    textAlign: TextAlign.start,
+                  ),
+                  const Text(
+                    '하단의 마이크, 업로드 버튼을 통해 음성을 등록할 수 있습니다!',
+                    style: TextStyle(fontSize: 14),
+                    textAlign: TextAlign.start,
+                  ),
+                  SizedBox(height: 20),
 
-                /// 오디오 음성 길이 및 개수
-                AudioProgressWidget(
-                  audioCount: _audioFiles.length,
-                  totalSeconds: totalSeconds,
-                  goalSeconds: goalSeconds,
-                  progress: progress,
-                ),
-                const SizedBox(height: 24),
+                  /// 오디오 음성 길이 및 개수
+                  AudioProgressWidget(
+                    audioCount: _audioFiles.length,
+                    totalSeconds: totalSeconds,
+                    goalSeconds: goalSeconds,
+                    progress: progress,
+                  ),
+                  const SizedBox(height: 24),
 
-                /// 오디오 리스트
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _audioFiles.length,
-                  itemBuilder: (context, index) {
-                    return AudioItemWidget(
-                      file: _audioFiles[index],
-                      player: _players[index],
-                      duration: _durations[index],
-                    );
-                  },
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: (!_isUploading &&
-                            isReadyToSynthesize &&
-                                hasImage &&
-                                hasVoice &&
-                                hasName)
-                        ? () async {
-                            setState(() {
-                              _isUploading = true;
-                            });
+                  /// 오디오 리스트
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _audioFiles.length,
+                    itemBuilder: (context, index) {
+                      return AudioItemWidget(
+                        file: _audioFiles[index],
+                        player: _players[index],
+                        duration: _durations[index],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: (!_isUploading &&
+                              isReadyToSynthesize &&
+                              hasImage &&
+                              hasVoice &&
+                              hasName)
+                          ? () async {
+                              setState(() {
+                                _isUploading = true;
+                              });
 
-                            print("이미지 업로드");
-                            try {
-                              await context
-                                  .read<CharacterImgProvider>()
-                                  .uploadImage(
-                                    userId: user.userId,
-                                    name: _nameController.text.trim(),
-                                    type: "USER",
-                                    file: _image!,
+                              print("이미지 업로드");
+                              try {
+                                await context
+                                    .read<CharacterImgProvider>()
+                                    .uploadImage(
+                                      userId: user.userId,
+                                      name: _nameController.text.trim(),
+                                      type: "USER",
+                                      file: _image!,
+                                    );
+                                await context
+                                    .read<CharacterImgProvider>()
+                                    .loadImagesFromServer(user.userId);
+                                if (context.mounted) {
+                                  context.push(
+                                    '/parent/character/create/result',
+                                    extra:
+                                        _audioFiles.map((f) => f.path).toList(),
                                   );
-                              await context
-                                  .read<CharacterImgProvider>()
-                                  .loadImagesFromServer(user.userId);
-                              if (context.mounted) {
-                                context.push(
-                                  '/parent/character/create/result',
-                                  extra:
-                                      _audioFiles.map((f) => f.path).toList(),
-                                );
-                              }
-                            } finally {
-                              if (mounted) {
-                                setState(() {
-                                  _isUploading = false;
-                                });
+                                }
+                              } finally {
+                                if (mounted) {
+                                  setState(() {
+                                    _isUploading = false;
+                                  });
+                                }
                               }
                             }
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isReadyToSynthesize
-                          ? Colors.orange
-                          : Colors.grey[300],
-                      foregroundColor:
-                          isReadyToSynthesize ? Colors.white : Colors.grey[600],
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isReadyToSynthesize
+                            ? Colors.orange
+                            : Colors.grey[300],
+                        foregroundColor: isReadyToSynthesize
+                            ? Colors.white
+                            : Colors.grey[600],
+                      ),
+                      child: _isUploading
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Text('캐릭터 생성'),
                     ),
-                    child: _isUploading
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
-                          )
-                        : const Text('캐릭터 생성'),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
