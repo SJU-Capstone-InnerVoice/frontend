@@ -8,10 +8,17 @@ class CharacterImgProvider extends ChangeNotifier {
   final Dio _dio;
   bool _hasLoaded = false;
   final Map<String, List<CharacterImage>> _userCharacters = {};
+  bool _isDisposed = false;
 
   CharacterImgProvider(this._dio);
+  bool get isDisposed => _isDisposed;
 
   List<CharacterImage> getCharacters(String userId) => _userCharacters[userId] ?? [];
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
 
   Future<void> uploadImage({
     required dynamic userId,
@@ -56,10 +63,11 @@ class CharacterImgProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final List<CharacterImage> characterList =
-        (response.data as List).map((item) => CharacterImage.fromJson(item)).toList();
+        (response.data as List)
+            .map((item) => CharacterImage.fromJson(item))
+            .toList();
 
         _userCharacters[userId] = characterList;
-
 
         for (final character in characterList) {
           print('🖼 characterId: ${character.id}');
@@ -67,17 +75,16 @@ class CharacterImgProvider extends ChangeNotifier {
           print(" name: ${character.name}");
         }
 
-
-
-        notifyListeners();
+        if (!_isDisposed) notifyListeners(); // ✅ 성공 시
       } else {
         throw Exception('서버 응답 오류: ${response.statusCode}');
       }
     } catch (e) {
       print('❌ 이미지 로딩 실패: $e');
+      if (!_isDisposed) notifyListeners(); // ✅ 실패 시
     }
-    notifyListeners();
   }
+
   /// 아이의 call start 화면에 띄우기 위한 메소드
   Future<CharacterImage?> loadImageByCharacterId({
     required String userId,

@@ -83,10 +83,6 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    final callRequest = context.watch<CallRequestProvider>();
-
-    debugPrint("🆔 build() 안 Provider 인스턴스: ${identityHashCode(callRequest)}");
-
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -123,7 +119,6 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                     builder: (context, callRequest, _) {
                       final callExists =
                           (callRequest.id != null && !callRequest.isAccepted);
-
                       if (callExists)
                         return Stack(
                           children: [

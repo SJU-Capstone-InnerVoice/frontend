@@ -81,6 +81,9 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
     final characterName =
         context.read<CharacterImgProvider>().getCharacters(userId).last.name;
     _charachterName = characterName;
+    final characterId =
+        context.read<CharacterImgProvider>().getCharacters(userId).last.id;
+
     final merged = await _mergeAudioFilesAndClean(
       fileNameWithoutExt: characterName,
       files: files,

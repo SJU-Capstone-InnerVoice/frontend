@@ -25,7 +25,6 @@ class _CallScreenState extends State<CallScreen> {
   late final CallRequestProvider _callRequest;
   late final WebRTCService _rtc;
   late final User _user;
-
   String? selectedCharacter;
 
   @override
@@ -103,13 +102,21 @@ class _CallScreenState extends State<CallScreen> {
 
     final activeChildName = activeChild?.friendName ?? '선택하러가기';
 
-    if (characters.isEmpty && mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (characters.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) return;
-        context.read<CharacterImgProvider>().loadImagesFromServer(userId);
+
+        final provider = context.read<CharacterImgProvider>();
+
+        try {
+          await provider.loadImagesFromServer(userId);
+        } catch (e) {
+          if (mounted) {
+            debugPrint('❌ 캐릭터 이미지 로딩 실패: $e');
+          }
+        }
       });
     }
-
     return Scaffold(
       body: SafeArea(
         child: Column(

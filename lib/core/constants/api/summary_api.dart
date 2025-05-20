@@ -2,9 +2,12 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SummaryApi {
-  static final String baseUrl = dotenv.env['SUMMARY_URL'] ?? '';
-  static final String baseUrl2 = dotenv.env['SUMMARY_URL2'] ?? '';
+  static final String baseUrl = dotenv.env['BACKEND_URL'] ?? '';
+  static final String aiUrl = dotenv.env['AI_URL'] ?? '';
 
-  static String querySummary = '$baseUrl/dummy-data';
-  static String requestsummary = '$baseUrl2/transcribe_and_respond';
+  static final String createSummaryUrl = '$aiUrl/summarize';
+  static final String uploadSummaryUrl = '$baseUrl/talks';
+  static final String getSummaryUrl = '$baseUrl/talks';
+
+
 }

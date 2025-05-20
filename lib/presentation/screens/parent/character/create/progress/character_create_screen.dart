@@ -52,7 +52,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
         .fold(Duration.zero, (prev, d) => prev + d!);
 
     final totalSeconds = totalDuration.inSeconds;
-    const goalSeconds = 1;
+    const goalSeconds = 20;
     final progress = totalSeconds / goalSeconds;
     final isReadyToSynthesize = totalSeconds >= goalSeconds;
 
@@ -166,7 +166,7 @@ class _VoiceSynthesisScreenState extends State<VoiceSynthesisScreen> {
                 const SectionTitle("음성 등록"),
 
                 const Text(
-                  '합쳐서 최소 40초 이상으로 음성을 녹음해주세요!',
+                  '합쳐서 최소 ${goalSeconds}초 이상으로 음성을 녹음해주세요!',
                   style: TextStyle(fontSize: 14),
                   textAlign: TextAlign.start,
                 ),

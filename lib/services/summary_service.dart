@@ -10,7 +10,8 @@ class SummaryService {
   final Dio _dio = Dio();
 
   Future<Map<String, String>?> uploadAudioAndGetSummary(String filePath) async {
-    final serverUrl = "https://7872-211-180-114-56.ngrok-free.app/summarize";
+    final serverUrl = SummaryApi.createSummaryUrl;
+
 
     try {
       final fileName = p.basename(filePath);
@@ -49,7 +50,7 @@ class SummaryService {
   }
 
   Future<void> uploadSummary(CounselingSummary summary, int parentId) async {
-    final serverUrl = "http://54.180.199.57:8080/talks";
+    final serverUrl = SummaryApi.uploadSummaryUrl;
 
     try {
       final data = {
@@ -80,7 +81,7 @@ class SummaryService {
   }
 
   Future<List<CounselingSummary>> getSummaries(int userId) async {
-    final serverUrl = "http://54.180.199.57:8080/talks?userId=$userId";
+    final serverUrl = "${SummaryApi.getSummaryUrl}?userId=$userId";
     try {
       final response = await _dio.get(serverUrl);
       if (response.statusCode == 200) {
