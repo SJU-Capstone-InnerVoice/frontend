@@ -111,18 +111,23 @@ class _CallStartScreenState extends State<CallStartScreen> with TickerProviderSt
   Future<void> _speak(
       BuildContext context, String text, String characterId) async {
     final dio = context.read<DioProvider>().dio;
-
+    final parentId = _callRequest.parentId.toString();
     final player = AudioPlayer(handleAudioSessionActivation: false);
 
     try {
 
       final formData = FormData.fromMap({
-        'user_id': 'colab_user',
-        'weight_name': 'dora_11',
+        'user_id': parentId,
+        'weight_name': characterId,
         'text': text,
-        'language':'KR',
-        'speaker_id':'KR',
+        'language': 'KR',
+        'speaker_id': 'KR',
       });
+
+      print('📤 TTS 요청 FormData:');
+      print('  user_id: $parentId');
+      print('  weight_name: $characterId');
+      print('  text: $text');
 
       final response = await dio.post(
         TtsAPI.requestTTS,

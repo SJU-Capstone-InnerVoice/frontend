@@ -5,13 +5,13 @@ import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
 import 'dart:ui';
 import '../../../../logic/providers/communication/call_session_provider.dart';
 import '../../../../logic/providers/character/character_img_provider.dart';
 import '../../../../logic/providers/communication/call_request_provider.dart';
 import '../../../../data/models/user/user_model.dart';
 import '../../../../data/models/friend/friend_model.dart';
+
 
 class CallScreen extends StatefulWidget {
   const CallScreen({super.key});
@@ -53,6 +53,7 @@ class _CallScreenState extends State<CallScreen> {
       selectedCharacter = name;
     });
   }
+
 
   Future<void> createCallRequest(int characterId, int childId) async {
     if (!mounted) return;

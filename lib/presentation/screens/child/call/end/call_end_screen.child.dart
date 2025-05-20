@@ -146,68 +146,71 @@ class _CallEndScreenState extends State<CallEndScreen> {
   }
 
   Widget _buildResultContent(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Text(
-                  _duration == null
-                      ? "0분 0초"
-                      : "${_duration!.inMinutes}분 ${(_duration!.inSeconds % 60).toString().padLeft(2, '0')}초",
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: Colors.grey,
-                        fontSize: 60,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "동안 대화해줘서 고마워!",
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                const SizedBox(height: 24),
-                Lottie.asset(
-                  'assets/animations/pigeon.json',
-                  height: 180,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  "헤헤! 오늘 너랑 전화해서 너무 신났어!\n다음에도 또 같이 놀자~!",
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 300),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    minimumSize: const Size.fromHeight(50),
-                  ),
-                  onPressed: () {
-                    context.go("/child/call");
-                  },
-                  child: Text(
-                    "돌아갈래요!",
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+    return LayoutBuilder(builder: (context, constraints) {
+      return SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: IntrinsicHeight(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 50.0,horizontal: 20),
+              child: Column(
+                children: [
+                  Text(
+                    _duration == null
+                        ? "0분 0초"
+                        : "${_duration!.inMinutes}분 ${(_duration!.inSeconds % 60).toString().padLeft(2, '0')}초",
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: Colors.grey,
+                          fontSize: 60,
                         ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    "동안 대화해줘서 고마워!",
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 24),
+                  Lottie.asset(
+                    'assets/animations/pigeon.json',
+                    height: 180,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    "헤헤! 오늘 너랑 전화해서 너무 신났어!\n다음에도 또 같이 놀자~!",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 300),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      minimumSize: const Size.fromHeight(50),
+                    ),
+                    onPressed: () {
+                      context.go("/child/call");
+                    },
+                    child: Text(
+                      "돌아갈래요!",
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 
   @override

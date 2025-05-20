@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:inner_voice/core/constants/api/tts_api.dart';
 import 'package:inner_voice/logic/providers/character/character_img_provider.dart';
 import 'package:inner_voice/logic/providers/user/user_provider.dart';
 import 'package:path_provider/path_provider.dart';
@@ -99,6 +101,11 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
     /// AI 분석(음성 합성) 중 화면
     _fadeController.reset();
     _fadeController.forward();
+    await _sendTrainingRequest(
+      userId: userId,
+      characterId: characterId,
+      file: merged,
+    );
     await Future.delayed(const Duration(seconds: 4));
     setState(() => _state = VoiceResultState.requestingApi);
 
@@ -112,6 +119,29 @@ class _VoiceResultScreenState extends State<VoiceResultScreen>
     _fadeController.forward();
 
     /// 마지막 화면
+  }
+
+  Future<void> _sendTrainingRequest({
+    required String userId,
+    required String characterId,
+    required File file,
+  }) async {
+    final dio = Dio();
+    final url =  TtsAPI.createTTS;
+    try {
+      final formData = FormData.fromMap({
+        'user_id': userId,
+        'weight_name': characterId,
+        'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
+      });
+
+      final response = await dio.post(url, data: formData);
+
+      debugPrint('✅ 캐릭터 훈련 요청 완료: ${response.statusCode}');
+      debugPrint('📦 응답 내용: ${response.data}');
+    } catch (e) {
+      debugPrint('❌ 캐릭터 훈련 요청 실패: $e');
+    }
   }
 
   Future<void> _sendApiRequest() async {
