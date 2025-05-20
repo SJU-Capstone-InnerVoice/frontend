@@ -212,7 +212,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                       child: ListView.builder(
                         itemCount: filteredSummaries.length,
                         itemBuilder: (context, index) {
-                          final summary = filteredSummaries[index];
+                          final summary = filteredSummaries[filteredSummaries.length - 1 - index];
                           final start = summary.startAt;
                           final duration =
                               Duration(milliseconds: summary.duration);
