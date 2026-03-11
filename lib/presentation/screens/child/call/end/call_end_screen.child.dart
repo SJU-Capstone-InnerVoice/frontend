@@ -155,6 +155,7 @@ class _CallEndScreenState extends State<CallEndScreen> {
               padding: const EdgeInsets.symmetric(vertical: 50.0,horizontal: 20),
               child: Column(
                 children: [
+                  const SizedBox(height: 100),
                   Text(
                     _duration == null
                         ? "0분 0초"
@@ -184,7 +185,7 @@ class _CallEndScreenState extends State<CallEndScreen> {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  const SizedBox(height: 300),
+                  const SizedBox(height: 50),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,

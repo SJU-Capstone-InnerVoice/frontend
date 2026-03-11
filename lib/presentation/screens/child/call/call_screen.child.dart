@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:inner_voice/logic/providers/character/character_img_provider.dart';
 import 'package:inner_voice/services/web_rtc_service.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +22,7 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
   late final CallSessionProvider _callSession;
   late final WebRTCService _rtc;
   late final User _user;
-
+  int? _previousCharacterImageId;
   bool hasCallRequest = false;
 
   @override
@@ -117,8 +118,25 @@ class _CallScreenState extends State<CallScreen> with RouteAware {
                   ),
                   Consumer<CallRequestProvider>(
                     builder: (context, callRequest, _) {
+                      final currentId = callRequest.characterId;
+
                       final callExists =
                           (callRequest.id != null && !callRequest.isAccepted);
+                      if (currentId != null &&
+                          currentId != _previousCharacterImageId) {
+                        _previousCharacterImageId = currentId;
+
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          final parentId = context.read<CallRequestProvider>().parentId.toString();
+
+                          context
+                              .read<CharacterImgProvider>()
+                              .loadImagesFromServer(parentId.toString())
+                              .then((_) => debugPrint("✅ 캐릭터 이미지 로딩 완료"))
+                              .catchError(
+                                  (e) => debugPrint("❌ 캐릭터 이미지 로딩 실패: $e"));
+                        });
+                      }
                       if (callExists)
                         return Stack(
                           children: [

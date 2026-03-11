@@ -16,15 +16,27 @@ class _CallWaitingScreenState extends State<CallWaitingScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2));
-    final parentId = context.read<CallRequestProvider>().parentId.toString();
-    context.read<CharacterImgProvider>().loadImagesFromServer(parentId);
+    _initializeAndNavigate();
+  }
 
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        context.go('/child/call/start');
-      }
+  Future<void> _initializeAndNavigate() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    final parentId = context.read<CallRequestProvider>().parentId.toString();
+
+    await context
+        .read<CharacterImgProvider>()
+        .loadImagesFromServer(parentId)
+        .catchError((e) {
+      print("❌ 이미지 불러오기 실패: $e");
     });
+    print("parentID: 123" + parentId);
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (mounted) {
+      context.go('/child/call/start');
+    }
   }
 
   @override

@@ -56,8 +56,6 @@ class CharacterImgProvider extends ChangeNotifier {
   }
 
   Future<void> loadImagesFromServer(String userId) async {
-    if (_hasLoaded) return;
-    _hasLoaded = true;
 
     try {
       final String fetchUrl = CharacterImgApi.getCharacterImg(userId);

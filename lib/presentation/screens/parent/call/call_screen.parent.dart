@@ -27,6 +27,7 @@ class _CallScreenState extends State<CallScreen> {
   late final WebRTCService _rtc;
   late final User _user;
   String? selectedCharacter;
+  bool isCreating = false;
 
   @override
   void initState() {
@@ -56,30 +57,44 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   Future<void> createCallRequest(int characterId, int childId) async {
+    if (!mounted || isCreating) return;
+
     if (!mounted) return;
+    setState(() {
+      isCreating = true;
+    });
+    try {
+      _callRequest.setRoomId();
+      _callRequest.setCharacterId(characterId);
+      _callRequest.setChildId(childId);
+      _callRequest.setParentId(int.parse(_user.userId));
 
-    _callRequest.setRoomId();
-    _callRequest.setCharacterId(characterId);
-    _callRequest.setChildId(childId);
-    _callRequest.setParentId(int.parse(_user.userId));
-
-    await _callRequest.send();
-    await _rtc.init(
-      isCaller: true,
-      roomId: _callRequest.roomId!,
-      onMessage: (message) {
-        print("📩 받은 메시지: $message");
-      },
-      onDisconnected: () {
-        Future.microtask(() {
-          if (mounted && Navigator.of(context).canPop()) {
-            context.pop();
-          }
+      await _callRequest.send();
+      await _rtc.init(
+        isCaller: true,
+        roomId: _callRequest.roomId!,
+        onMessage: (message) {
+          print("📩 받은 메시지: $message");
+        },
+        onDisconnected: () {
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (mounted && Navigator.of(context).canPop()) {
+              context.pop();
+            }
+          });
+        },
+      );
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (mounted) context.push('/parent/call/waiting');
+    } catch (e) {
+      debugPrint('❌ 대화방 생성 실패: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isCreating = false;
         });
-      },
-    );
-    await Future.delayed(Duration(milliseconds: 100));
-    context.push('/parent/call/waiting');
+      }
+    }
   }
 
   @override
@@ -385,19 +400,32 @@ class _CallScreenState extends State<CallScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed:
-                        selectedCharacter == null || activeChildId == null
-                            ? null
-                            : () => createCallRequest(
-                                  int.parse(selectedCharacter!),
-                                  int.parse(activeChildId!),
-                                ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          selectedCharacter == null ? Colors.grey : null,
-                      minimumSize: const Size(double.infinity, 50),
+                    onPressed: (selectedCharacter == null || activeChildId == null || isCreating)
+                        ? null
+                        : () => createCallRequest(
+                      int.parse(selectedCharacter!),
+                      int.parse(activeChildId!),
                     ),
-                    child: const Text('대화방 생성'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: isCreating
+                        ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                        : const Text(
+                      '대화방 생성',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ],
               ),
